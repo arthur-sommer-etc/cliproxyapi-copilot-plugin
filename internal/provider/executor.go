@@ -252,10 +252,6 @@ func normalizeRequestFormat(value string) string {
 	}
 }
 
-func (s *Service) CountTokens() error {
-	return statusError("not_supported", "Copilot token counting is not exposed by this plugin", http.StatusNotImplemented)
-}
-
 func (s *Service) HTTP(ctx context.Context, req HTTPRequest) (pluginapi.ExecutorHTTPResponse, error) {
 	storage, errParse := parseStorage(req.StorageJSON)
 	if errParse != nil {
