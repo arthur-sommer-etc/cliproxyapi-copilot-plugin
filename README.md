@@ -102,6 +102,30 @@ plugin directory, merge the `cliproxyapi-copilot` entry into
 including the complete configuration block, are in
 [`docs/install-existing-deployment.md`](docs/install-existing-deployment.md).
 
+## CI and releases
+
+Every push and pull request runs the Go tests and builds a production-compatible
+Linux `amd64` marketplace package. Pushes do not publish releases.
+
+To publish a marketplace-compatible release, create and push a dotted numeric
+version tag:
+
+```sh
+git tag v0.3.1
+git push origin v0.3.1
+```
+
+The release workflow builds with the tag version embedded in plugin metadata
+and publishes:
+
+```text
+cliproxyapi-copilot_0.3.1_linux_amd64.zip
+checksums.txt
+```
+
+The ZIP contains only `cliproxyapi-copilot.so` at its root, matching the
+official CLIProxyAPI Plugins Store requirements.
+
 ## Isolated deployment
 
 ```sh

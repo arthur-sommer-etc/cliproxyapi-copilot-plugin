@@ -12,6 +12,7 @@ import (
 )
 
 var pluginService = provider.New(hostTransport{})
+var pluginVersion = "0.3.0"
 
 type lifecycleRequest struct {
 	ConfigYAML []byte `json:"config_yaml"`
@@ -158,7 +159,7 @@ func pluginRegistration() registration {
 		SchemaVersion: pluginabi.SchemaVersion,
 		Metadata: pluginapi.Metadata{
 			Name:             "GitHub Copilot subscription provider",
-			Version:          "0.3.0",
+			Version:          pluginVersion,
 			Author:           "self-owned",
 			GitHubRepository: "https://github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin",
 			ConfigFields: []pluginapi.ConfigField{

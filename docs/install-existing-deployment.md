@@ -150,8 +150,10 @@ The result should include Copilot models such as `gpt-5.6-sol` and
 
 ## Updating or removing the plugin
 
-To update, build the new revision, replace only
-`cliproxyapi-copilot.so`, and restart CLIProxyAPI.
+Version tags automatically publish marketplace-compatible packages. To update
+from a release, verify the archive against `checksums.txt`, extract
+`cliproxyapi-copilot.so`, replace the installed library, and restart
+CLIProxyAPI.
 
 To disable it without deleting credentials:
 

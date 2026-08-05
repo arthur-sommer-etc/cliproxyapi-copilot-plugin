@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]*.[0-9]*.[0-9]*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate release tag
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=${GITHUB_REF_NAME#v}
+          if [[ ! "$version" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
+            echo "Invalid release tag: $GITHUB_REF_NAME" >&2
+            exit 1
+          fi
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Run tests
+        run: |
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            -e HOME=/src/.cache/home \
+            -e GOCACHE=/src/.cache/go-build \
+            -e GOMODCACHE=/src/.cache/go-mod \
+            -v "$PWD:/src" \
+            -w /src \
+            golang:1.26-bookworm \
+            go test ./...
+
+      - name: Build marketplace package
+        run: make package VERSION=${{ steps.version.outputs.value }}
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            dist/cliproxyapi-copilot_${{ steps.version.outputs.value }}_linux_amd64.zip \
+            dist/checksums.txt \
+            --verify-tag \
+            --generate-notes \
+            --title "$GITHUB_REF_NAME"
