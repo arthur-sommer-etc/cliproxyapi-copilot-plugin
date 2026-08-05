@@ -15,7 +15,7 @@ if command -v curl >/dev/null 2>&1; then
   code=$(
     curl --silent --show-error --output /dev/null --write-out '%{http_code}' \
       --max-time 5 \
-      -H "Authorization: Bearer $CLIPROXY_API_KEY" \
+      -H "Authorization: Bearer $CLIPROXYAPI_API_KEY" \
       "http://127.0.0.1:$HOST_PORT/v1/models" || true
   )
   if [ "$code" = "200" ]; then

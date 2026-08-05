@@ -10,9 +10,9 @@ subscription OAuth support.
 
 The existing deployment is not reused or changed. This stack uses only:
 
-- container/project: `cliproxy-official-copilot-dev`
+- container/project: `cliproxyapi-official-copilot-dev`
 - host address: `127.0.0.1:8417`
-- auth volume: `cliproxy_official_copilot_dev_home`
+- auth volume: `cliproxyapi_official_copilot_dev_home`
 - repository-local config and plugin bind mounts
 - image: `eceasy/cli-proxy-api:7.2.118`
 
@@ -26,7 +26,7 @@ and creates a local equivalent tag. Compose remains pinned to
 
 ## Architecture
 
-`cmd/cliproxy-copilot` implements ABI version 1 and registration schema 2 using
+`cmd/cliproxyapi-copilot` implements ABI version 1 and registration schema 2 using
 the official `sdk/pluginabi` and `sdk/pluginapi` contracts. It registers:
 
 - `AuthProvider`: GitHub device-code OAuth and host-owned credential storage
@@ -84,7 +84,7 @@ make build
 The loader artifact is:
 
 ```text
-build/plugins/linux/amd64/cliproxy-copilot.so
+build/plugins/linux/amd64/cliproxyapi-copilot.so
 ```
 
 `make build-local` exists for development, but a binary built on a newer host
@@ -101,7 +101,7 @@ scripts/status.sh
 
 Bootstrap generates `.runtime/secrets.env` and `.runtime/config.yaml` with mode
 0600. CLIProxyAPI does not expand environment variables in `api-keys`, so the
-bootstrap script replaces the inert `__CLIPROXY_API_KEY__` template locally.
+bootstrap script replaces the inert `__CLIPROXYAPI_API_KEY__` template locally.
 The management key is passed through the officially supported
 `MANAGEMENT_PASSWORD` environment variable. Generated files are ignored by Git.
 
@@ -120,7 +120,7 @@ Read a generated secret only when needed:
 
 ```sh
 sed -n 's/^MANAGEMENT_PASSWORD=//p' .runtime/secrets.env
-sed -n 's/^CLIPROXY_API_KEY=//p' .runtime/secrets.env
+sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/secrets.env
 ```
 
 ### GitHub Copilot device login
@@ -171,7 +171,7 @@ copying or reusing any existing Claude credential.
 After authenticating Copilot:
 
 ```sh
-API_KEY=$(sed -n 's/^CLIPROXY_API_KEY=//p' .runtime/secrets.env)
+API_KEY=$(sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/secrets.env)
 curl -H "Authorization: Bearer $API_KEY" \
   http://127.0.0.1:8417/v1/models
 ```
@@ -262,7 +262,7 @@ scripts/down.sh
 new stack's credentials after it is down:
 
 ```sh
-docker volume rm cliproxy_official_copilot_dev_home
+docker volume rm cliproxyapi_official_copilot_dev_home
 rm -rf .runtime build .cache
 ```
 

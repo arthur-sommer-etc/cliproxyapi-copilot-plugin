@@ -1,6 +1,6 @@
 GO_IMAGE ?= golang:1.26-bookworm
 PLUGIN_DIR := build/plugins/linux/amd64
-PLUGIN_SO := $(PLUGIN_DIR)/cliproxy-copilot.so
+PLUGIN_SO := $(PLUGIN_DIR)/cliproxyapi-copilot.so
 CACHE_DIR := .cache
 
 .PHONY: test build build-local clean
@@ -18,11 +18,11 @@ build:
 		-v "$(CURDIR):/src" \
 		-w /src \
 		$(GO_IMAGE) \
-		sh -ec 'CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -buildvcs=false -trimpath -buildmode=c-shared -o $(PLUGIN_SO) ./cmd/cliproxy-copilot'
+		sh -ec 'CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -buildvcs=false -trimpath -buildmode=c-shared -o $(PLUGIN_SO) ./cmd/cliproxyapi-copilot'
 
 build-local:
 	mkdir -p $(PLUGIN_DIR)
-	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -buildvcs=false -trimpath -buildmode=c-shared -o $(PLUGIN_SO) ./cmd/cliproxy-copilot
+	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -buildvcs=false -trimpath -buildmode=c-shared -o $(PLUGIN_SO) ./cmd/cliproxyapi-copilot
 
 clean:
 	rm -rf build $(CACHE_DIR)

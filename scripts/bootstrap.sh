@@ -21,14 +21,14 @@ random_hex() {
 if [ ! -f "$ENV_FILE" ]; then
   {
     printf 'MANAGEMENT_PASSWORD=%s\n' "$(random_hex)"
-    printf 'CLIPROXY_API_KEY=%s\n' "$(random_hex)"
+    printf 'CLIPROXYAPI_API_KEY=%s\n' "$(random_hex)"
   } >"$ENV_FILE"
   chmod 600 "$ENV_FILE"
 fi
 
 load_secrets
 
-sed "s/__CLIPROXY_API_KEY__/$CLIPROXY_API_KEY/g" \
+sed "s/__CLIPROXYAPI_API_KEY__/$CLIPROXYAPI_API_KEY/g" \
   "$REPO_DIR/config/config.yaml" >"$REPO_DIR/.runtime/config.yaml"
 chmod 600 "$REPO_DIR/.runtime/config.yaml"
 

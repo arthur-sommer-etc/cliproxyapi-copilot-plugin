@@ -18,7 +18,7 @@ remote-management:
 auth-dir: "/root/.cli-proxy-api"
 
 api-keys:
-  - "__CLIPROXY_API_KEY__"
+  - "__CLIPROXYAPI_API_KEY__"
 
 debug: false
 logging-to-file: false
@@ -32,7 +32,7 @@ plugins:
   enabled: true
   dir: "plugins"
   configs:
-    cliproxy-copilot:
+    cliproxyapi-copilot:
       enabled: true
       priority: 100
       github_client_id: "Iv1.b507a08c87ecfe98"

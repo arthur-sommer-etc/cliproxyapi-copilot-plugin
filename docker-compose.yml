@@ -1,10 +1,10 @@
-name: cliproxy-official-copilot-dev
+name: cliproxyapi-official-copilot-dev
 
 services:
-  cliproxy:
+  cliproxyapi:
     image: eceasy/cli-proxy-api:7.2.118
     pull_policy: missing
-    container_name: cliproxy-official-copilot-dev
+    container_name: cliproxyapi-official-copilot-dev
     restart: unless-stopped
     environment:
       MANAGEMENT_PASSWORD: ${MANAGEMENT_PASSWORD:?run scripts/bootstrap.sh first}
@@ -15,10 +15,10 @@ services:
       - ./.runtime/config.yaml:/CLIProxyAPI/config.yaml:ro
       - ./build/plugins:/CLIProxyAPI/plugins:ro
       - ./logs:/CLIProxyAPI/logs
-      - cliproxy-home:/root/.cli-proxy-api
+      - cliproxyapi-home:/root/.cli-proxy-api
     security_opt:
       - no-new-privileges:true
 
 volumes:
-  cliproxy-home:
-    name: cliproxy_official_copilot_dev_home
+  cliproxyapi-home:
+    name: cliproxyapi_official_copilot_dev_home

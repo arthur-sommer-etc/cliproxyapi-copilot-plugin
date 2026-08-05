@@ -13,7 +13,7 @@ Claude Code
     v
 official CLIProxyAPI
     |-- built-in Claude OAuth ------> Anthropic subscription
-    `-- cliproxy-copilot plugin ----> GitHub Copilot subscription
+    `-- cliproxyapi-copilot plugin -> GitHub Copilot subscription
                                       (OpenAI Responses or Chat Completions)
 ```
 
@@ -53,7 +53,7 @@ Bootstrap generates two local secrets:
 
 They are stored in `.runtime/secrets.env` with mode `0600` and are ignored by
 Git. OAuth credentials are stored in the Docker volume
-`cliproxy_official_copilot_dev_home`.
+`cliproxyapi_official_copilot_dev_home`.
 
 Open the management center:
 
@@ -121,7 +121,7 @@ successful.
 Read the generated API key:
 
 ```bash
-API_KEY=$(sed -n 's/^CLIPROXY_API_KEY=//p' .runtime/secrets.env)
+API_KEY=$(sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/secrets.env)
 ```
 
 List all models:
@@ -250,7 +250,7 @@ Rebuild after updating the repository:
 git pull
 make test
 make build
-docker restart cliproxy-official-copilot-dev
+docker restart cliproxyapi-official-copilot-dev
 scripts/status.sh
 ```
 
@@ -264,7 +264,7 @@ Permanently remove this deployment and its credentials:
 
 ```bash
 scripts/down.sh
-docker volume rm cliproxy_official_copilot_dev_home
+docker volume rm cliproxyapi_official_copilot_dev_home
 rm -rf .runtime build .cache logs
 ```
 
@@ -295,7 +295,7 @@ curl -fsS \
   http://127.0.0.1:8417/v0/management/plugins
 ```
 
-The `cliproxy-copilot` plugin should be registered and enabled. Re-run Copilot
+The `cliproxyapi-copilot` plugin should be registered and enabled. Re-run Copilot
 device login if no Copilot auth file exists.
 
 ### Claude Code does not show all models
