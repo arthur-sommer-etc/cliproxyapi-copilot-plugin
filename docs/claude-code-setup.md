@@ -145,6 +145,10 @@ The list should include models from both subscriptions, including:
 - `claude-opus-5`
 - `claude-sonnet-5`
 
+The included configuration excludes `claude-*` from the Copilot plugin's
+catalog. This prevents duplicate Claude model IDs from being scheduled through
+Copilot instead of CLIProxyAPI's native Claude subscription provider.
+
 Test Copilot through the Responses API:
 
 ```bash

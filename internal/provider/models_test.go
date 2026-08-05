@@ -87,3 +87,25 @@ func TestNormalizeModelsAddsResponsesMetadata(t *testing.T) {
 		t.Fatalf("model metadata omits image support: %#v", info.SupportedInputModalities)
 	}
 }
+
+func TestFilterModelsExcludesConfiguredPrefixes(t *testing.T) {
+	t.Parallel()
+
+	models := filterModels([]upstreamModel{
+		{ID: "gpt-5.6-sol"},
+		{ID: "claude-sonnet-5"},
+		{ID: "Claude-Haiku-4.5"},
+	}, []string{"claude-"})
+	if len(models) != 1 || models[0].ID != "gpt-5.6-sol" {
+		t.Fatalf("filtered models = %#v", models)
+	}
+}
+
+func TestNormalizeModelPrefixes(t *testing.T) {
+	t.Parallel()
+
+	got := normalizeModelPrefixes([]string{" Claude- ", "claude-", "", "GPT-"})
+	if len(got) != 2 || got[0] != "claude-" || got[1] != "gpt-" {
+		t.Fatalf("normalized prefixes = %#v", got)
+	}
+}

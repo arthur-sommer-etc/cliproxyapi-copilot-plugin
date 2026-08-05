@@ -85,6 +85,7 @@ plugins:
       oauth_timeout_seconds: 900
       model_cache_ttl_seconds: 600
       token_expiry_buffer_seconds: 300
+      excluded_model_prefixes: []
 ```
 
 For the Docker mount above, use:
@@ -102,6 +103,17 @@ present under `plugins.configs`. Global `plugins.enabled` and the individual
 The existing `auth-dir` must be writable and persistent. The plugin stores its
 GitHub OAuth credential through CLIProxyAPI's normal auth storage; it does not
 need a separate credential volume.
+
+If the deployment also uses CLIProxyAPI's native Claude subscription provider,
+prevent duplicate Claude model IDs from being scheduled through Copilot:
+
+```yaml
+plugins:
+  configs:
+    cliproxyapi-copilot:
+      excluded_model_prefixes:
+        - "claude-"
+```
 
 ## 4. Restart and authenticate
 

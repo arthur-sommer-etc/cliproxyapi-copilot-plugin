@@ -12,7 +12,7 @@ import (
 )
 
 var pluginService = provider.New(hostTransport{})
-var pluginVersion = "0.3.2"
+var pluginVersion = "0.3.3"
 
 type lifecycleRequest struct {
 	ConfigYAML []byte `json:"config_yaml"`
@@ -175,6 +175,7 @@ func pluginRegistration() registration {
 				{Name: "oauth_timeout_seconds", Type: pluginapi.ConfigFieldTypeInteger, Description: "Maximum device-code lifetime accepted by the plugin."},
 				{Name: "model_cache_ttl_seconds", Type: pluginapi.ConfigFieldTypeInteger, Description: "In-memory Copilot model catalog cache lifetime."},
 				{Name: "token_expiry_buffer_seconds", Type: pluginapi.ConfigFieldTypeInteger, Description: "Refresh Copilot API tokens this long before expiration."},
+				{Name: "excluded_model_prefixes", Type: pluginapi.ConfigFieldTypeArray, Description: "Case-insensitive model ID prefixes omitted from Copilot discovery to prevent collisions with native providers."},
 			},
 		},
 		Capabilities: registrationCapability{

@@ -17,16 +17,17 @@ const (
 )
 
 type Config struct {
-	Enabled                  bool   `yaml:"enabled"`
-	GitHubClientID           string `yaml:"github_client_id"`
-	GitHubScope              string `yaml:"github_scope"`
-	GitHubBaseURL            string `yaml:"github_base_url"`
-	GitHubAPIURL             string `yaml:"github_api_url"`
-	CopilotAPIURL            string `yaml:"copilot_api_url"`
-	AllowInsecureBaseURLs    bool   `yaml:"allow_insecure_base_urls"`
-	OAuthTimeoutSeconds      int    `yaml:"oauth_timeout_seconds"`
-	ModelCacheTTLSeconds     int    `yaml:"model_cache_ttl_seconds"`
-	TokenExpiryBufferSeconds int    `yaml:"token_expiry_buffer_seconds"`
+	Enabled                  bool     `yaml:"enabled"`
+	GitHubClientID           string   `yaml:"github_client_id"`
+	GitHubScope              string   `yaml:"github_scope"`
+	GitHubBaseURL            string   `yaml:"github_base_url"`
+	GitHubAPIURL             string   `yaml:"github_api_url"`
+	CopilotAPIURL            string   `yaml:"copilot_api_url"`
+	AllowInsecureBaseURLs    bool     `yaml:"allow_insecure_base_urls"`
+	OAuthTimeoutSeconds      int      `yaml:"oauth_timeout_seconds"`
+	ModelCacheTTLSeconds     int      `yaml:"model_cache_ttl_seconds"`
+	TokenExpiryBufferSeconds int      `yaml:"token_expiry_buffer_seconds"`
+	ExcludedModelPrefixes    []string `yaml:"excluded_model_prefixes"`
 }
 
 func DefaultConfig() Config {
@@ -55,9 +56,11 @@ func ParseConfig(raw []byte) (Config, error) {
 	cfg.GitHubBaseURL = strings.TrimRight(strings.TrimSpace(cfg.GitHubBaseURL), "/")
 	cfg.GitHubAPIURL = strings.TrimRight(strings.TrimSpace(cfg.GitHubAPIURL), "/")
 	cfg.CopilotAPIURL = strings.TrimRight(strings.TrimSpace(cfg.CopilotAPIURL), "/")
+	cfg.ExcludedModelPrefixes = normalizeModelPrefixes(cfg.ExcludedModelPrefixes)
 	if cfg.GitHubClientID == "" {
 		return Config{}, fmt.Errorf("github_client_id is required")
 	}
+
 	for name, value := range map[string]string{
 		"github_base_url": cfg.GitHubBaseURL,
 		"github_api_url":  cfg.GitHubAPIURL,
@@ -77,6 +80,23 @@ func ParseConfig(raw []byte) (Config, error) {
 		return Config{}, fmt.Errorf("token_expiry_buffer_seconds must be between 30 and 900")
 	}
 	return cfg, nil
+}
+
+func normalizeModelPrefixes(prefixes []string) []string {
+	seen := make(map[string]struct{}, len(prefixes))
+	out := make([]string, 0, len(prefixes))
+	for _, prefix := range prefixes {
+		prefix = strings.ToLower(strings.TrimSpace(prefix))
+		if prefix == "" {
+			continue
+		}
+		if _, exists := seen[prefix]; exists {
+			continue
+		}
+		seen[prefix] = struct{}{}
+		out = append(out, prefix)
+	}
+	return out
 }
 
 func validateBaseURL(raw string, allowInsecure bool) error {

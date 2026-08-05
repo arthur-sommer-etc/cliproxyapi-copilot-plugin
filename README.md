@@ -53,6 +53,9 @@ official built-in translators. Responses-only models use the custom Claude
 bridge; `gpt-5.6-sol` and `gpt-5.6-terra` are always routed to `/responses`.
 Claude token-count requests are estimated locally with the same O200k tokenizer
 approach used by CLIProxyAPI for translated Claude requests.
+Copilot model prefixes can be excluded from discovery to avoid collisions with
+native providers; the included dual-subscription deployment excludes
+`claude-*` so native Claude OAuth always owns those model IDs.
 
 ## Authentication and token handling
 

@@ -47,6 +47,9 @@ func (s *Service) Configure(raw []byte) error {
 	s.configMu.Lock()
 	s.config = cfg
 	s.configMu.Unlock()
+	s.modelMu.Lock()
+	clear(s.modelEntries)
+	s.modelMu.Unlock()
 	return nil
 }
 

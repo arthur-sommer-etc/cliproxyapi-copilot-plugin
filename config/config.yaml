@@ -43,3 +43,5 @@ plugins:
       oauth_timeout_seconds: 900
       model_cache_ttl_seconds: 600
       token_expiry_buffer_seconds: 300
+      excluded_model_prefixes:
+        - "claude-"
