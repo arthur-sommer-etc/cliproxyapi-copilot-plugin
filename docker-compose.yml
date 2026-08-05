@@ -10,7 +10,7 @@ services:
       MANAGEMENT_PASSWORD: ${MANAGEMENT_PASSWORD:?run scripts/bootstrap.sh first}
       TZ: UTC
     ports:
-      - "127.0.0.1:8417:8317"
+      - "127.0.0.1:8317:8317"
     volumes:
       - ./.runtime/config.yaml:/CLIProxyAPI/config.yaml:ro
       - ./build/plugins:/CLIProxyAPI/plugins:ro

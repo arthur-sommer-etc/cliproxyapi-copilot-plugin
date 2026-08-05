@@ -4,7 +4,7 @@ set -eu
 PROJECT_NAME="cliproxyapi-official-copilot-dev"
 CONTAINER_NAME="cliproxyapi-official-copilot-dev"
 VOLUME_NAME="cliproxyapi_official_copilot_dev_home"
-HOST_PORT="8417"
+HOST_PORT="8317"
 RUNTIME_IMAGE="eceasy/cli-proxy-api:7.2.118"
 PUBLISHED_RUNTIME_IMAGE="eceasy/cli-proxy-api:v7.2.118"
 
@@ -23,16 +23,16 @@ require_layout() {
   [ "$PROJECT_NAME" = "cliproxyapi-official-copilot-dev" ] || die "unsafe project name"
   [ "$CONTAINER_NAME" = "cliproxyapi-official-copilot-dev" ] || die "unsafe container name"
   [ "$VOLUME_NAME" = "cliproxyapi_official_copilot_dev_home" ] || die "unsafe volume name"
-  [ "$HOST_PORT" = "8417" ] || die "unsafe host port"
+  [ "$HOST_PORT" = "8317" ] || die "unsafe host port"
 
-  # Container port 8317 is required by the pinned image; reject it only when it
-  # appears in the host-port position.
-  grep -Eq "^[[:space:]]*-[[:space:]]*[\"']?((127\\.0\\.0\\.1|0\\.0\\.0\\.0|\\[::\\]):)?(8317|3458):" "$COMPOSE_FILE" &&
-    die "compose file maps a forbidden host port"
+  grep -Eq "^[[:space:]]*-[[:space:]]*[\"']?((0\\.0\\.0\\.0|\\[::\\]):)?(8317|3458):" "$COMPOSE_FILE" &&
+    die "compose file exposes a forbidden host binding"
+  grep -Eq "^[[:space:]]*-[[:space:]]*[\"']?([^\"']*:)?3458:" "$COMPOSE_FILE" &&
+    die "compose file maps the retired CCR port"
   grep -q 'ccs_home' "$COMPOSE_FILE" &&
     die "compose file references a forbidden volume"
-  grep -q '127.0.0.1:8417:8317' "$COMPOSE_FILE" ||
-    die "compose file must publish only 127.0.0.1:8417"
+  grep -q '127.0.0.1:8317:8317' "$COMPOSE_FILE" ||
+    die "compose file must publish only 127.0.0.1:8317"
   grep -q 'cliproxyapi_official_copilot_dev_home' "$COMPOSE_FILE" ||
     die "compose file does not use the isolated volume"
 }

@@ -8,15 +8,15 @@ Initial, self-owned GitHub Copilot subscription provider for the official
 strictly isolated Docker deployment that retains CLIProxyAPI's built-in Claude
 subscription OAuth support.
 
-The existing deployment is not reused or changed. This stack uses only:
+This stack uses only:
 
 - container/project: `cliproxyapi-official-copilot-dev`
-- host address: `127.0.0.1:8417`
+- host address: `127.0.0.1:8317`
 - auth volume: `cliproxyapi_official_copilot_dev_home`
 - repository-local config and plugin bind mounts
 - image: `eceasy/cli-proxy-api:7.2.118`
 
-It does not map ports 8317, 3458, or 54545 on the host.
+It does not map ports 3458 or 54545 on the host.
 
 Docker Hub currently publishes this release as `v7.2.118` rather than the
 unprefixed tag required by this deployment. `up.sh` first tries the configured
@@ -113,7 +113,7 @@ the host port binding remains the external security boundary.
 Open the management UI at:
 
 ```text
-http://127.0.0.1:8417/management.html
+http://127.0.0.1:8317/management.html
 ```
 
 Read a generated secret only when needed:
@@ -134,10 +134,10 @@ Equivalent API flow:
 ```sh
 MGMT=$(sed -n 's/^MANAGEMENT_PASSWORD=//p' .runtime/secrets.env)
 curl -H "Authorization: Bearer $MGMT" \
-  http://127.0.0.1:8417/v0/management/copilot-auth-url
+  http://127.0.0.1:8317/v0/management/copilot-auth-url
 # Open the returned URL. Then poll no faster than every five seconds:
 curl -H "Authorization: Bearer $MGMT" \
-  "http://127.0.0.1:8417/v0/management/get-auth-status?state=RETURNED_STATE"
+  "http://127.0.0.1:8317/v0/management/get-auth-status?state=RETURNED_STATE"
 ```
 
 No OAuth command is run by bootstrap or startup scripts.
@@ -160,7 +160,7 @@ curl -X POST \
   -H "Authorization: Bearer $MGMT" \
   -H 'Content-Type: application/json' \
   -d '{"provider":"anthropic","redirect_url":"PASTE_FINAL_REDIRECT_URL"}' \
-  http://127.0.0.1:8417/v0/management/oauth-callback
+  http://127.0.0.1:8317/v0/management/oauth-callback
 ```
 
 Then poll `/v0/management/get-auth-status?state=RETURNED_STATE`. This avoids
@@ -173,13 +173,13 @@ After authenticating Copilot:
 ```sh
 API_KEY=$(sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/secrets.env)
 curl -H "Authorization: Bearer $API_KEY" \
-  http://127.0.0.1:8417/v1/models
+  http://127.0.0.1:8317/v1/models
 ```
 
 Responses request:
 
 ```sh
-curl http://127.0.0.1:8417/v1/responses \
+curl http://127.0.0.1:8317/v1/responses \
   -H "Authorization: Bearer $API_KEY" \
   -H 'Content-Type: application/json' \
   -d '{"model":"gpt-5.6-sol","input":"Reply with ok."}'
@@ -188,7 +188,7 @@ curl http://127.0.0.1:8417/v1/responses \
 Claude Messages request:
 
 ```sh
-curl http://127.0.0.1:8417/v1/messages \
+curl http://127.0.0.1:8317/v1/messages \
   -H "x-api-key: $API_KEY" \
   -H 'anthropic-version: 2023-06-01' \
   -H 'Content-Type: application/json' \
@@ -207,8 +207,8 @@ scripts/claude.sh
 ```
 
 It reads the isolated API key from `.runtime/secrets.env`, points Claude Code at
-`http://127.0.0.1:8417`, and excludes global Claude settings so the existing CCR
-deployment cannot be selected accidentally. Its aliases are:
+`http://127.0.0.1:8317`, and excludes global Claude settings so only the
+repository launcher configuration is used. Its aliases are:
 
 - default: `gpt-5.6-sol`
 - Opus: `gpt-5.6-sol`

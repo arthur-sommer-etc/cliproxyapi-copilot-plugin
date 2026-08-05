@@ -16,8 +16,8 @@ ensure_runtime_image
 # inspect unrelated containers.
 if ! compose ps --status running --services 2>/dev/null | grep -qx 'cliproxyapi'; then
   command -v python3 >/dev/null 2>&1 ||
-    die "python3 is required to verify that host port 8417 is unused"
-  python3 - "$HOST_PORT" <<'PY' || die "host port 8417 is already in use"
+    die "python3 is required to verify that host port 8317 is unused"
+  python3 - "$HOST_PORT" <<'PY' || die "host port 8317 is already in use"
 import socket
 import sys
 

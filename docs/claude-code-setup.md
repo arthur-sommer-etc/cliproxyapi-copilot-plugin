@@ -30,7 +30,7 @@ Claude Code.
 - An active Claude subscription
 - An active GitHub Copilot subscription
 
-The Compose stack binds only to `127.0.0.1:8417`, so it is not reachable from
+The Compose stack binds only to `127.0.0.1:8317`, so it is not reachable from
 other machines by default.
 
 ## 1. Clone and bootstrap
@@ -58,7 +58,7 @@ Git. OAuth credentials are stored in the Docker volume
 Open the management center:
 
 ```text
-http://127.0.0.1:8417/management.html
+http://127.0.0.1:8317/management.html
 ```
 
 Retrieve the management password when the UI asks for it:
@@ -87,7 +87,7 @@ MGMT=$(sed -n 's/^MANAGEMENT_PASSWORD=//p' .runtime/secrets.env)
 
 curl -fsS \
   -H "Authorization: Bearer $MGMT" \
-  http://127.0.0.1:8417/v0/management/auth-files
+  http://127.0.0.1:8317/v0/management/auth-files
 ```
 
 ## 3. Authenticate the Claude subscription
@@ -110,7 +110,7 @@ curl -fsS -X POST \
   -H "Authorization: Bearer $MGMT" \
   -H 'Content-Type: application/json' \
   -d "{\"provider\":\"anthropic\",\"redirect_url\":\"$REDIRECT_URL\"}" \
-  http://127.0.0.1:8417/v0/management/oauth-callback
+  http://127.0.0.1:8317/v0/management/oauth-callback
 ```
 
 Return to the management center and wait for the login status to become
@@ -129,7 +129,7 @@ List all models:
 ```bash
 curl -fsS \
   -H "Authorization: Bearer $API_KEY" \
-  http://127.0.0.1:8417/v1/models
+  http://127.0.0.1:8317/v1/models
 ```
 
 The list should include models from both subscriptions, including:
@@ -143,7 +143,7 @@ The list should include models from both subscriptions, including:
 Test Copilot through the Responses API:
 
 ```bash
-curl -fsS http://127.0.0.1:8417/v1/responses \
+curl -fsS http://127.0.0.1:8317/v1/responses \
   -H "Authorization: Bearer $API_KEY" \
   -H 'Content-Type: application/json' \
   -d '{"model":"gpt-5.6-sol","input":"Reply exactly: copilot-ok","max_output_tokens":16}'
@@ -152,7 +152,7 @@ curl -fsS http://127.0.0.1:8417/v1/responses \
 Test Claude through the Messages API:
 
 ```bash
-curl -fsS http://127.0.0.1:8417/v1/messages \
+curl -fsS http://127.0.0.1:8317/v1/messages \
   -H "x-api-key: $API_KEY" \
   -H 'anthropic-version: 2023-06-01' \
   -H 'Content-Type: application/json' \
@@ -183,7 +183,7 @@ path if the repository was cloned elsewhere:
 ```json
 {
   "env": {
-    "ANTHROPIC_BASE_URL": "http://127.0.0.1:8417",
+    "ANTHROPIC_BASE_URL": "http://127.0.0.1:8317",
     "ANTHROPIC_MODEL": "gpt-5.6-sol",
     "ANTHROPIC_DEFAULT_FABLE_MODEL": "claude-fable-5",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "gpt-5.6-sol",
@@ -292,7 +292,7 @@ MGMT=$(sed -n 's/^MANAGEMENT_PASSWORD=//p' .runtime/secrets.env)
 
 curl -fsS \
   -H "Authorization: Bearer $MGMT" \
-  http://127.0.0.1:8417/v0/management/plugins
+  http://127.0.0.1:8317/v0/management/plugins
 ```
 
 The `cliproxyapi-copilot` plugin should be registered and enabled. Re-run Copilot
@@ -327,7 +327,7 @@ Restart the isolated container and inspect `logs/`. Return the settings to
 
 - The plugin is a trusted in-process shared library. Review and build it from
   source.
-- Keep port `8417` bound to `127.0.0.1` unless TLS, network controls, and
+- Keep port `8317` bound to `127.0.0.1` unless TLS, network controls, and
   stronger operational protections are added.
 - Never commit `.runtime/`, OAuth files, logs, callback URLs, API keys, or
   management passwords.
