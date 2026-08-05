@@ -1,5 +1,7 @@
 # CLIProxyAPI GitHub Copilot plugin
 
+Licensed under the [MIT License](LICENSE).
+
 For an end-to-end deployment and Claude Code configuration walkthrough, see
 [`docs/claude-code-setup.md`](docs/claude-code-setup.md).
 
