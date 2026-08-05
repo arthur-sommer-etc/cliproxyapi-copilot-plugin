@@ -3,6 +3,9 @@
 For an end-to-end deployment and Claude Code configuration walkthrough, see
 [`docs/claude-code-setup.md`](docs/claude-code-setup.md).
 
+To add only the plugin to an existing CLIProxyAPI installation, see
+[`docs/install-existing-deployment.md`](docs/install-existing-deployment.md).
+
 Initial, self-owned GitHub Copilot subscription provider for the official
 `router-for-me/CLIProxyAPI` v7.2.118 plugin ABI. The repository also defines a
 strictly isolated Docker deployment that retains CLIProxyAPI's built-in Claude
@@ -89,6 +92,15 @@ build/plugins/linux/amd64/cliproxyapi-copilot.so
 
 `make build-local` exists for development, but a binary built on a newer host
 glibc may not load in the Bookworm container.
+
+## Existing CLIProxyAPI deployment
+
+The plugin can be installed without using this repository's Compose stack.
+Build `cliproxyapi-copilot.so`, place it under the deployment's configured
+plugin directory, merge the `cliproxyapi-copilot` entry into
+`plugins.configs`, and restart CLIProxyAPI. Native and Docker instructions,
+including the complete configuration block, are in
+[`docs/install-existing-deployment.md`](docs/install-existing-deployment.md).
 
 ## Isolated deployment
 

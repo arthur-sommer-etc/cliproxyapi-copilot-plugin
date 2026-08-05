@@ -33,6 +33,11 @@ Claude Code.
 The Compose stack binds only to `127.0.0.1:8317`, so it is not reachable from
 other machines by default.
 
+This guide creates the repository's complete Compose stack. If CLIProxyAPI is
+already deployed, install only the plugin using
+[`install-existing-deployment.md`](install-existing-deployment.md), then resume
+here at **Authenticate GitHub Copilot**.
+
 ## 1. Clone and bootstrap
 
 ```bash
