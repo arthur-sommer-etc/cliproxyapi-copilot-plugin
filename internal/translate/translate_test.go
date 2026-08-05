@@ -189,15 +189,23 @@ data: {"type":"response.content_part.added","item_id":"msg_1","output_index":0,"
 
 `),
 		[]byte(`event: response.output_text.delta
-data: {"type":"response.output_text.delta","item_id":"msg_1","output_index":0,"content_index":0,"delta":"pong"}
+data: {"type":"response.output_text.delta","item_id":"msg_1","output_index":0,"content_index":0,"delta":"one"}
+
+`),
+		[]byte(`event: response.output_text.delta
+data: {"type":"response.output_text.delta","item_id":"msg_1","output_index":0,"content_index":0,"delta":" two"}
+
+`),
+		[]byte(`event: response.output_text.delta
+data: {"type":"response.output_text.delta","item_id":"msg_1","output_index":0,"content_index":0,"delta":" three"}
 
 `),
 		[]byte(`event: response.content_part.done
-data: {"type":"response.content_part.done","item_id":"msg_1","output_index":0,"content_index":0,"part":{"type":"output_text","text":"pong"}}
+data: {"type":"response.content_part.done","item_id":"msg_1","output_index":0,"content_index":0,"part":{"type":"output_text","text":"one two three"}}
 
 `),
 		[]byte(`event: response.completed
-data: {"type":"response.completed","response":{"id":"resp_1","status":"completed","model":"gpt-5.6-sol","output":[{"id":"msg_1","type":"message","role":"assistant","content":[{"type":"output_text","text":"pong"}]}],"usage":{"input_tokens":2,"output_tokens":1,"total_tokens":3}}}
+data: {"type":"response.completed","response":{"id":"resp_1","status":"completed","model":"gpt-5.6-sol","output":[{"id":"msg_1","type":"message","role":"assistant","content":[{"type":"output_text","text":"one two three"}]}],"usage":{"input_tokens":2,"output_tokens":3,"total_tokens":5}}}
 
 `),
 	}
@@ -217,9 +225,11 @@ data: {"type":"response.completed","response":{"id":"resp_1","status":"completed
 		"event: message_start",
 		"event: content_block_start",
 		`"type":"text"`,
-		`"text":"pong"`,
+		`"text":"one"`,
+		`"text":" two"`,
+		`"text":" three"`,
 		`"stop_reason":"end_turn"`,
-		`"output_tokens":1`,
+		`"output_tokens":3`,
 		"event: message_stop",
 	} {
 		if !strings.Contains(text, needle) {

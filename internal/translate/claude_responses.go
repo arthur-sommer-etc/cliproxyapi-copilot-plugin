@@ -450,9 +450,23 @@ func stringValue(value any) string {
 	return strings.TrimSpace(valueString)
 }
 
+func rawStringValue(value any) string {
+	valueString, _ := value.(string)
+	return valueString
+}
+
 func firstString(values map[string]any, keys ...string) string {
 	for _, key := range keys {
 		if value := stringValue(values[key]); value != "" {
+			return value
+		}
+	}
+	return ""
+}
+
+func firstRawString(values map[string]any, keys ...string) string {
+	for _, key := range keys {
+		if value := rawStringValue(values[key]); value != "" {
 			return value
 		}
 	}

@@ -101,20 +101,20 @@ func responsesStreamToClaude(model string, frame []byte, state *any) ([][]byte, 
 		case "output_text", "text", "refusal":
 			block := streamState.block(contentKey(payload), "text")
 			out = append(out, streamState.openText(block)...)
-			if text := firstString(part, "text", "refusal"); text != "" {
+			if text := firstRawString(part, "text", "refusal"); text != "" {
 				out = append(out, streamState.delta(block, "text_delta", "text", text)...)
 			}
 		}
 	case "response.output_text.delta", "response.refusal.delta":
 		block := streamState.block(contentKey(payload), "text")
 		out = append(out, streamState.openText(block)...)
-		if delta := stringValue(payload["delta"]); delta != "" {
+		if delta := rawStringValue(payload["delta"]); delta != "" {
 			out = append(out, streamState.delta(block, "text_delta", "text", delta)...)
 		}
 	case "response.reasoning_summary_text.delta", "response.reasoning_text.delta":
 		block := streamState.block(itemKey(payload), "thinking")
 		out = append(out, streamState.openThinking(block)...)
-		if delta := stringValue(payload["delta"]); delta != "" {
+		if delta := rawStringValue(payload["delta"]); delta != "" {
 			out = append(out, streamState.delta(block, "thinking_delta", "thinking", delta)...)
 		}
 	case "response.function_call_arguments.delta", "response.custom_tool_call_input.delta":
@@ -126,7 +126,7 @@ func responsesStreamToClaude(model string, frame []byte, state *any) ([][]byte, 
 			block.FunctionName = stringValue(payload["name"])
 		}
 		out = append(out, streamState.openTool(block)...)
-		if delta := stringValue(payload["delta"]); delta != "" {
+		if delta := rawStringValue(payload["delta"]); delta != "" {
 			out = append(out, streamState.delta(block, "input_json_delta", "partial_json", delta)...)
 		}
 	case "response.content_part.done":
@@ -159,7 +159,7 @@ func responsesStreamToClaude(model string, frame []byte, state *any) ([][]byte, 
 					out = append(out, streamState.delta(block, "signature_delta", "signature", block.Encrypted)...)
 				}
 			case "tool_use":
-				arguments := firstString(item, "arguments", "input")
+				arguments := firstRawString(item, "arguments", "input")
 				if !block.SawDelta && arguments != "" {
 					out = append(out, streamState.delta(block, "input_json_delta", "partial_json", arguments)...)
 				}
