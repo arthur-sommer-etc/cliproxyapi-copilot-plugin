@@ -1,0 +1,45 @@
+# Bootstrap template. scripts/bootstrap.sh replaces the API key placeholder in
+# .runtime/config.yaml; this source file contains no secret.
+host: "0.0.0.0"
+port: 8317
+
+tls:
+  enable: false
+  cert: ""
+  key: ""
+
+# Docker publishes the service only on host loopback. allow-remote must be true
+# because a loopback host request reaches the container through Docker's bridge.
+remote-management:
+  allow-remote: true
+  secret-key: ""
+  disable-control-panel: false
+
+auth-dir: "/root/.cli-proxy-api"
+
+api-keys:
+  - "__CLIPROXY_API_KEY__"
+
+debug: false
+logging-to-file: false
+logs-max-total-size-mb: 100
+usage-statistics-enabled: false
+passthrough-headers: true
+request-retry: 1
+max-retry-credentials: 1
+
+plugins:
+  enabled: true
+  dir: "plugins"
+  configs:
+    cliproxy-copilot:
+      enabled: true
+      priority: 100
+      github_client_id: "Iv1.b507a08c87ecfe98"
+      github_scope: "read:user"
+      github_base_url: "https://github.com"
+      github_api_url: "https://api.github.com"
+      copilot_api_url: "https://api.githubcopilot.com"
+      oauth_timeout_seconds: 900
+      model_cache_ttl_seconds: 600
+      token_expiry_buffer_seconds: 300

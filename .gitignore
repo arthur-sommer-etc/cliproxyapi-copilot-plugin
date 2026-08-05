@@ -1,0 +1,8 @@
+/build/
+/.cache/
+/.runtime/
+/logs/
+*.log
+*.so
+*.h
+.env
