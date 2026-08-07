@@ -1,5 +1,6 @@
-# Bootstrap template. scripts/bootstrap.sh replaces the API key placeholder in
-# .runtime/config.yaml; this source file contains no secret.
+# Configuration template. The documented setup step renders it to
+# .runtime/config.yaml with the API key placeholder replaced; this source file
+# contains no secret. See docs/claude-code-setup.md.
 host: "0.0.0.0"
 port: 8317
 

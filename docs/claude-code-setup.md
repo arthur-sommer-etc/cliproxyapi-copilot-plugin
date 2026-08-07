@@ -4,6 +4,8 @@ This guide deploys the official CLIProxyAPI with this repository's GitHub
 Copilot plugin, authenticates both a Claude subscription and a GitHub Copilot
 subscription, and configures Claude Code to use both through one local endpoint.
 
+Every step is an explicit command; no repository setup scripts are involved.
+
 The resulting path is:
 
 ```text
@@ -38,27 +40,94 @@ already deployed, install only the plugin using
 [`install-existing-deployment.md`](install-existing-deployment.md), then resume
 here at **Authenticate GitHub Copilot**.
 
-## 1. Clone and bootstrap
+## 1. Clone the repository
 
 ```bash
 cd "$HOME"
 git clone https://github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin.git
 cd cliproxyapi-copilot-plugin
-
-scripts/bootstrap.sh
-make build
-scripts/up.sh
-scripts/status.sh
 ```
 
-Bootstrap generates two local secrets:
+## 2. Generate local secrets
+
+The deployment needs two local secrets:
 
 - A CLIProxyAPI management password
 - An API key used by Claude Code
 
-They are stored in `.runtime/secrets.env` with mode `0600` and are ignored by
-Git. OAuth credentials are stored in the Docker volume
-`cliproxyapi_official_copilot_dev_home`.
+Generate them once into `.runtime/secrets.env` with mode `0600`. The
+`.runtime/` directory is ignored by Git.
+
+```bash
+mkdir -p .runtime
+umask 077
+
+{
+  printf 'MANAGEMENT_PASSWORD=%s\n' "$(openssl rand -hex 32)"
+  printf 'CLIPROXYAPI_API_KEY=%s\n' "$(openssl rand -hex 32)"
+} > .runtime/secrets.env
+chmod 600 .runtime/secrets.env
+```
+
+Skip this step if `.runtime/secrets.env` already exists. Regenerating it
+replaces both secrets, which invalidates the rendered runtime configuration
+and any Claude Code sessions using the old API key.
+
+## 3. Render the runtime configuration
+
+CLIProxyAPI does not expand environment variables in `api-keys`, so the inert
+`__CLIPROXYAPI_API_KEY__` placeholder in the committed `config/config.yaml`
+template must be replaced locally:
+
+```bash
+sed "s/__CLIPROXYAPI_API_KEY__/$(sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/secrets.env)/g" \
+  config/config.yaml > .runtime/config.yaml
+chmod 600 .runtime/config.yaml
+```
+
+Re-run this step whenever `config/config.yaml` changes.
+
+## 4. Build the plugin and start the stack
+
+Build the plugin shared library inside the pinned Go container:
+
+```bash
+make build
+```
+
+Docker Hub currently publishes this CLIProxyAPI release as `v7.2.118` rather
+than the unprefixed `7.2.118` tag that Compose pins. If the pinned tag is not
+already present locally, pull the published tag and create the local
+equivalent:
+
+```bash
+docker image inspect eceasy/cli-proxy-api:7.2.118 >/dev/null 2>&1 ||
+docker pull eceasy/cli-proxy-api:7.2.118 || {
+  docker pull eceasy/cli-proxy-api:v7.2.118
+  docker tag eceasy/cli-proxy-api:v7.2.118 eceasy/cli-proxy-api:7.2.118
+}
+```
+
+Start the stack. The `--env-file` flag passes the management password to the
+container; the API key is only read from the mounted `.runtime/config.yaml`:
+
+```bash
+docker compose --env-file .runtime/secrets.env up -d
+```
+
+Confirm the container is running and the API answers with the generated key:
+
+```bash
+docker compose --env-file .runtime/secrets.env ps
+
+API_KEY=$(sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/secrets.env)
+curl -fsS -o /dev/null -w 'API health: %{http_code}\n' \
+  -H "Authorization: Bearer $API_KEY" \
+  http://127.0.0.1:8317/v1/models
+```
+
+Expect `API health: 200`. OAuth credentials created in the next steps are
+stored in the Docker volume `cliproxyapi_official_copilot_dev_home`.
 
 Open the management center:
 
@@ -72,7 +141,7 @@ Retrieve the management password when the UI asks for it:
 sed -n 's/^MANAGEMENT_PASSWORD=//p' .runtime/secrets.env
 ```
 
-## 2. Authenticate GitHub Copilot
+## 5. Authenticate GitHub Copilot
 
 In the management center:
 
@@ -95,7 +164,7 @@ curl -fsS \
   http://127.0.0.1:8317/v0/management/auth-files
 ```
 
-## 3. Authenticate the Claude subscription
+## 6. Authenticate the Claude subscription
 
 Start the built-in **Anthropic/Claude** login from the management center.
 CLIProxyAPI uses Anthropic's OAuth flow unchanged.
@@ -121,7 +190,7 @@ curl -fsS -X POST \
 Return to the management center and wait for the login status to become
 successful.
 
-## 4. Verify models and inference
+## 7. Verify models and inference
 
 Read the generated API key:
 
@@ -168,16 +237,11 @@ curl -fsS http://127.0.0.1:8317/v1/messages \
   -d '{"model":"claude-sonnet-5","max_tokens":16,"messages":[{"role":"user","content":"Reply exactly: claude-ok"}]}'
 ```
 
-## 5. Configure Claude Code globally
+## 8. Configure Claude Code globally
 
-The repository includes `scripts/api-key-helper.sh`, which reads the generated
-API key without copying it into `~/.claude/settings.json`.
-
-Make sure it is executable:
-
-```bash
-chmod 755 "$HOME/cliproxyapi-copilot-plugin/scripts/api-key-helper.sh"
-```
+Claude Code reads its API key through `apiKeyHelper`, a shell command it runs
+at startup. Using a command that reads `.runtime/secrets.env` avoids copying
+the key into `~/.claude/settings.json`.
 
 If Claude Code settings already exist, back them up:
 
@@ -186,8 +250,8 @@ test ! -f "$HOME/.claude/settings.json" ||
   cp "$HOME/.claude/settings.json" "$HOME/.claude/settings.json.backup"
 ```
 
-Merge the following values into `~/.claude/settings.json`. Replace the helper
-path if the repository was cloned elsewhere:
+Merge the following values into `~/.claude/settings.json`. Replace the
+`/home/YOUR_USER` path in `apiKeyHelper` with the actual clone location:
 
 ```json
 {
@@ -200,8 +264,8 @@ path if the repository was cloned elsewhere:
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-5.6-terra",
     "CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY": "1"
   },
-  "apiKeyHelper": "/home/YOUR_USER/cliproxyapi-copilot-plugin/scripts/api-key-helper.sh",
-  "model": "gpt-5.6-sol"
+  "apiKeyHelper": "sed -n 's/^CLIPROXYAPI_API_KEY=//p' /home/YOUR_USER/cliproxyapi-copilot-plugin/.runtime/secrets.env",
+  "model": "fable"
 }
 ```
 
@@ -222,19 +286,19 @@ The configured aliases are:
 
 | Claude Code selection | Routed model | Subscription |
 | --- | --- | --- |
-| Default | `gpt-5.6-sol` | GitHub Copilot |
-| Opus | `gpt-5.6-sol` | GitHub Copilot |
-| Haiku | `gpt-5.6-terra` | GitHub Copilot |
-| Sonnet | `claude-sonnet-5` | Claude |
+| Default | `claude-fable-5` (via the `fable` alias) | Claude |
 | Fable | `claude-fable-5` | Claude |
+| Opus | `gpt-5.6-sol` | GitHub Copilot |
+| Sonnet | `claude-sonnet-5` | Claude |
+| Haiku | `gpt-5.6-terra` | GitHub Copilot |
 
 Select aliases with `/model` or at launch:
 
 ```bash
+claude --model fable
 claude --model opus
 claude --model haiku
 claude --model sonnet
-claude --model fable
 ```
 
 Test the global default non-interactively:
@@ -245,12 +309,17 @@ claude -p 'Reply exactly: global-routing-ok' \
   --output-format json
 ```
 
-## 6. Operations
+## 9. Operations
 
 Check health:
 
 ```bash
-scripts/status.sh
+docker compose --env-file .runtime/secrets.env ps
+
+API_KEY=$(sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/secrets.env)
+curl -fsS -o /dev/null -w 'API health: %{http_code}\n' \
+  -H "Authorization: Bearer $API_KEY" \
+  http://127.0.0.1:8317/v1/models
 ```
 
 Rebuild after updating the repository:
@@ -260,19 +329,21 @@ git pull
 make test
 make build
 docker restart cliproxyapi-official-copilot-dev
-scripts/status.sh
 ```
+
+If `config/config.yaml` changed, re-render `.runtime/config.yaml` (step 3)
+before restarting.
 
 Stop the service without deleting OAuth credentials:
 
 ```bash
-scripts/down.sh
+docker compose --env-file .runtime/secrets.env down
 ```
 
 Permanently remove this deployment and its credentials:
 
 ```bash
-scripts/down.sh
+docker compose --env-file .runtime/secrets.env down
 docker volume rm cliproxyapi_official_copilot_dev_home
 rm -rf .runtime build .cache logs
 ```
@@ -283,10 +354,10 @@ rm -rf .runtime build .cache logs
 
 - Exit all existing Claude Code sessions and relaunch.
 - Remove stale `ANTHROPIC_AUTH_TOKEN` and `ANTHROPIC_API_KEY` values.
-- Confirm the helper and runtime configuration resolve to the same key:
+- Confirm the helper command and runtime configuration resolve to the same key:
 
 ```bash
-scripts/api-key-helper.sh
+sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/secrets.env
 sed -n 's/^  - "\([^"]*\)"/\1/p' .runtime/config.yaml
 ```
 

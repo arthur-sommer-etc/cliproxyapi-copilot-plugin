@@ -24,9 +24,9 @@ This stack uses only:
 It does not map ports 3458 or 54545 on the host.
 
 Docker Hub currently publishes this release as `v7.2.118` rather than the
-unprefixed tag required by this deployment. `up.sh` first tries the configured
-unprefixed image and, only if it is absent, pulls the official `v7.2.118` image
-and creates a local equivalent tag. Compose remains pinned to
+unprefixed tag required by this deployment. The setup guide documents pulling
+the official `v7.2.118` image and creating a local equivalent tag when the
+unprefixed image is absent. Compose remains pinned to
 `eceasy/cli-proxy-api:7.2.118`.
 
 ## Architecture
@@ -135,18 +135,32 @@ official CLIProxyAPI Plugins Store requirements.
 
 ## Isolated deployment
 
+There are no setup scripts; every step is an explicit documented command. The
+complete walkthrough is in [`docs/claude-code-setup.md`](docs/claude-code-setup.md).
+In short:
+
 ```sh
-scripts/bootstrap.sh
+mkdir -p .runtime
+umask 077
+{
+  printf 'MANAGEMENT_PASSWORD=%s\n' "$(openssl rand -hex 32)"
+  printf 'CLIPROXYAPI_API_KEY=%s\n' "$(openssl rand -hex 32)"
+} > .runtime/secrets.env
+chmod 600 .runtime/secrets.env
+
+sed "s/__CLIPROXYAPI_API_KEY__/$(sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/secrets.env)/g" \
+  config/config.yaml > .runtime/config.yaml
+chmod 600 .runtime/config.yaml
+
 make build
-scripts/up.sh
-scripts/status.sh
+docker compose --env-file .runtime/secrets.env up -d
 ```
 
-Bootstrap generates `.runtime/secrets.env` and `.runtime/config.yaml` with mode
+This generates `.runtime/secrets.env` and `.runtime/config.yaml` with mode
 0600. CLIProxyAPI does not expand environment variables in `api-keys`, so the
-bootstrap script replaces the inert `__CLIPROXYAPI_API_KEY__` template locally.
-The management key is passed through the officially supported
-`MANAGEMENT_PASSWORD` environment variable. Generated files are ignored by Git.
+inert `__CLIPROXYAPI_API_KEY__` template is replaced locally. The management
+key is passed through the officially supported `MANAGEMENT_PASSWORD`
+environment variable. Generated files are ignored by Git.
 
 The service binds `0.0.0.0` only inside its container. Docker publishes it only
 on host loopback. `remote-management.allow-remote` is therefore enabled inside
@@ -183,7 +197,7 @@ curl -H "Authorization: Bearer $MGMT" \
   "http://127.0.0.1:8317/v0/management/get-auth-status?state=RETURNED_STATE"
 ```
 
-No OAuth command is run by bootstrap or startup scripts.
+No OAuth command runs during setup or container startup.
 
 ### Built-in Claude subscription login
 
@@ -241,29 +255,30 @@ curl http://127.0.0.1:8317/v1/messages \
 The discovered catalog carries endpoint, context/output limits, tools, vision,
 streaming, and reasoning metadata when GitHub returns it.
 
-## Isolated Claude Code launcher
+## Isolated Claude Code session
 
-Use the repository launcher instead of changing `~/.claude/settings.json`:
+For the permanent global configuration (via `~/.claude/settings.json` and
+`apiKeyHelper`), follow [`docs/claude-code-setup.md`](docs/claude-code-setup.md).
 
-```sh
-scripts/claude.sh
-```
-
-It reads the isolated API key from `.runtime/secrets.env`, points Claude Code at
-`http://127.0.0.1:8317`, and excludes global Claude settings so only the
-repository launcher configuration is used. Its aliases are:
-
-- default: `gpt-5.6-sol`
-- Opus: `gpt-5.6-sol`
-- Haiku: `gpt-5.6-terra`
-
-Examples:
+For an ad-hoc session that ignores global Claude settings entirely, export the
+routing environment inline. It reads the isolated API key from
+`.runtime/secrets.env` and points Claude Code at `http://127.0.0.1:8317`:
 
 ```sh
-scripts/claude.sh --model opus
-scripts/claude.sh --model haiku
-scripts/claude.sh --model claude-sonnet-5
+API_KEY=$(sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/secrets.env)
+
+ANTHROPIC_BASE_URL="http://127.0.0.1:8317" \
+  ANTHROPIC_AUTH_TOKEN="$API_KEY" \
+  ANTHROPIC_MODEL="gpt-5.6-sol" \
+  ANTHROPIC_DEFAULT_FABLE_MODEL="claude-fable-5" \
+  ANTHROPIC_DEFAULT_OPUS_MODEL="gpt-5.6-sol" \
+  ANTHROPIC_DEFAULT_HAIKU_MODEL="gpt-5.6-terra" \
+  CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1 \
+  claude --setting-sources ""
 ```
+
+Append normal Claude Code arguments to the last line, for example
+`--model opus`, `--model haiku`, or `--model claude-sonnet-5`.
 
 ## Threat model and trust boundary
 
@@ -298,10 +313,10 @@ fallbacks.
 ## Stop, rollback, and removal
 
 ```sh
-scripts/down.sh
+docker compose --env-file .runtime/secrets.env down
 ```
 
-`down.sh` retains the isolated OAuth volume. To permanently remove only this
+`down` retains the isolated OAuth volume. To permanently remove only this
 new stack's credentials after it is down:
 
 ```sh
@@ -309,7 +324,7 @@ docker volume rm cliproxyapi_official_copilot_dev_home
 rm -rf .runtime build .cache
 ```
 
-The lifecycle scripts hard-code and validate the project, container, volume,
-and host port. They do not enumerate or operate on unrelated containers. No
-existing deployment files, credentials, ports, or volumes are mounted or
+The Compose file hard-codes the project, container, volume, and loopback-only
+host port, so these commands cannot select containers from another deployment.
+No existing deployment files, credentials, ports, or volumes are mounted or
 referenced.

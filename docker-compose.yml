@@ -7,7 +7,7 @@ services:
     container_name: cliproxyapi-official-copilot-dev
     restart: unless-stopped
     environment:
-      MANAGEMENT_PASSWORD: ${MANAGEMENT_PASSWORD:?run scripts/bootstrap.sh first}
+      MANAGEMENT_PASSWORD: ${MANAGEMENT_PASSWORD:?generate .runtime/secrets.env first; see docs/claude-code-setup.md}
       TZ: UTC
     ports:
       - "127.0.0.1:8317:8317"
