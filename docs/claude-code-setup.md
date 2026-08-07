@@ -260,7 +260,7 @@ Merge the following values into `~/.claude/settings.json`. Replace the
     "ANTHROPIC_MODEL": "gpt-5.6-sol",
     "ANTHROPIC_DEFAULT_FABLE_MODEL": "claude-fable-5",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "gpt-5.6-sol",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-5",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-opus-5",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gpt-5.6-terra",
     "CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY": "1"
   },
@@ -289,7 +289,7 @@ The configured aliases are:
 | Default | `claude-fable-5` (via the `fable` alias) | Claude |
 | Fable | `claude-fable-5` | Claude |
 | Opus | `gpt-5.6-sol` | GitHub Copilot |
-| Sonnet | `claude-sonnet-5` | Claude |
+| Sonnet | `claude-opus-5` | Claude |
 | Haiku | `gpt-5.6-terra` | GitHub Copilot |
 
 Select aliases with `/model` or at launch:
