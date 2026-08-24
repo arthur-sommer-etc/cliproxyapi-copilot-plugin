@@ -13,6 +13,7 @@ import (
 
 type authStorage struct {
 	Type                  string `json:"type"`
+	Prefix                string `json:"prefix,omitempty"`
 	GitHubAccessToken     string `json:"github_access_token"`
 	GitHubRefreshToken    string `json:"github_refresh_token,omitempty"`
 	TokenType             string `json:"token_type,omitempty"`
@@ -40,6 +41,7 @@ func parseStorage(raw []byte) (authStorage, error) {
 	storage.GitHubRefreshToken = strings.TrimSpace(storage.GitHubRefreshToken)
 	storage.GitHubLogin = strings.TrimSpace(storage.GitHubLogin)
 	storage.OAuthClientID = strings.TrimSpace(storage.OAuthClientID)
+	storage.Prefix = strings.Trim(strings.TrimSpace(storage.Prefix), "/")
 	if storage.GitHubAccessToken == "" {
 		return storage, fmt.Errorf("Copilot auth storage has no GitHub access token")
 	}
@@ -51,6 +53,9 @@ func marshalStorage(storage authStorage) ([]byte, error) {
 }
 
 func authData(storage authStorage, id, fileName, prefix, proxyURL string, disabled bool, metadata map[string]any, attributes map[string]string) (pluginapi.AuthData, error) {
+	if strings.TrimSpace(prefix) == "" {
+		prefix = storage.Prefix
+	}
 	raw, errMarshal := marshalStorage(storage)
 	if errMarshal != nil {
 		return pluginapi.AuthData{}, fmt.Errorf("encode Copilot auth storage: %w", errMarshal)
