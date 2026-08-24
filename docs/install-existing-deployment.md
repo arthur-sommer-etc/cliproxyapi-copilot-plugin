@@ -3,7 +3,7 @@
 This guide adds the GitHub Copilot plugin to an existing official CLIProxyAPI
 deployment without replacing its configuration, API keys, or existing
 providers. The plugin currently targets CLIProxyAPI `v7.2.118`, ABI version 1,
-on Linux `amd64`.
+on Linux and Darwin for both `amd64` and `arm64`.
 
 ## 1. Build the plugin
 
@@ -11,32 +11,50 @@ on Linux `amd64`.
 git clone https://github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin.git
 cd cliproxyapi-copilot-plugin
 make build
+# Or select another platform:
+make build-linux-arm64
+make build-darwin-amd64
+make build-darwin-arm64
 ```
 
 The resulting library is:
 
 ```text
 build/plugins/linux/amd64/cliproxyapi-copilot.so
+build/plugins/linux/arm64/cliproxyapi-copilot.so
+build/plugins/darwin/amd64/cliproxyapi-copilot.dylib
+build/plugins/darwin/arm64/cliproxyapi-copilot.dylib
 ```
 
 The filename is significant: CLIProxyAPI derives the plugin ID
-`cliproxyapi-copilot` from it. Do not rename the library unless the matching key
-under `plugins.configs` is also renamed.
+`cliproxyapi-copilot` from either filename. Do not rename the library unless the
+matching key under `plugins.configs` is also renamed.
 
 ## 2. Install the library
 
-CLIProxyAPI searches both `<plugins.dir>/linux/amd64` and `<plugins.dir>`.
+CLIProxyAPI searches both `<plugins.dir>/<GOOS>/<GOARCH>` and `<plugins.dir>`.
 Using the platform-specific directory avoids loading an incompatible binary.
 
-### Native CLIProxyAPI
+### Native CLIProxyAPI on macOS
+
+```bash
+arch=$(go env GOARCH)
+install -d -m 0755 "/path/to/cliproxyapi/plugins/darwin/$arch"
+install -m 0755 \
+  "build/plugins/darwin/$arch/cliproxyapi-copilot.dylib" \
+  "/path/to/cliproxyapi/plugins/darwin/$arch/cliproxyapi-copilot.dylib"
+```
+
+### Native CLIProxyAPI on Linux
 
 Choose a permanent plugin directory and copy the library:
 
 ```bash
-sudo install -d -m 0755 /opt/cliproxyapi/plugins/linux/amd64
+arch=$(go env GOARCH)
+sudo install -d -m 0755 "/opt/cliproxyapi/plugins/linux/$arch"
 sudo install -m 0755 \
-  build/plugins/linux/amd64/cliproxyapi-copilot.so \
-  /opt/cliproxyapi/plugins/linux/amd64/cliproxyapi-copilot.so
+  "build/plugins/linux/$arch/cliproxyapi-copilot.so" \
+  "/opt/cliproxyapi/plugins/linux/$arch/cliproxyapi-copilot.so"
 ```
 
 The CLIProxyAPI process must be able to read the library. Use a different
@@ -47,10 +65,12 @@ absolute directory if `/opt/cliproxyapi` does not match the deployment.
 Copy the library into a persistent host directory:
 
 ```bash
-install -d -m 0755 /path/to/cliproxyapi/plugins/linux/amd64
+arch=$(uname -m)
+case "$arch" in x86_64) arch=amd64 ;; aarch64) arch=arm64 ;; esac
+install -d -m 0755 "/path/to/cliproxyapi/plugins/linux/$arch"
 install -m 0755 \
-  build/plugins/linux/amd64/cliproxyapi-copilot.so \
-  /path/to/cliproxyapi/plugins/linux/amd64/cliproxyapi-copilot.so
+  "build/plugins/linux/$arch/cliproxyapi-copilot.so" \
+  "/path/to/cliproxyapi/plugins/linux/$arch/cliproxyapi-copilot.so"
 ```
 
 Mount that directory into the existing container:
@@ -164,7 +184,8 @@ The result should include Copilot models such as `gpt-5.6-sol` and
 
 Version tags automatically publish marketplace-compatible packages. To update
 from a release, verify the archive against `checksums.txt`, extract
-`cliproxyapi-copilot.so`, replace the installed library, and restart
+the platform's `cliproxyapi-copilot.so` or `cliproxyapi-copilot.dylib`, replace
+the installed library, and restart
 CLIProxyAPI.
 
 To disable it without deleting credentials:

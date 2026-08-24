@@ -25,7 +25,7 @@ Claude Code.
 
 ## Prerequisites
 
-- Linux on `amd64`
+- Linux on `amd64` or `arm64`
 - Docker Engine with Docker Compose v2
 - Git
 - Claude Code installed and available as `claude`
