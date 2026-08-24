@@ -84,26 +84,34 @@ remain implemented by this plugin.
 
 Requirements: Docker with Compose v2 and a local Go 1.26 toolchain for `make
 test`. The production plugin build runs inside `golang:1.26-bookworm`, matching
-the Debian Bookworm runtime used by the official image.
+the Debian Bookworm runtime used by the official image. On an Apple Silicon Mac,
+`make build-darwin-amd64` and `make build-darwin-arm64` build native macOS
+plugins with the local Go 1.26 toolchain and Xcode command-line tools.
 
 ```sh
 make test
 make build
+make build-linux-arm64  # on a Linux arm64 Docker host
+make build-darwin-amd64 # on macOS
+make build-darwin-arm64 # on macOS
 ```
 
 The loader artifact is:
 
 ```text
 build/plugins/linux/amd64/cliproxyapi-copilot.so
+build/plugins/linux/arm64/cliproxyapi-copilot.so
+build/plugins/darwin/amd64/cliproxyapi-copilot.dylib
+build/plugins/darwin/arm64/cliproxyapi-copilot.dylib
 ```
 
-`make build-local` exists for development, but a binary built on a newer host
-glibc may not load in the Bookworm container.
+`make build-local` builds for the current host. On Linux, a binary built against
+a newer host glibc may not load in the Bookworm container.
 
 ## Existing CLIProxyAPI deployment
 
 The plugin can be installed without using this repository's Compose stack.
-Build `cliproxyapi-copilot.so`, place it under the deployment's configured
+Build the platform's shared library, place it under the deployment's configured
 plugin directory, merge the `cliproxyapi-copilot` entry into
 `plugins.configs`, and restart CLIProxyAPI. Native and Docker instructions,
 including the complete configuration block, are in
@@ -111,8 +119,8 @@ including the complete configuration block, are in
 
 ## CI and releases
 
-Every push and pull request runs the Go tests and builds a production-compatible
-Linux `amd64` marketplace package. Pushes do not publish releases.
+Every push and pull request runs the Go tests and builds marketplace packages
+for Linux and Darwin on both `amd64` and `arm64`. Pushes do not publish releases.
 
 To publish a marketplace-compatible release, create and push a dotted numeric
 version tag:
@@ -127,11 +135,15 @@ and publishes:
 
 ```text
 cliproxyapi-copilot_0.3.1_linux_amd64.zip
+cliproxyapi-copilot_0.3.1_linux_arm64.zip
+cliproxyapi-copilot_0.3.1_darwin_amd64.zip
+cliproxyapi-copilot_0.3.1_darwin_arm64.zip
 checksums.txt
 ```
 
-The ZIP contains only `cliproxyapi-copilot.so` at its root, matching the
-official CLIProxyAPI Plugins Store requirements.
+Each ZIP contains only the platform's shared library (`.so` on Linux or
+`.dylib` on macOS) at its root, matching the official CLIProxyAPI Plugins Store
+requirements.
 
 ## Isolated deployment
 
