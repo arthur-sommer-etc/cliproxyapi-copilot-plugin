@@ -1,12 +1,44 @@
 package provider
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
 )
+
+func TestParseAuthPreservesPrefix(t *testing.T) {
+	t.Parallel()
+
+	raw, errMarshal := json.Marshal(map[string]any{
+		"type":                providerID,
+		"prefix":              " /copilot/ ",
+		"github_access_token": "github-token",
+		"github_login":        "example-user",
+		"updated_at":          "2026-08-24T00:00:00Z",
+	})
+	if errMarshal != nil {
+		t.Fatalf("marshal auth: %v", errMarshal)
+	}
+
+	service := New(nil)
+	resp, errParse := service.ParseAuth(pluginapi.AuthParseRequest{
+		Provider: providerID,
+		FileName: "copilot-example-user.json",
+		RawJSON:  raw,
+	})
+	if errParse != nil {
+		t.Fatalf("ParseAuth() error = %v", errParse)
+	}
+	if !resp.Handled {
+		t.Fatal("ParseAuth() did not handle Copilot auth")
+	}
+	if resp.Auth.Prefix != "copilot" {
+		t.Fatalf("ParseAuth() prefix = %q, want %q", resp.Auth.Prefix, "copilot")
+	}
+}
 
 func TestClassifyDeviceToken(t *testing.T) {
 	t.Parallel()
