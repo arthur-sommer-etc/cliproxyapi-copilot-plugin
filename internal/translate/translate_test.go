@@ -22,6 +22,7 @@ func TestClaudeRequestToResponsesPreservesCoreContent(t *testing.T) {
 			]},
 			{"role":"assistant","content":[
 				{"type":"thinking","thinking":"inspect first","signature":"sig"},
+				{"type":"redacted_thinking","data":"opaque-redacted"},
 				{"type":"tool_use","id":"call_1","name":"lookup","input":{"q":"x"}}
 			]},
 			{"role":"user","content":[{"type":"tool_result","tool_use_id":"call_1","content":"found"}]}
@@ -54,6 +55,12 @@ func TestClaudeRequestToResponsesPreservesCoreContent(t *testing.T) {
 		if !strings.Contains(text, needle) {
 			t.Fatalf("translated request omits %q: %s", needle, out)
 		}
+	}
+	if got := data.Get("input.1.encrypted_content").String(); got != "sig" {
+		t.Fatalf("thinking signature = %q; request=%s", got, out)
+	}
+	if got := data.Get("input.2.encrypted_content").String(); got != redactedThinkingPrefix+"opaque-redacted" {
+		t.Fatalf("redacted thinking data = %q; request=%s", got, out)
 	}
 }
 

@@ -26,11 +26,9 @@ func statusError(code, message string, status int) error {
 	return &StatusError{Code: code, Message: message, HTTPStatus: status}
 }
 
-func upstreamStatusError(status int, detail string) error {
+// upstreamStatusError keeps provider response text out of client-visible errors.
+func upstreamStatusError(status int, _ string) error {
 	message := fmt.Sprintf("Copilot upstream returned HTTP %d", status)
-	if detail != "" {
-		message += ": " + detail
-	}
 	return &StatusError{
 		Code:       "upstream_error",
 		Message:    message,

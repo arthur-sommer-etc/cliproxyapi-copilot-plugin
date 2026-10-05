@@ -23,16 +23,19 @@ type copilotTokenResponse struct {
 }
 
 type copilotTokenEntry struct {
-	Token       string
-	APIBaseURL  string
-	ExpiresAt   time.Time
-	Fingerprint string
+	Token            string
+	APIBaseURL       string
+	ExpiresAt        time.Time
+	Fingerprint      string
+	ConfigGeneration uint64
 }
 
 type tokenFlight struct {
-	done  chan struct{}
-	entry copilotTokenEntry
-	err   error
+	done        chan struct{}
+	entry       copilotTokenEntry
+	err         error
+	fingerprint string
+	generation  uint64
 }
 
 func (s *Service) copilotToken(ctx context.Context, callbackID, authID string, storage authStorage) (copilotTokenEntry, error) {
@@ -41,46 +44,67 @@ func (s *Service) copilotToken(ctx context.Context, callbackID, authID string, s
 	if key == "" {
 		key = fingerprint
 	}
-	cfg := s.Config()
+	cfg, generation := s.configSnapshot()
 	now := s.now()
 
 	s.tokenMu.Lock()
 	if cached, ok := s.tokenEntries[key]; ok &&
 		cached.Fingerprint == fingerprint &&
+		cached.ConfigGeneration == generation &&
 		cached.ExpiresAt.After(now.Add(cfg.tokenExpiryBuffer())) {
 		s.tokenMu.Unlock()
 		return cached, nil
 	}
-	if flight := s.tokenInflight[key]; flight != nil {
+	flightKey := tokenFlightKey(key, fingerprint, generation)
+	if flight := s.tokenInflight[flightKey]; flight != nil {
 		done := flight.done
 		s.tokenMu.Unlock()
 		select {
 		case <-ctx.Done():
 			return copilotTokenEntry{}, ctx.Err()
 		case <-done:
+			_, currentGeneration := s.configSnapshot()
+			if currentGeneration != generation {
+				return copilotTokenEntry{}, fmt.Errorf("Copilot configuration changed during token exchange")
+			}
+			if flight.err != nil {
+				return flight.entry, flight.err
+			}
+			if flight.fingerprint != fingerprint || flight.entry.Fingerprint != fingerprint {
+				return copilotTokenEntry{}, fmt.Errorf("Copilot token credential changed during token exchange")
+			}
 			return flight.entry, flight.err
 		}
 	}
-	flight := &tokenFlight{done: make(chan struct{})}
-	s.tokenInflight[key] = flight
+	flight := &tokenFlight{done: make(chan struct{}), fingerprint: fingerprint, generation: generation}
+	s.tokenInflight[flightKey] = flight
 	s.tokenMu.Unlock()
 
-	entry, errExchange := s.exchangeCopilotToken(ctx, callbackID, fingerprint, storage.GitHubAccessToken)
+	entry, errExchange := s.exchangeCopilotToken(ctx, callbackID, fingerprint, storage.GitHubAccessToken, cfg)
+	entry.ConfigGeneration = generation
 
+	s.configMu.RLock()
+	if s.configGeneration != generation {
+		errExchange = fmt.Errorf("Copilot configuration changed during token exchange")
+	}
 	s.tokenMu.Lock()
 	flight.entry = entry
 	flight.err = errExchange
-	if errExchange == nil {
+	if errExchange == nil && entry.Fingerprint == fingerprint {
 		s.tokenEntries[key] = entry
 	}
-	delete(s.tokenInflight, key)
+	delete(s.tokenInflight, flightKey)
 	close(flight.done)
 	s.tokenMu.Unlock()
+	s.configMu.RUnlock()
 	return entry, errExchange
 }
 
-func (s *Service) exchangeCopilotToken(ctx context.Context, callbackID, fingerprint, githubToken string) (copilotTokenEntry, error) {
-	cfg := s.Config()
+func tokenFlightKey(authID, fingerprint string, generation uint64) string {
+	return strings.Join([]string{authID, fingerprint, strconv.FormatUint(generation, 10)}, "\x00")
+}
+
+func (s *Service) exchangeCopilotToken(ctx context.Context, callbackID, fingerprint, githubToken string, cfg Config) (copilotTokenEntry, error) {
 	resp, errDo := s.host.Do(ctx, callbackID, transport.Request{
 		Method: http.MethodGet,
 		URL:    cfg.GitHubAPIURL + "/copilot_internal/v2/token",
@@ -144,7 +168,7 @@ func copilotAPIBase(endpoints map[string]string, cfg Config) (string, error) {
 		raw = cfg.CopilotAPIURL
 	}
 	parsed, errParse := url.Parse(raw)
-	if errParse != nil || parsed.Hostname() == "" {
+	if errParse != nil || parsed.Hostname() == "" || parsed.User != nil {
 		return "", fmt.Errorf("Copilot token returned an invalid API endpoint")
 	}
 	if parsed.Scheme != "https" && !(cfg.AllowInsecureBaseURLs && parsed.Scheme == "http") {

@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/transport"
-	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginabi"
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginabi"
 )
 
 type hostTransport struct{}
