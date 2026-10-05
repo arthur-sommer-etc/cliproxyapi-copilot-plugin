@@ -2,7 +2,7 @@
 
 This guide adds the GitHub Copilot plugin to an existing official CLIProxyAPI
 deployment without replacing its configuration, API keys, or existing
-providers. The plugin currently targets CLIProxyAPI `v7.2.118`, ABI version 1,
+providers. The plugin currently targets CLIProxyAPI `v8.0.15`, ABI version 1,
 on Linux `amd64`.
 
 ## 1. Build the plugin
@@ -85,6 +85,7 @@ plugins:
       oauth_timeout_seconds: 900
       model_cache_ttl_seconds: 600
       token_expiry_buffer_seconds: 300
+      prompt_cache_key: true
       excluded_model_prefixes: []
 ```
 
@@ -103,6 +104,17 @@ present under `plugins.configs`. Global `plugins.enabled` and the individual
 The existing `auth-dir` must be writable and persistent. The plugin stores its
 GitHub OAuth credential through CLIProxyAPI's normal auth storage; it does not
 need a separate credential volume.
+
+Claude Messages and Codex Responses requests can each route to Copilot Chat Completions, Responses, or Messages endpoints.
+The plugin selects from model metadata, with `model_endpoint_overrides` available when a model needs a fixed route.
+Requests routed to Copilot Chat or Messages need full caller history because the plugin does not keep a conversation store.
+`previous_response_id` works only with a native Copilot Responses endpoint that supports it.
+The authenticated replay carrier persists with the Copilot credential and works only for the same account, model, and endpoint.
+Foreign signed or encrypted reasoning sent through Copilot Chat returns HTTP 422 rather than being dropped.
+Cross-format requests need the complete caller history because a provider-held `previous_response_id` does not supply the items the bridge needs to translate.
+Copilot Chat requests include `prompt_cache_key` by default; set it to `false` to disable the key.
+Copilot's implicit cache lifetime can differ from Codex's.
+Response compaction is optional and requires CLIProxyAPI host support plus the model's `compaction_models` setting.
 
 If the deployment also uses CLIProxyAPI's native Claude subscription provider,
 prevent duplicate Claude model IDs from being scheduled through Copilot:

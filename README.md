@@ -8,10 +8,8 @@ For an end-to-end deployment and Claude Code configuration walkthrough, see
 To add only the plugin to an existing CLIProxyAPI installation, see
 [`docs/install-existing-deployment.md`](docs/install-existing-deployment.md).
 
-Initial, self-owned GitHub Copilot subscription provider for the official
-`router-for-me/CLIProxyAPI` v7.2.118 plugin ABI. The repository also defines a
-strictly isolated Docker deployment that retains CLIProxyAPI's built-in Claude
-subscription OAuth support.
+Initial, self-owned GitHub Copilot subscription provider for the official `router-for-me/CLIProxyAPI` v8.0.15 release (plugin ABI version 1).
+The repository also defines a strictly isolated Docker deployment that retains CLIProxyAPI's built-in Claude subscription OAuth support.
 
 This stack uses only:
 
@@ -19,15 +17,9 @@ This stack uses only:
 - host address: `127.0.0.1:8317`
 - auth volume: `cliproxyapi_official_copilot_dev_home`
 - repository-local config and plugin bind mounts
-- image: `eceasy/cli-proxy-api:7.2.118`
+- image: `eceasy/cli-proxy-api:v8.0.15`
 
 It does not map ports 3458 or 54545 on the host.
-
-Docker Hub currently publishes this release as `v7.2.118` rather than the
-unprefixed tag required by this deployment. The setup guide documents pulling
-the official `v7.2.118` image and creating a local equivalent tag when the
-unprefixed image is absent. Compose remains pinned to
-`eceasy/cli-proxy-api:7.2.118`.
 
 ## Architecture
 
@@ -48,9 +40,17 @@ The provider packages are intentionally separated:
 - `internal/sse`: chunk-safe SSE framing
 - `internal/redact`: bounded, token-redacting error text
 
-Claude input is accepted directly. Chat- or Messages-only Copilot models use
-official built-in translators. Responses-only models use the custom Claude
-bridge; `gpt-5.6-sol` and `gpt-5.6-terra` are always routed to `/responses`.
+Claude Messages and Codex Responses requests can each use Copilot's Chat Completions, Responses, or Messages endpoint, giving six client-to-provider route combinations.
+The plugin selects an endpoint from model metadata; use `model_endpoint_overrides` when a model needs a fixed route.
+Same-format Messages and Responses requests retain provider-native reasoning state.
+Cross-format tool and reasoning state keeps replay correlation across turns; its authenticated carrier persists with the Copilot credential and works only for the same account, model, and endpoint.
+Foreign signed or encrypted reasoning sent through Copilot Chat returns HTTP 422 rather than being dropped.
+Requests routed to Copilot Chat or Messages need the full caller history because the plugin does not keep a conversation store.
+Cross-format requests also need the complete caller history because a provider-held `previous_response_id` does not supply the items the bridge needs to translate.
+`previous_response_id` works only with a native Copilot Responses endpoint that supports it.
+Copilot Chat requests include `prompt_cache_key` by default.
+Set `prompt_cache_key: false` in the plugin configuration to omit it; Copilot's implicit cache lifetime can differ from Codex's.
+Response compaction is optional and requires support from CLIProxyAPI and explicit configuration for the model.
 Claude token-count requests are estimated locally with the same O200k tokenizer
 approach used by CLIProxyAPI for translated Claude requests.
 Copilot model prefixes can be excluded from discovery to avoid collisions with
@@ -299,16 +299,12 @@ Append normal Claude Code arguments to the last line, for example
 
 ## Current translation scope
 
-Tests cover device polling decisions, redaction, endpoint selection, Claude
-request conversion, chat and Responses conversion, and SSE translation. Text,
-tool calls/results, common reasoning blocks, usage, stop reasons, and base64/URL
-images are mapped.
-
-This is an initial MVP. Less common Responses event types, provider-specific
-reasoning signatures, citations/annotations, audio, computer-use blocks, and
-all document variants are not exhaustively verified. Malformed tool arguments
-and failed upstream Responses objects return errors rather than success-shaped
-fallbacks.
+Tests cover all six client-to-endpoint combinations over JSON and SSE.
+The bridge maps supported text, tool calls/results, reasoning state, usage, stop reasons, and base64/URL images.
+It rejects unsupported content and foreign signed or encrypted reasoning sent through Copilot Chat with HTTP 422.
+Copilot can issue opaque tool item IDs longer than 64 characters.
+The bridge preserves those IDs and lets Copilot validate native requests.
+Use a matching native protocol endpoint for content the bridge cannot translate.
 
 ## Stop, rollback, and removal
 

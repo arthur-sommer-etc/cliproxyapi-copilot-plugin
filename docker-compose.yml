@@ -2,7 +2,7 @@ name: cliproxyapi-official-copilot-dev
 
 services:
   cliproxyapi:
-    image: eceasy/cli-proxy-api:7.2.118
+    image: eceasy/cli-proxy-api:v8.0.15
     pull_policy: missing
     container_name: cliproxyapi-official-copilot-dev
     restart: unless-stopped

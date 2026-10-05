@@ -38,6 +38,7 @@ plugins:
       priority: 100
       github_client_id: "Iv1.b507a08c87ecfe98"
       github_scope: "read:user"
+      prompt_cache_key: true
       github_base_url: "https://github.com"
       github_api_url: "https://api.github.com"
       copilot_api_url: "https://api.githubcopilot.com"
