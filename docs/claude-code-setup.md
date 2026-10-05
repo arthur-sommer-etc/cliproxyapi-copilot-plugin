@@ -234,7 +234,7 @@ A native Copilot Responses endpoint can use `previous_response_id` only when tha
 The authenticated replay carrier persists with the Copilot credential and works only for the same account, model, and endpoint.
 Foreign signed or encrypted reasoning sent through Chat returns HTTP 422 rather than being dropped.
 Cross-format requests need the complete caller history because a provider-held `previous_response_id` does not supply the items the bridge needs to translate.
-Copilot Chat requests include `prompt_cache_key` by default.
+Copilot Responses requests derive `prompt_cache_key` by default when a stable session identity is available.
 Set `prompt_cache_key: false` in the plugin configuration to disable it; Copilot's implicit cache lifetime can differ from Codex's.
 Response compaction is optional and requires CLIProxyAPI host support plus the model's `compaction_models` setting.
 

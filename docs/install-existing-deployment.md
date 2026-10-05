@@ -112,7 +112,9 @@ Requests routed to Copilot Chat or Messages need full caller history because the
 The authenticated replay carrier persists with the Copilot credential and works only for the same account, model, and endpoint.
 Foreign signed or encrypted reasoning sent through Copilot Chat returns HTTP 422 rather than being dropped.
 Cross-format requests need the complete caller history because a provider-held `previous_response_id` does not supply the items the bridge needs to translate.
-Copilot Chat requests include `prompt_cache_key` by default; set it to `false` to disable the key.
+Copilot Responses requests derive `prompt_cache_key` by default when a stable session identity is available.
+Set `prompt_cache_key: false` to omit generated keys.
+Explicit caller keys remain unchanged.
 Copilot's implicit cache lifetime can differ from Codex's.
 Response compaction is optional and requires CLIProxyAPI host support plus the model's `compaction_models` setting.
 

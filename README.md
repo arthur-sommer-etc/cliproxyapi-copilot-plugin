@@ -48,8 +48,10 @@ Foreign signed or encrypted reasoning sent through Copilot Chat returns HTTP 422
 Requests routed to Copilot Chat or Messages need the full caller history because the plugin does not keep a conversation store.
 Cross-format requests also need the complete caller history because a provider-held `previous_response_id` does not supply the items the bridge needs to translate.
 `previous_response_id` works only with a native Copilot Responses endpoint that supports it.
-Copilot Chat requests include `prompt_cache_key` by default.
-Set `prompt_cache_key: false` in the plugin configuration to omit it; Copilot's implicit cache lifetime can differ from Codex's.
+Copilot Responses requests derive `prompt_cache_key` by default when a stable session identity is available.
+Set `prompt_cache_key: false` in the plugin configuration to omit generated keys.
+Explicit caller keys remain unchanged.
+Copilot's implicit cache lifetime can differ from Codex's.
 Response compaction is optional and requires support from CLIProxyAPI and explicit configuration for the model.
 Claude token-count requests are estimated locally with the same O200k tokenizer
 approach used by CLIProxyAPI for translated Claude requests.
