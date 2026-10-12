@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -18,6 +19,8 @@ import (
 )
 
 const deviceGrantType = "urn:ietf:params:oauth:grant-type:device_code"
+
+const maxOAuthSessions = 64
 
 type deviceCodeResponse struct {
 	DeviceCode              string `json:"device_code"`
@@ -45,14 +48,36 @@ type githubUser struct {
 	ID    int64  `json:"id"`
 }
 
+type rateLimitedGitHubUserError struct {
+	RetryAfterSeconds int64
+	cause             error
+}
+
+func (e *rateLimitedGitHubUserError) Error() string {
+	if e == nil || e.cause == nil {
+		return "GitHub account verification was rate limited"
+	}
+	return e.cause.Error()
+}
+
+func (e *rateLimitedGitHubUserError) Unwrap() error {
+	if e == nil {
+		return nil
+	}
+	return e.cause
+}
+
 type deviceSession struct {
-	DeviceCode string
-	ClientID   string
-	UserCode   string
-	ExpiresAt  time.Time
-	Interval   time.Duration
-	NextPoll   time.Time
-	Polling    bool
+	DeviceCode    string
+	ClientID      string
+	UserCode      string
+	ExpiresAt     time.Time
+	Interval      time.Duration
+	NextPoll      time.Time
+	PendingToken  *oauthTokenResponse
+	TokenIssuedAt time.Time
+	Starting      bool
+	Polling       bool
 }
 
 type pollDecision struct {
@@ -89,6 +114,17 @@ func (s *Service) StartLogin(ctx context.Context, callbackID string) (pluginapi.
 	if !cfg.Enabled {
 		return pluginapi.AuthLoginStartResponse{}, statusError("plugin_disabled", "Copilot plugin is disabled", http.StatusServiceUnavailable)
 	}
+	state, session, errReserve := s.reserveOAuthSession(cfg.oauthTimeout())
+	if errReserve != nil {
+		return pluginapi.AuthLoginStartResponse{}, errReserve
+	}
+	reserved := true
+	defer func() {
+		if reserved {
+			s.removeOAuthSession(state, session)
+		}
+	}()
+
 	form := url.Values{"client_id": {cfg.GitHubClientID}}
 	if cfg.GitHubScope != "" {
 		form.Set("scope", cfg.GitHubScope)
@@ -129,23 +165,6 @@ func (s *Service) StartLogin(ctx context.Context, callbackID string) (pluginapi.
 	if device.Interval < 5 {
 		device.Interval = 5
 	}
-	state, errState := randomIdentifier(24)
-	if errState != nil {
-		return pluginapi.AuthLoginStartResponse{}, fmt.Errorf("generate OAuth state: %w", errState)
-	}
-	now := s.now()
-	session := &deviceSession{
-		DeviceCode: device.DeviceCode,
-		ClientID:   cfg.GitHubClientID,
-		UserCode:   device.UserCode,
-		ExpiresAt:  now.Add(time.Duration(device.ExpiresIn) * time.Second),
-		Interval:   time.Duration(device.Interval) * time.Second,
-		NextPoll:   now,
-	}
-	s.oauthMu.Lock()
-	s.oauthSession[state] = session
-	s.oauthMu.Unlock()
-
 	loginURL := device.VerificationURIComplete
 	if loginURL == "" {
 		parsed, errParse := url.Parse(device.VerificationURI)
@@ -157,16 +176,71 @@ func (s *Service) StartLogin(ctx context.Context, callbackID string) (pluginapi.
 		parsed.RawQuery = query.Encode()
 		loginURL = parsed.String()
 	}
+	now := s.now()
+	expiresAt := now.Add(time.Duration(device.ExpiresIn) * time.Second)
+	s.oauthMu.Lock()
+	if s.oauthSession[state] != session || !now.Before(session.ExpiresAt) {
+		if s.oauthSession[state] == session {
+			delete(s.oauthSession, state)
+		}
+		s.oauthMu.Unlock()
+		return pluginapi.AuthLoginStartResponse{}, statusError("oauth_session_expired", "GitHub device login session expired", http.StatusGone)
+	}
+	session.DeviceCode = device.DeviceCode
+	session.ClientID = cfg.GitHubClientID
+	session.UserCode = device.UserCode
+	session.ExpiresAt = expiresAt
+	session.Interval = time.Duration(device.Interval) * time.Second
+	session.NextPoll = now
+	session.Starting = false
+	s.oauthMu.Unlock()
+	reserved = false
 	return pluginapi.AuthLoginStartResponse{
 		Provider:  providerID,
 		URL:       loginURL,
 		State:     state,
-		ExpiresAt: session.ExpiresAt.UTC(),
+		ExpiresAt: expiresAt.UTC(),
 		Metadata: map[string]any{
 			"user_code": device.UserCode,
 			"interval":  device.Interval,
 		},
 	}, nil
+}
+
+func (s *Service) reserveOAuthSession(timeout time.Duration) (string, *deviceSession, error) {
+	state, errState := randomIdentifier(24)
+	if errState != nil {
+		return "", nil, fmt.Errorf("generate OAuth state: %w", errState)
+	}
+	now := s.now()
+	session := &deviceSession{ExpiresAt: now.Add(timeout), Starting: true}
+	s.oauthMu.Lock()
+	defer s.oauthMu.Unlock()
+	s.pruneOAuthSessionsLocked(now)
+	if len(s.oauthSession) >= maxOAuthSessions {
+		return "", nil, statusError("oauth_sessions_full", "Too many active GitHub device login sessions", http.StatusTooManyRequests)
+	}
+	if _, exists := s.oauthSession[state]; exists {
+		return "", nil, fmt.Errorf("generate unique OAuth state")
+	}
+	s.oauthSession[state] = session
+	return state, session, nil
+}
+
+func (s *Service) pruneOAuthSessionsLocked(now time.Time) {
+	for state, session := range s.oauthSession {
+		if !now.Before(session.ExpiresAt) || (session.PendingToken != nil && oauthAccessTokenExpired(*session.PendingToken, session.TokenIssuedAt, now)) {
+			delete(s.oauthSession, state)
+		}
+	}
+}
+
+func (s *Service) removeOAuthSession(state string, session *deviceSession) {
+	s.oauthMu.Lock()
+	defer s.oauthMu.Unlock()
+	if s.oauthSession[state] == session {
+		delete(s.oauthSession, state)
+	}
 }
 
 func (s *Service) PollLogin(ctx context.Context, callbackID, state string) (pluginapi.AuthLoginPollResponse, error) {
@@ -183,57 +257,118 @@ func (s *Service) PollLogin(ctx context.Context, callbackID, state string) (plug
 		s.oauthMu.Unlock()
 		return pluginapi.AuthLoginPollResponse{Status: pluginapi.AuthLoginStatusError, Message: "GitHub device code expired"}, nil
 	}
+	if session.Starting {
+		s.oauthMu.Unlock()
+		return pluginapi.AuthLoginPollResponse{Status: pluginapi.AuthLoginStatusPending, Message: "waiting for GitHub device login to start"}, nil
+	}
 	if session.Polling || now.Before(session.NextPoll) {
 		s.oauthMu.Unlock()
 		return pluginapi.AuthLoginPollResponse{Status: pluginapi.AuthLoginStatusPending, Message: "waiting for GitHub authorization"}, nil
 	}
 	session.Polling = true
 	deviceCode := session.DeviceCode
+	userCode := session.UserCode
 	clientID := session.ClientID
 	interval := session.Interval
+	var token oauthTokenResponse
+	tokenIssuedAt := session.TokenIssuedAt
+	hasPendingToken := session.PendingToken != nil
+	if hasPendingToken {
+		token = *session.PendingToken
+		if oauthAccessTokenExpired(token, tokenIssuedAt, now) {
+			delete(s.oauthSession, state)
+			s.oauthMu.Unlock()
+			return pluginapi.AuthLoginPollResponse{Status: pluginapi.AuthLoginStatusError, Message: "GitHub device token expired before account verification"}, nil
+		}
+	}
 	s.oauthMu.Unlock()
 
-	form := url.Values{
-		"client_id":   {clientID},
-		"device_code": {deviceCode},
-		"grant_type":  {deviceGrantType},
-	}
-	cfg := s.Config()
-	resp, errDo := s.host.Do(ctx, callbackID, transport.Request{
-		Method: http.MethodPost,
-		URL:    cfg.GitHubBaseURL + "/login/oauth/access_token",
-		Headers: http.Header{
-			"Accept":       []string{"application/json"},
-			"Content-Type": []string{"application/x-www-form-urlencoded"},
-			"User-Agent":   []string{userAgent()},
-		},
-		Body: []byte(form.Encode()),
-	})
-	if errDo != nil {
-		s.finishPoll(state, interval, false)
-		return pluginapi.AuthLoginPollResponse{}, fmt.Errorf("poll GitHub device flow: %w", errDo)
-	}
-	var token oauthTokenResponse
-	if errUnmarshal := json.Unmarshal(resp.Body, &token); errUnmarshal != nil {
-		s.finishPoll(state, interval, false)
-		return pluginapi.AuthLoginPollResponse{}, fmt.Errorf("decode GitHub device token response: %w", errUnmarshal)
-	}
-	decision := classifyDeviceToken(resp.StatusCode, token, interval)
-	if decision.Status == pluginapi.AuthLoginStatusPending {
-		s.finishPoll(state, decision.NextInterval, false)
-		return pluginapi.AuthLoginPollResponse{Status: decision.Status, Message: decision.Message}, nil
-	}
-	if decision.Status == pluginapi.AuthLoginStatusError {
-		s.finishPoll(state, interval, decision.Terminal)
-		return pluginapi.AuthLoginPollResponse{Status: decision.Status, Message: decision.Message}, nil
+	if !hasPendingToken {
+		form := url.Values{
+			"client_id":   {clientID},
+			"device_code": {deviceCode},
+			"grant_type":  {deviceGrantType},
+		}
+		cfg := s.Config()
+		resp, errDo := s.host.Do(ctx, callbackID, transport.Request{
+			Method: http.MethodPost,
+			URL:    cfg.GitHubBaseURL + "/login/oauth/access_token",
+			Headers: http.Header{
+				"Accept":       []string{"application/json"},
+				"Content-Type": []string{"application/x-www-form-urlencoded"},
+				"User-Agent":   []string{userAgent()},
+			},
+			Body: []byte(form.Encode()),
+		})
+		tokenResponseAt := s.now()
+		if errDo != nil {
+			s.finishPoll(state, session, interval, false)
+			return pluginapi.AuthLoginPollResponse{}, fmt.Errorf("poll GitHub device flow: %w", errDo)
+		}
+		if errUnmarshal := json.Unmarshal(resp.Body, &token); errUnmarshal != nil {
+			s.finishPoll(state, session, interval, false)
+			return pluginapi.AuthLoginPollResponse{}, fmt.Errorf("decode GitHub device token response: %w", errUnmarshal)
+		}
+		decision := classifyDeviceToken(resp.StatusCode, token, interval)
+		if decision.Status == pluginapi.AuthLoginStatusPending {
+			s.finishPoll(state, session, decision.NextInterval, false)
+			return pluginapi.AuthLoginPollResponse{Status: decision.Status, Message: decision.Message}, nil
+		}
+		if decision.Status == pluginapi.AuthLoginStatusError {
+			s.finishPoll(state, session, interval, decision.Terminal)
+			return pluginapi.AuthLoginPollResponse{Status: decision.Status, Message: redact.ErrorBody([]byte(decision.Message), deviceCode, userCode)}, nil
+		}
+		if decision.Token == nil {
+			s.finishPoll(state, session, interval, true)
+			return pluginapi.AuthLoginPollResponse{}, fmt.Errorf("GitHub device flow returned no token")
+		}
+		token = *decision.Token
+		tokenIssuedAt = tokenResponseAt
+		if !s.retainOAuthToken(state, session, token, tokenIssuedAt) {
+			return pluginapi.AuthLoginPollResponse{Status: pluginapi.AuthLoginStatusError, Message: "GitHub device login session expired"}, nil
+		}
 	}
 
 	user, errUser := s.fetchGitHubUser(ctx, callbackID, token.AccessToken)
 	if errUser != nil {
-		s.finishPoll(state, interval, true)
-		return pluginapi.AuthLoginPollResponse{}, errUser
+		var rateLimitErr *rateLimitedGitHubUserError
+		isRateLimited := errors.As(errUser, &rateLimitErr)
+		if !isRateLimited && !retryOAuthUserVerification(errUser) {
+			s.finishPoll(state, session, interval, true)
+			return pluginapi.AuthLoginPollResponse{}, errUser
+		}
+		retryInterval := interval
+		if isRateLimited {
+			remaining := session.ExpiresAt.Sub(s.now())
+			if remaining > 0 {
+				if interval >= remaining/2 {
+					retryInterval = remaining
+				} else {
+					retryInterval = interval * 2
+				}
+			}
+			providerRetry := remaining
+			if remaining > 0 && rateLimitErr.RetryAfterSeconds < int64(remaining/time.Second) {
+				providerRetry = time.Duration(rateLimitErr.RetryAfterSeconds) * time.Second
+			}
+			if providerRetry > retryInterval {
+				retryInterval = providerRetry
+			}
+		}
+		if !s.finishPoll(state, session, retryInterval, false) {
+			return pluginapi.AuthLoginPollResponse{Status: pluginapi.AuthLoginStatusError, Message: "GitHub device login session expired"}, nil
+		}
+		if oauthAccessTokenExpired(token, tokenIssuedAt, s.now()) {
+			s.finishPoll(state, session, interval, true)
+			return pluginapi.AuthLoginPollResponse{Status: pluginapi.AuthLoginStatusError, Message: "GitHub device token expired before account verification"}, nil
+		}
+		return pluginapi.AuthLoginPollResponse{Status: pluginapi.AuthLoginStatusPending, Message: "waiting for GitHub account verification"}, nil
 	}
-	createdAt := s.now()
+	createdAt := tokenIssuedAt
+	if createdAt.IsZero() || oauthAccessTokenExpired(token, createdAt, s.now()) {
+		s.finishPoll(state, session, interval, true)
+		return pluginapi.AuthLoginPollResponse{Status: pluginapi.AuthLoginStatusError, Message: "GitHub device token expired before account verification"}, nil
+	}
 	storage := authStorage{
 		Type:               providerID,
 		GitHubAccessToken:  strings.TrimSpace(token.AccessToken),
@@ -253,10 +388,12 @@ func (s *Service) PollLogin(ctx context.Context, callbackID, state string) (plug
 	}
 	data, errData := authData(storage, "", "", "", "", false, nil, nil)
 	if errData != nil {
-		s.finishPoll(state, interval, true)
+		s.finishPoll(state, session, interval, true)
 		return pluginapi.AuthLoginPollResponse{}, errData
 	}
-	s.finishPoll(state, interval, true)
+	if !s.finishPoll(state, session, interval, true) {
+		return pluginapi.AuthLoginPollResponse{Status: pluginapi.AuthLoginStatusError, Message: "GitHub device login session expired"}, nil
+	}
 	return pluginapi.AuthLoginPollResponse{
 		Status:  pluginapi.AuthLoginStatusSuccess,
 		Message: "GitHub Copilot authentication succeeded",
@@ -264,20 +401,51 @@ func (s *Service) PollLogin(ctx context.Context, callbackID, state string) (plug
 	}, nil
 }
 
-func (s *Service) finishPoll(state string, interval time.Duration, terminal bool) {
+func (s *Service) retainOAuthToken(state string, session *deviceSession, token oauthTokenResponse, issuedAt time.Time) bool {
 	s.oauthMu.Lock()
 	defer s.oauthMu.Unlock()
-	session := s.oauthSession[state]
-	if session == nil {
-		return
+	if s.oauthSession[state] != session || !issuedAt.Before(session.ExpiresAt) {
+		if s.oauthSession[state] == session {
+			delete(s.oauthSession, state)
+		}
+		return false
+	}
+	tokenCopy := token
+	session.PendingToken = &tokenCopy
+	session.TokenIssuedAt = issuedAt
+	return true
+}
+
+func (s *Service) finishPoll(state string, session *deviceSession, interval time.Duration, terminal bool) bool {
+	s.oauthMu.Lock()
+	defer s.oauthMu.Unlock()
+	if s.oauthSession[state] != session {
+		return false
+	}
+	if !s.now().Before(session.ExpiresAt) {
+		delete(s.oauthSession, state)
+		return false
 	}
 	if terminal {
 		delete(s.oauthSession, state)
-		return
+		return true
 	}
 	session.Polling = false
 	session.Interval = interval
 	session.NextPoll = s.now().Add(interval)
+	return true
+}
+
+func oauthAccessTokenExpired(token oauthTokenResponse, issuedAt, now time.Time) bool {
+	return token.ExpiresIn > 0 && !issuedAt.IsZero() && !now.Before(issuedAt.Add(time.Duration(token.ExpiresIn)*time.Second))
+}
+
+func retryOAuthUserVerification(err error) bool {
+	var statusErr *StatusError
+	if errors.As(err, &statusErr) {
+		return statusErr.Retryable
+	}
+	return true
 }
 
 func classifyDeviceToken(statusCode int, token oauthTokenResponse, currentInterval time.Duration) pollDecision {
@@ -337,17 +505,119 @@ func (s *Service) fetchGitHubUser(ctx context.Context, callbackID, accessToken s
 		return githubUser{}, fmt.Errorf("fetch GitHub user: %w", errDo)
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return githubUser{}, upstreamStatusError(resp.StatusCode, redact.ErrorBody(resp.Body, accessToken))
+		upstreamErr := upstreamStatusError(resp.StatusCode, "")
+		if retryAfter, rateLimited := githubUserRateLimitRetryAfter(resp, s.now()); rateLimited {
+			return githubUser{}, &rateLimitedGitHubUserError{RetryAfterSeconds: retryAfter, cause: upstreamErr}
+		}
+		return githubUser{}, upstreamErr
 	}
 	var user githubUser
 	if errUnmarshal := json.Unmarshal(resp.Body, &user); errUnmarshal != nil {
 		return githubUser{}, fmt.Errorf("decode GitHub user: %w", errUnmarshal)
 	}
 	user.Login = strings.TrimSpace(user.Login)
-	if user.Login == "" {
-		return githubUser{}, fmt.Errorf("GitHub user response has no login")
+	if user.Login == "" || user.ID <= 0 {
+		return githubUser{}, fmt.Errorf("GitHub user response has no valid account identity")
 	}
 	return user, nil
+}
+
+func githubUserRateLimitRetryAfter(resp transport.Response, now time.Time) (int64, bool) {
+	if resp.StatusCode != http.StatusForbidden && resp.StatusCode != http.StatusTooManyRequests {
+		return 0, false
+	}
+	retryAfterValues := resp.Headers.Values("Retry-After")
+	hasRetryAfter := len(retryAfterValues) > 0
+	remainingIsZero := strings.TrimSpace(resp.Headers.Get("X-RateLimit-Remaining")) == "0"
+	bodyRateLimited := githubUserRateLimitResponseBody(resp.Body)
+	if resp.StatusCode != http.StatusTooManyRequests && !hasRetryAfter && !remainingIsZero && !bodyRateLimited {
+		return 0, false
+	}
+
+	var retryAfterSeconds int64
+	hasTiming := false
+	fallbackDelay := false
+	for _, value := range retryAfterValues {
+		seconds, ok := parseRetryAfterSeconds(value, now)
+		if !ok {
+			fallbackDelay = true
+			continue
+		}
+		if !hasTiming || seconds > retryAfterSeconds {
+			retryAfterSeconds = seconds
+		}
+		hasTiming = true
+	}
+	if remainingIsZero {
+		resetValue := strings.TrimSpace(resp.Headers.Get("X-RateLimit-Reset"))
+		if resetValue == "" {
+			fallbackDelay = true
+		} else if seconds, ok := parseRateLimitResetSeconds(resetValue, now); ok {
+			if !hasTiming || seconds > retryAfterSeconds {
+				retryAfterSeconds = seconds
+			}
+			hasTiming = true
+		} else {
+			fallbackDelay = true
+		}
+	}
+	if (bodyRateLimited || resp.StatusCode == http.StatusTooManyRequests) && !hasTiming {
+		fallbackDelay = true
+	}
+	if fallbackDelay && retryAfterSeconds < 60 {
+		retryAfterSeconds = 60
+	}
+	if retryAfterSeconds <= 0 {
+		retryAfterSeconds = 1
+	}
+	return retryAfterSeconds, true
+}
+
+func parseRetryAfterSeconds(value string, now time.Time) (int64, bool) {
+	value = strings.TrimSpace(value)
+	if seconds, errParse := strconv.ParseInt(value, 10, 64); errParse == nil && seconds >= 0 {
+		return seconds, true
+	}
+	retryAt, errParse := http.ParseTime(value)
+	if errParse != nil {
+		return 0, false
+	}
+	delay := retryAt.Sub(now)
+	if delay <= 0 {
+		return 0, true
+	}
+	seconds := int64(delay / time.Second)
+	if delay%time.Second != 0 {
+		seconds++
+	}
+	return seconds, true
+}
+
+func parseRateLimitResetSeconds(value string, now time.Time) (int64, bool) {
+	resetAtUnix, errParse := strconv.ParseInt(strings.TrimSpace(value), 10, 64)
+	if errParse != nil {
+		return 0, false
+	}
+	delay := time.Unix(resetAtUnix, 0).Sub(now)
+	if delay <= 0 {
+		return 0, true
+	}
+	seconds := int64(delay / time.Second)
+	if delay%time.Second != 0 {
+		seconds++
+	}
+	return seconds, true
+}
+
+func githubUserRateLimitResponseBody(body []byte) bool {
+	var response struct {
+		Message string `json:"message"`
+	}
+	if json.Unmarshal(body, &response) != nil {
+		return false
+	}
+	message := strings.ToLower(strings.TrimSpace(response.Message))
+	return strings.Contains(message, "secondary rate limit") || strings.Contains(message, "api rate limit exceeded")
 }
 
 func (s *Service) RefreshAuth(ctx context.Context, callbackID string, req pluginapi.AuthRefreshRequest) (pluginapi.AuthRefreshResponse, error) {
