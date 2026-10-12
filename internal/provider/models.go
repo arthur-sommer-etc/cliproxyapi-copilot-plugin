@@ -98,13 +98,12 @@ func (s *Service) models(ctx context.Context, callbackID, authID string, storage
 		key = fingerprint
 	}
 	now := s.now()
-	if !force {
-		s.modelMu.Lock()
-		cached, ok := s.modelEntries[key]
-		s.modelMu.Unlock()
-		if ok && cached.Fingerprint == fingerprint && cached.APIBaseURL == token.APIBaseURL && cached.ExpiresAt.After(now) {
-			return cloneUpstreamModels(cached.Models), token, nil
-		}
+	s.modelMu.Lock()
+	pruneModelCache(s.modelEntries, now)
+	cached, ok := s.modelEntries[key]
+	s.modelMu.Unlock()
+	if !force && ok && cached.Fingerprint == fingerprint && cached.APIBaseURL == token.APIBaseURL && cached.ExpiresAt.After(now) {
+		return cloneUpstreamModels(cached.Models), token, nil
 	}
 
 	resp, errDo := s.host.Do(ctx, callbackID, transport.Request{
@@ -147,13 +146,16 @@ func (s *Service) models(ctx context.Context, callbackID, authID string, storage
 		byID[strings.ToLower(model.ID)] = model
 	}
 	s.modelMu.Lock()
+	cacheNow := s.now()
+	pruneModelCache(s.modelEntries, cacheNow)
 	s.modelEntries[key] = modelCacheEntry{
 		Fingerprint: fingerprint,
 		APIBaseURL:  token.APIBaseURL,
-		ExpiresAt:   now.Add(s.Config().modelCacheTTL()),
+		ExpiresAt:   cacheNow.Add(s.Config().modelCacheTTL()),
 		Models:      cloneUpstreamModels(cleaned),
 		ByID:        byID,
 	}
+	pruneModelCache(s.modelEntries, cacheNow)
 	s.modelMu.Unlock()
 	return cleaned, token, nil
 }
