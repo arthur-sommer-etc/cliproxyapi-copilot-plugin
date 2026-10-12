@@ -82,9 +82,10 @@ remain implemented by this plugin.
 
 ## Build and test
 
-Requirements: Docker with Compose v2 and a local Go 1.26 toolchain for `make
-test`. The production plugin build runs inside `golang:1.26-bookworm`, matching
-the Debian Bookworm runtime used by the official image.
+Requirements: Docker with Compose v2 and Go 1.26.9 or later for `make test`.
+The module recommends Go 1.27.2, and the production plugin build runs inside
+`golang:1.27.2-bookworm`, matching the Debian Bookworm runtime used by the
+official image.
 
 ```sh
 make test

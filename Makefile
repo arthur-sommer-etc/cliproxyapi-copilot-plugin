@@ -1,4 +1,4 @@
-GO_IMAGE ?= golang:1.26-bookworm
+GO_IMAGE ?= golang:1.27.2-bookworm
 VERSION ?= 0.3.3
 PLUGIN_DIR := build/plugins/linux/amd64
 PLUGIN_SO := $(PLUGIN_DIR)/cliproxyapi-copilot.so
