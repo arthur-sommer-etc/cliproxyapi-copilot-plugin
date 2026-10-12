@@ -27,7 +27,7 @@ build-local:
 	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -buildvcs=false -trimpath -ldflags "$(VERSION_LDFLAG)" -buildmode=c-shared -o $(PLUGIN_SO) ./cmd/cliproxyapi-copilot
 
 package: build
-	scripts/package-release.sh "$(VERSION)"
+	packaging/package-release.sh "$(VERSION)"
 
 clean:
 	rm -rf build dist $(CACHE_DIR)

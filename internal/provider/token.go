@@ -45,6 +45,7 @@ func (s *Service) copilotToken(ctx context.Context, callbackID, authID string, s
 	now := s.now()
 
 	s.tokenMu.Lock()
+	pruneTokenCache(s.tokenEntries, cfg, now)
 	if cached, ok := s.tokenEntries[key]; ok &&
 		cached.Fingerprint == fingerprint &&
 		cached.ExpiresAt.After(now.Add(cfg.tokenExpiryBuffer())) {
@@ -72,6 +73,7 @@ func (s *Service) copilotToken(ctx context.Context, callbackID, authID string, s
 	flight.err = errExchange
 	if errExchange == nil {
 		s.tokenEntries[key] = entry
+		pruneTokenCache(s.tokenEntries, cfg, s.now())
 	}
 	delete(s.tokenInflight, key)
 	close(flight.done)
@@ -160,12 +162,12 @@ func (s *Service) invalidateAuth(authID string) {
 	authID = strings.TrimSpace(authID)
 	s.tokenMu.Lock()
 	if authID != "" {
-		delete(s.tokenEntries, authID)
+		clearTokenCacheEntry(s.tokenEntries, authID)
 	}
 	s.tokenMu.Unlock()
 	s.modelMu.Lock()
 	if authID != "" {
-		delete(s.modelEntries, authID)
+		clearModelCacheEntry(s.modelEntries, authID)
 	}
 	s.modelMu.Unlock()
 }
