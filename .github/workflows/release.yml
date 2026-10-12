@@ -36,7 +36,7 @@ jobs:
             -e GOMODCACHE=/src/.cache/go-mod \
             -v "$PWD:/src" \
             -w /src \
-            golang:1.26-bookworm \
+            golang:1.27.2-bookworm \
             go test ./...
 
       - name: Build marketplace package
