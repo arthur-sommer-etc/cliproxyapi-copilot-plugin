@@ -523,14 +523,14 @@ func (s *Service) fetchGitHubUser(ctx context.Context, callbackID, accessToken s
 }
 
 func githubUserRateLimitRetryAfter(resp transport.Response, now time.Time) (int64, bool) {
-	if resp.StatusCode != http.StatusForbidden {
+	if resp.StatusCode != http.StatusForbidden && resp.StatusCode != http.StatusTooManyRequests {
 		return 0, false
 	}
 	retryAfterValues := resp.Headers.Values("Retry-After")
 	hasRetryAfter := len(retryAfterValues) > 0
 	remainingIsZero := strings.TrimSpace(resp.Headers.Get("X-RateLimit-Remaining")) == "0"
 	bodyRateLimited := githubUserRateLimitResponseBody(resp.Body)
-	if !hasRetryAfter && !remainingIsZero && !bodyRateLimited {
+	if resp.StatusCode != http.StatusTooManyRequests && !hasRetryAfter && !remainingIsZero && !bodyRateLimited {
 		return 0, false
 	}
 
@@ -561,7 +561,7 @@ func githubUserRateLimitRetryAfter(resp transport.Response, now time.Time) (int6
 			fallbackDelay = true
 		}
 	}
-	if bodyRateLimited && !hasTiming {
+	if (bodyRateLimited || resp.StatusCode == http.StatusTooManyRequests) && !hasTiming {
 		fallbackDelay = true
 	}
 	if fallbackDelay && retryAfterSeconds < 60 {
