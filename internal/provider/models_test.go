@@ -51,12 +51,9 @@ func TestSelectEndpoint(t *testing.T) {
 				if err == nil {
 					t.Fatal("expected an endpoint selection error")
 				}
-				return
-			}
-			if err != nil {
+			} else if err != nil {
 				t.Fatalf("select endpoint: %v", err)
-			}
-			if got != test.want {
+			} else if got != test.want {
 				t.Fatalf("endpoint = %q, want %q", got, test.want)
 			}
 		})

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -173,31 +174,36 @@ func (s *Service) endpointForModel(ctx context.Context, callbackID, authID strin
 		}
 		return "", copilotTokenEntry{}, errModels
 	}
-	for _, model := range models {
-		if strings.EqualFold(model.ID, modelID) {
-			endpoint, errEndpoint := selectEndpoint(model)
-			return endpoint, token, errEndpoint
-		}
+	i := 0
+	for i < len(models) && !strings.EqualFold(models[i].ID, modelID) {
+		i++
 	}
-	if endpoint, ok := specialResponsesModel(modelID); ok {
+	if i < len(models) {
+		endpoint, errEndpoint := selectEndpoint(models[i])
+		return endpoint, token, errEndpoint
+	} else if endpoint, ok := specialResponsesModel(modelID); ok {
 		return endpoint, token, nil
+	} else {
+		return "", token, statusError("model_not_found", "Copilot model is not present in the authenticated model catalog", http.StatusNotFound)
 	}
-	return "", token, statusError("model_not_found", "Copilot model is not present in the authenticated model catalog", http.StatusNotFound)
 }
 
 func selectEndpoint(model upstreamModel) (string, error) {
-	if endpoint, ok := specialResponsesModel(model.ID); ok {
-		return endpoint, nil
-	}
-	endpoints := normalizeEndpoints(model.SupportedEndpoints)
-	for _, preferred := range []string{translate.EndpointResponses, translate.EndpointChatCompletions, translate.EndpointMessages} {
-		for _, endpoint := range endpoints {
-			if endpoint == preferred {
-				return preferred, nil
+	endpoint, special := specialResponsesModel(model.ID)
+	if !special {
+		endpoints := normalizeEndpoints(model.SupportedEndpoints)
+		preferred := []string{translate.EndpointResponses, translate.EndpointChatCompletions, translate.EndpointMessages}
+		for i := 0; i < len(preferred) && endpoint == ""; i++ {
+			if contains(endpoints, preferred[i]) {
+				endpoint = preferred[i]
 			}
 		}
 	}
-	return "", statusError("unsupported_model_endpoint", "Copilot model exposes no supported chat endpoint", http.StatusUnprocessableEntity)
+	var err error
+	if endpoint == "" {
+		err = statusError("unsupported_model_endpoint", "Copilot model exposes no supported chat endpoint", http.StatusUnprocessableEntity)
+	}
+	return endpoint, err
 }
 
 func specialResponsesModel(modelID string) (string, bool) {
@@ -239,21 +245,18 @@ func normalizeModels(models []upstreamModel) []upstreamModel {
 }
 
 func filterModels(models []upstreamModel, excludedPrefixes []string) []upstreamModel {
-	if len(excludedPrefixes) == 0 {
-		return models
-	}
-	out := make([]upstreamModel, 0, len(models))
-	for _, model := range models {
-		modelID := strings.ToLower(model.ID)
-		excluded := false
-		for _, prefix := range excludedPrefixes {
-			if strings.HasPrefix(modelID, prefix) {
-				excluded = true
-				break
+	out := models
+	if len(excludedPrefixes) > 0 {
+		out = make([]upstreamModel, 0, len(models))
+		for _, model := range models {
+			modelID := strings.ToLower(model.ID)
+			excluded := false
+			for i := 0; i < len(excludedPrefixes) && !excluded; i++ {
+				excluded = strings.HasPrefix(modelID, excludedPrefixes[i])
 			}
-		}
-		if !excluded {
-			out = append(out, model)
+			if !excluded {
+				out = append(out, model)
+			}
 		}
 	}
 	return out
@@ -345,19 +348,22 @@ func modelInfos(models []upstreamModel) []pluginapi.ModelInfo {
 }
 
 func modelDescription(model upstreamModel) string {
-	for _, item := range append(model.WarningMessages, model.InformationMessages...) {
-		if message := strings.TrimSpace(item.Message); message != "" {
-			return message
+	var description string
+	messages := append(model.WarningMessages, model.InformationMessages...)
+	for i := 0; i < len(messages) && description == ""; i++ {
+		description = strings.TrimSpace(messages[i].Message)
+	}
+	if description == "" {
+		parts := []string{"GitHub Copilot subscription model"}
+		if family := strings.TrimSpace(model.Capabilities.Family); family != "" {
+			parts = append(parts, "family "+family)
 		}
+		if len(model.SupportedEndpoints) > 0 {
+			parts = append(parts, "endpoints "+strings.Join(model.SupportedEndpoints, ", "))
+		}
+		description = strings.Join(parts, "; ")
 	}
-	parts := []string{"GitHub Copilot subscription model"}
-	if family := strings.TrimSpace(model.Capabilities.Family); family != "" {
-		parts = append(parts, "family "+family)
-	}
-	if len(model.SupportedEndpoints) > 0 {
-		parts = append(parts, "endpoints "+strings.Join(model.SupportedEndpoints, ", "))
-	}
-	return strings.Join(parts, "; ")
+	return description
 }
 
 func cloneUpstreamModels(in []upstreamModel) []upstreamModel {
@@ -373,19 +379,13 @@ func cloneUpstreamModels(in []upstreamModel) []upstreamModel {
 }
 
 func contains(values []string, target string) bool {
-	for _, value := range values {
-		if value == target {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(values, target)
 }
 
 func firstNonEmpty(values ...string) string {
-	for _, value := range values {
-		if value = strings.TrimSpace(value); value != "" {
-			return value
-		}
+	var value string
+	for i := 0; i < len(values) && value == ""; i++ {
+		value = strings.TrimSpace(values[i])
 	}
-	return ""
+	return value
 }

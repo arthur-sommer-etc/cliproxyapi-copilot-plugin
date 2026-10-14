@@ -169,8 +169,10 @@ func (s *Service) openModelStream(ctx context.Context, callbackID, authID string
 func (s *Service) collectStreamError(ctx context.Context, stream transport.Stream) ([]byte, error) {
 	defer func() { _ = s.host.CloseStream(context.Background(), stream.ID) }()
 	var body []byte
-	for {
-		chunk, errRead := s.host.ReadStream(ctx, stream.ID)
+	var chunk transport.StreamChunk
+	for !chunk.Done {
+		var errRead error
+		chunk, errRead = s.host.ReadStream(ctx, stream.ID)
 		if errRead != nil {
 			return nil, fmt.Errorf("read Copilot error stream: %w", errRead)
 		}
@@ -178,10 +180,8 @@ func (s *Service) collectStreamError(ctx context.Context, stream transport.Strea
 		if chunk.Error != "" {
 			return nil, fmt.Errorf("read Copilot error stream: %s", redact.Text(chunk.Error))
 		}
-		if chunk.Done {
-			return body, nil
-		}
 	}
+	return body, nil
 }
 
 func (s *Service) pumpStream(outputID, endpoint, destination, model string, original, translated []byte, upstream transport.Stream) {
@@ -204,18 +204,21 @@ func (s *Service) pumpStream(outputID, endpoint, destination, model string, orig
 			return errTranslate
 		}
 		for _, output := range frames {
-			if len(output) == 0 {
-				continue
+			var errEmit error
+			if len(output) > 0 {
+				errEmit = s.host.Emit(ctx, outputID, output)
 			}
-			if errEmit := s.host.Emit(ctx, outputID, output); errEmit != nil {
+			if errEmit != nil {
 				return errEmit
 			}
 		}
 		return nil
 	}
 
-	for {
-		chunk, errRead := s.host.ReadStream(ctx, upstream.ID)
+	var chunk transport.StreamChunk
+	for !chunk.Done {
+		var errRead error
+		chunk, errRead = s.host.ReadStream(ctx, upstream.ID)
 		if errRead != nil {
 			terminalErr = fmt.Errorf("read Copilot stream: %w", errRead)
 			return
@@ -230,13 +233,10 @@ func (s *Service) pumpStream(outputID, endpoint, destination, model string, orig
 				return
 			}
 		}
-		if chunk.Done {
-			if trailing := decoder.Flush(); len(trailing) > 0 {
-				if errEmit := emit(trailing); errEmit != nil {
-					terminalErr = fmt.Errorf("translate final Copilot stream frame: %w", errEmit)
-				}
-			}
-			return
+	}
+	if trailing := decoder.Flush(); len(trailing) > 0 {
+		if errEmit := emit(trailing); errEmit != nil {
+			terminalErr = fmt.Errorf("translate final Copilot stream frame: %w", errEmit)
 		}
 	}
 }
@@ -324,8 +324,11 @@ func filterResponseHeaders(headers http.Header) http.Header {
 }
 
 func cloneHeader(headers http.Header) http.Header {
-	if len(headers) == 0 {
-		return http.Header{}
+	var out http.Header
+	if len(headers) > 0 {
+		out = headers.Clone()
+	} else {
+		out = http.Header{}
 	}
-	return headers.Clone()
+	return out
 }

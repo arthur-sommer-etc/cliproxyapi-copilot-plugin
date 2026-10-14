@@ -76,32 +76,29 @@ func countClaudeInputTokens(payload []byte) (int64, error) {
 }
 
 func collectSystemTokenSegments(system gjson.Result, segments *[]string) {
-	if system.Type == gjson.String {
+	switch {
+	case system.Type == gjson.String:
 		appendTokenString(segments, system.String())
-		return
+	case system.IsArray():
+		system.ForEach(func(_, part gjson.Result) bool {
+			if part.Type == gjson.String {
+				appendTokenString(segments, part.String())
+			} else if part.Get("type").String() == "text" {
+				appendTokenString(segments, part.Get("text").String())
+			}
+			return true
+		})
 	}
-	if !system.IsArray() {
-		return
-	}
-	system.ForEach(func(_, part gjson.Result) bool {
-		if part.Type == gjson.String {
-			appendTokenString(segments, part.String())
-		} else if part.Get("type").String() == "text" {
-			appendTokenString(segments, part.Get("text").String())
-		}
-		return true
-	})
 }
 
 func collectMessageTokenSegments(messages gjson.Result, segments *[]string) {
-	if !messages.IsArray() {
-		return
+	if messages.IsArray() {
+		messages.ForEach(func(_, message gjson.Result) bool {
+			appendTokenString(segments, message.Get("role").String())
+			collectContentTokenSegments(message.Get("content"), segments)
+			return true
+		})
 	}
-	messages.ForEach(func(_, message gjson.Result) bool {
-		appendTokenString(segments, message.Get("role").String())
-		collectContentTokenSegments(message.Get("content"), segments)
-		return true
-	})
 }
 
 func collectContentTokenSegments(content gjson.Result, segments *[]string) {
@@ -164,7 +161,6 @@ func collectContentTokenSegments(content gjson.Result, segments *[]string) {
 	case "tool_reference":
 		appendTokenString(segments, content.Get("tool_name").String())
 	case "image", "input_audio", "audio", "video", "redacted_thinking":
-		return
 	case "":
 		appendTokenJSON(segments, content)
 	default:
@@ -173,28 +169,26 @@ func collectContentTokenSegments(content gjson.Result, segments *[]string) {
 }
 
 func collectToolTokenSegments(tools gjson.Result, segments *[]string) {
-	if !tools.IsArray() {
-		return
+	if tools.IsArray() {
+		tools.ForEach(func(_, tool gjson.Result) bool {
+			appendTokenString(segments, tool.Get("type").String())
+			appendTokenString(segments, tool.Get("name").String())
+			appendTokenString(segments, tool.Get("description").String())
+			appendTokenJSON(segments, tool.Get("input_schema"))
+			return true
+		})
 	}
-	tools.ForEach(func(_, tool gjson.Result) bool {
-		appendTokenString(segments, tool.Get("type").String())
-		appendTokenString(segments, tool.Get("name").String())
-		appendTokenString(segments, tool.Get("description").String())
-		appendTokenJSON(segments, tool.Get("input_schema"))
-		return true
-	})
 }
 
 func collectToolChoiceTokenSegments(toolChoice gjson.Result, segments *[]string) {
-	if !toolChoice.Exists() {
-		return
-	}
-	if toolChoice.Type == gjson.String {
+	switch {
+	case !toolChoice.Exists():
+	case toolChoice.Type == gjson.String:
 		appendTokenString(segments, toolChoice.String())
-		return
+	default:
+		appendTokenString(segments, toolChoice.Get("type").String())
+		appendTokenString(segments, toolChoice.Get("name").String())
 	}
-	appendTokenString(segments, toolChoice.Get("type").String())
-	appendTokenString(segments, toolChoice.Get("name").String())
 }
 
 func appendTokenString(segments *[]string, value string) {
@@ -218,7 +212,7 @@ func appendTokenJSON(segments *[]string, value gjson.Result) {
 	var compact bytes.Buffer
 	if errCompact := json.Compact(&compact, []byte(raw)); errCompact == nil {
 		appendTokenString(segments, compact.String())
-		return
+	} else {
+		appendTokenString(segments, raw)
 	}
-	appendTokenString(segments, raw)
 }

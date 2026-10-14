@@ -38,9 +38,15 @@ Do not change running deployments or their configuration, plugins, or authentica
 Keep references read-only.
 Prefer officially supported LTS runtimes and compatible stable tools where no LTS line exists.
 Retain compatible Go module, toolchain, ABI, and production image pins.
+Prefer condition inversion, explicit loop termination, and flat `if` / `else if` / `else` chains for eligible early exits.
+Preserve evaluation order, side effects, cost, cancellation, cleanup, and admission checks.
+Keep natural final returns and required failure propagation.
+Do not add deeper nesting, artificial flags, or lint suppressions to remove an exit.
+Project lint rules and formatter output take precedence over the preferred control-flow form.
 Write each complete documentation sentence on its own source line.
 Do not join sentences with semicolons or em dashes.
 Use compact Markdown tables and sorted configuration object keys.
+Use `gitignore: true` for Markdown lint exclusions and add an explicit ignore only for a concrete file that Git ignore cannot cover.
 Write actionable errors and recovery instructions for exposed interfaces.
 
 ## Reference Basis

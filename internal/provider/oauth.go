@@ -54,17 +54,19 @@ type rateLimitedGitHubUserError struct {
 }
 
 func (e *rateLimitedGitHubUserError) Error() string {
-	if e == nil || e.cause == nil {
-		return "GitHub account verification was rate limited"
+	message := "GitHub account verification was rate limited"
+	if e != nil && e.cause != nil {
+		message = e.cause.Error()
 	}
-	return e.cause.Error()
+	return message
 }
 
 func (e *rateLimitedGitHubUserError) Unwrap() error {
-	if e == nil {
-		return nil
+	var cause error
+	if e != nil {
+		cause = e.cause
 	}
-	return e.cause
+	return cause
 }
 
 type deviceSession struct {
@@ -442,10 +444,11 @@ func oauthAccessTokenExpired(token oauthTokenResponse, issuedAt, now time.Time) 
 
 func retryOAuthUserVerification(err error) bool {
 	var statusErr *StatusError
+	retryable := true
 	if errors.As(err, &statusErr) {
-		return statusErr.Retryable
+		retryable = statusErr.Retryable
 	}
-	return true
+	return retryable
 }
 
 func classifyDeviceToken(statusCode int, token oauthTokenResponse, currentInterval time.Duration) pollDecision {
@@ -541,12 +544,10 @@ func githubUserRateLimitRetryAfter(resp transport.Response, now time.Time) (int6
 		seconds, ok := parseRetryAfterSeconds(value, now)
 		if !ok {
 			fallbackDelay = true
-			continue
-		}
-		if !hasTiming || seconds > retryAfterSeconds {
+		} else if !hasTiming || seconds > retryAfterSeconds {
 			retryAfterSeconds = seconds
 		}
-		hasTiming = true
+		hasTiming = hasTiming || ok
 	}
 	if remainingIsZero {
 		resetValue := strings.TrimSpace(resp.Headers.Get("X-RateLimit-Reset"))
@@ -632,62 +633,63 @@ func (s *Service) RefreshAuth(ctx context.Context, callbackID string, req plugin
 			return pluginapi.AuthRefreshResponse{}, errData
 		}
 		return pluginapi.AuthRefreshResponse{Auth: data, NextRefreshAfter: data.NextRefreshAfter}, nil
+	} else {
+		if storage.GitHubRefreshToken == "" {
+			return pluginapi.AuthRefreshResponse{}, statusError("auth_expired", "GitHub OAuth token expired and has no refresh token", http.StatusUnauthorized)
+		}
+		if storage.RefreshTokenExpiresAt > 0 && !time.Unix(storage.RefreshTokenExpiresAt, 0).After(now) {
+			return pluginapi.AuthRefreshResponse{}, statusError("auth_expired", "GitHub OAuth refresh token expired", http.StatusUnauthorized)
+		}
+		clientID := storage.OAuthClientID
+		if clientID == "" {
+			clientID = s.Config().GitHubClientID
+		}
+		form := url.Values{
+			"client_id":     {clientID},
+			"grant_type":    {"refresh_token"},
+			"refresh_token": {storage.GitHubRefreshToken},
+		}
+		cfg := s.Config()
+		resp, errDo := s.host.Do(ctx, callbackID, transport.Request{
+			Method: http.MethodPost,
+			URL:    cfg.GitHubBaseURL + "/login/oauth/access_token",
+			Headers: http.Header{
+				"Accept":       []string{"application/json"},
+				"Content-Type": []string{"application/x-www-form-urlencoded"},
+				"User-Agent":   []string{userAgent()},
+			},
+			Body: []byte(form.Encode()),
+		})
+		if errDo != nil {
+			return pluginapi.AuthRefreshResponse{}, fmt.Errorf("refresh GitHub OAuth token: %w", errDo)
+		}
+		var token oauthTokenResponse
+		if errUnmarshal := json.Unmarshal(resp.Body, &token); errUnmarshal != nil {
+			return pluginapi.AuthRefreshResponse{}, fmt.Errorf("decode GitHub OAuth refresh response: %w", errUnmarshal)
+		}
+		if resp.StatusCode < 200 || resp.StatusCode >= 300 || strings.TrimSpace(token.AccessToken) == "" {
+			return pluginapi.AuthRefreshResponse{}, upstreamStatusError(resp.StatusCode, redact.ErrorBody(resp.Body, storage.GitHubAccessToken, storage.GitHubRefreshToken))
+		}
+		storage.GitHubAccessToken = strings.TrimSpace(token.AccessToken)
+		if strings.TrimSpace(token.RefreshToken) != "" {
+			storage.GitHubRefreshToken = strings.TrimSpace(token.RefreshToken)
+		}
+		storage.TokenType = strings.TrimSpace(token.TokenType)
+		storage.Scope = strings.TrimSpace(token.Scope)
+		storage.UpdatedAt = now.UTC().Format(time.RFC3339)
+		if token.ExpiresIn > 0 {
+			storage.ExpiresAt = now.Add(time.Duration(token.ExpiresIn) * time.Second).Unix()
+		}
+		if token.RefreshTokenExpiresIn > 0 {
+			storage.RefreshTokenExpiresAt = now.Add(time.Duration(token.RefreshTokenExpiresIn) * time.Second).Unix()
+		}
+		s.invalidateAuth(req.AuthID)
+		data, errData := authData(storage, req.AuthID, "", "", "", false, req.Metadata, req.Attributes)
+		if errData != nil {
+			return pluginapi.AuthRefreshResponse{}, errData
+		}
+		return pluginapi.AuthRefreshResponse{Auth: data, NextRefreshAfter: data.NextRefreshAfter}, nil
 	}
-	if storage.GitHubRefreshToken == "" {
-		return pluginapi.AuthRefreshResponse{}, statusError("auth_expired", "GitHub OAuth token expired and has no refresh token", http.StatusUnauthorized)
-	}
-	if storage.RefreshTokenExpiresAt > 0 && !time.Unix(storage.RefreshTokenExpiresAt, 0).After(now) {
-		return pluginapi.AuthRefreshResponse{}, statusError("auth_expired", "GitHub OAuth refresh token expired", http.StatusUnauthorized)
-	}
-	clientID := storage.OAuthClientID
-	if clientID == "" {
-		clientID = s.Config().GitHubClientID
-	}
-	form := url.Values{
-		"client_id":     {clientID},
-		"grant_type":    {"refresh_token"},
-		"refresh_token": {storage.GitHubRefreshToken},
-	}
-	cfg := s.Config()
-	resp, errDo := s.host.Do(ctx, callbackID, transport.Request{
-		Method: http.MethodPost,
-		URL:    cfg.GitHubBaseURL + "/login/oauth/access_token",
-		Headers: http.Header{
-			"Accept":       []string{"application/json"},
-			"Content-Type": []string{"application/x-www-form-urlencoded"},
-			"User-Agent":   []string{userAgent()},
-		},
-		Body: []byte(form.Encode()),
-	})
-	if errDo != nil {
-		return pluginapi.AuthRefreshResponse{}, fmt.Errorf("refresh GitHub OAuth token: %w", errDo)
-	}
-	var token oauthTokenResponse
-	if errUnmarshal := json.Unmarshal(resp.Body, &token); errUnmarshal != nil {
-		return pluginapi.AuthRefreshResponse{}, fmt.Errorf("decode GitHub OAuth refresh response: %w", errUnmarshal)
-	}
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 || strings.TrimSpace(token.AccessToken) == "" {
-		return pluginapi.AuthRefreshResponse{}, upstreamStatusError(resp.StatusCode, redact.ErrorBody(resp.Body, storage.GitHubAccessToken, storage.GitHubRefreshToken))
-	}
-	storage.GitHubAccessToken = strings.TrimSpace(token.AccessToken)
-	if strings.TrimSpace(token.RefreshToken) != "" {
-		storage.GitHubRefreshToken = strings.TrimSpace(token.RefreshToken)
-	}
-	storage.TokenType = strings.TrimSpace(token.TokenType)
-	storage.Scope = strings.TrimSpace(token.Scope)
-	storage.UpdatedAt = now.UTC().Format(time.RFC3339)
-	if token.ExpiresIn > 0 {
-		storage.ExpiresAt = now.Add(time.Duration(token.ExpiresIn) * time.Second).Unix()
-	}
-	if token.RefreshTokenExpiresIn > 0 {
-		storage.RefreshTokenExpiresAt = now.Add(time.Duration(token.RefreshTokenExpiresIn) * time.Second).Unix()
-	}
-	s.invalidateAuth(req.AuthID)
-	data, errData := authData(storage, req.AuthID, "", "", "", false, req.Metadata, req.Attributes)
-	if errData != nil {
-		return pluginapi.AuthRefreshResponse{}, errData
-	}
-	return pluginapi.AuthRefreshResponse{Auth: data, NextRefreshAfter: data.NextRefreshAfter}, nil
 }
 
 func randomIdentifier(bytesCount int) (string, error) {

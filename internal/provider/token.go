@@ -51,8 +51,7 @@ func (s *Service) copilotToken(ctx context.Context, callbackID, authID string, s
 		cached.ExpiresAt.After(now.Add(cfg.tokenExpiryBuffer())) {
 		s.tokenMu.Unlock()
 		return cached, nil
-	}
-	if flight := s.tokenInflight[key]; flight != nil {
+	} else if flight := s.tokenInflight[key]; flight != nil {
 		done := flight.done
 		s.tokenMu.Unlock()
 		select {
@@ -61,24 +60,25 @@ func (s *Service) copilotToken(ctx context.Context, callbackID, authID string, s
 		case <-done:
 			return flight.entry, flight.err
 		}
-	}
-	flight := &tokenFlight{done: make(chan struct{})}
-	s.tokenInflight[key] = flight
-	s.tokenMu.Unlock()
+	} else {
+		flight := &tokenFlight{done: make(chan struct{})}
+		s.tokenInflight[key] = flight
+		s.tokenMu.Unlock()
 
-	entry, errExchange := s.exchangeCopilotToken(ctx, callbackID, fingerprint, storage.GitHubAccessToken)
+		entry, errExchange := s.exchangeCopilotToken(ctx, callbackID, fingerprint, storage.GitHubAccessToken)
 
-	s.tokenMu.Lock()
-	flight.entry = entry
-	flight.err = errExchange
-	if errExchange == nil {
-		s.tokenEntries[key] = entry
-		pruneTokenCache(s.tokenEntries, cfg, s.now())
+		s.tokenMu.Lock()
+		flight.entry = entry
+		flight.err = errExchange
+		if errExchange == nil {
+			s.tokenEntries[key] = entry
+			pruneTokenCache(s.tokenEntries, cfg, s.now())
+		}
+		delete(s.tokenInflight, key)
+		close(flight.done)
+		s.tokenMu.Unlock()
+		return entry, errExchange
 	}
-	delete(s.tokenInflight, key)
-	close(flight.done)
-	s.tokenMu.Unlock()
-	return entry, errExchange
 }
 
 func (s *Service) exchangeCopilotToken(ctx context.Context, callbackID, fingerprint, githubToken string) (copilotTokenEntry, error) {
@@ -121,23 +121,28 @@ func (s *Service) exchangeCopilotToken(ctx context.Context, callbackID, fingerpr
 }
 
 func tokenExpiry(token copilotTokenResponse, now time.Time) time.Time {
-	if token.ExpiresAt > 0 {
-		return time.Unix(token.ExpiresAt, 0)
+	seconds := token.ExpiresAt
+	var parts []string
+	if seconds <= 0 {
+		parts = strings.Split(token.Token, ";")
 	}
-	for _, part := range strings.Split(token.Token, ";") {
-		key, value, ok := strings.Cut(strings.TrimSpace(part), "=")
+	for i := 0; i < len(parts) && seconds <= 0; i++ {
+		key, value, ok := strings.Cut(strings.TrimSpace(parts[i]), "=")
 		if !ok || key != "exp" {
-			continue
-		}
-		seconds, errParse := strconv.ParseInt(value, 10, 64)
-		if errParse == nil && seconds > 0 {
-			return time.Unix(seconds, 0)
+			// Other token fields do not define its expiry.
+		} else if parsed, errParse := strconv.ParseInt(value, 10, 64); errParse == nil && parsed > 0 {
+			seconds = parsed
 		}
 	}
-	if token.RefreshIn > 0 {
-		return now.Add(time.Duration(token.RefreshIn) * time.Second)
+	var expiresAt time.Time
+	if seconds > 0 {
+		expiresAt = time.Unix(seconds, 0)
+	} else if token.RefreshIn > 0 {
+		expiresAt = now.Add(time.Duration(token.RefreshIn) * time.Second)
+	} else {
+		expiresAt = now.Add(20 * time.Minute)
 	}
-	return now.Add(20 * time.Minute)
+	return expiresAt
 }
 
 func copilotAPIBase(endpoints map[string]string, cfg Config) (string, error) {
