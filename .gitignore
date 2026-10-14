@@ -7,3 +7,4 @@
 *.so
 *.h
 .env
+/node_modules/

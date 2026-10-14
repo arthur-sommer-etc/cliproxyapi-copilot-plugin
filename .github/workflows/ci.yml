@@ -8,6 +8,33 @@ permissions:
   contents: read
 
 jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install contributor tooling
+        run: pnpm install --frozen-lockfile
+
+      - name: Check formatting and documentation
+        run: pnpm exec run-p check:go-format check:go-vet check:markdownlint-cli2
+
   test:
     runs-on: ubuntu-latest
     steps:

@@ -1,9 +1,7 @@
 # Install into an existing CLIProxyAPI deployment
 
-This guide adds the GitHub Copilot plugin to an existing official CLIProxyAPI
-deployment without replacing its configuration, API keys, or existing
-providers. The plugin currently targets CLIProxyAPI `v7.2.118`, ABI version 1,
-on Linux `amd64`.
+This guide adds the GitHub Copilot plugin to an existing official CLIProxyAPI deployment without replacing its configuration, API keys, or existing providers.
+The plugin currently targets CLIProxyAPI `v7.2.118`, ABI version 1, on Linux `amd64`.
 
 ## 1. Build the plugin
 
@@ -19,9 +17,8 @@ The resulting library is:
 build/plugins/linux/amd64/cliproxyapi-copilot.so
 ```
 
-The filename is significant: CLIProxyAPI derives the plugin ID
-`cliproxyapi-copilot` from it. Do not rename the library unless the matching key
-under `plugins.configs` is also renamed.
+The filename is significant: CLIProxyAPI derives the plugin ID `cliproxyapi-copilot` from it.
+Do not rename the library unless the matching key under `plugins.configs` is also renamed.
 
 ## 2. Install the library
 
@@ -39,8 +36,8 @@ sudo install -m 0755 \
   /opt/cliproxyapi/plugins/linux/amd64/cliproxyapi-copilot.so
 ```
 
-The CLIProxyAPI process must be able to read the library. Use a different
-absolute directory if `/opt/cliproxyapi` does not match the deployment.
+The CLIProxyAPI process must be able to read the library.
+Use a different absolute directory if `/opt/cliproxyapi` does not match the deployment.
 
 ### Docker or Docker Compose
 
@@ -62,8 +59,7 @@ services:
       - /path/to/cliproxyapi/plugins:/CLIProxyAPI/plugins:ro
 ```
 
-Merge the mount into the existing service rather than replacing its current
-configuration and auth-volume mounts.
+Merge the mount into the existing service rather than replacing its current configuration and auth-volume mounts.
 
 ## 3. Merge the plugin configuration
 
@@ -96,16 +92,15 @@ plugins:
   dir: "/CLIProxyAPI/plugins"
 ```
 
-There must be only one top-level `plugins` key. Preserve other entries already
-present under `plugins.configs`. Global `plugins.enabled` and the individual
-`cliproxyapi-copilot.enabled` setting must both be `true`.
+There must be only one top-level `plugins` key.
+Preserve other entries already present under `plugins.configs`.
+Global `plugins.enabled` and the individual `cliproxyapi-copilot.enabled` setting must both be `true`.
 
-The existing `auth-dir` must be writable and persistent. The plugin stores its
-GitHub OAuth credential through CLIProxyAPI's normal auth storage; it does not
-need a separate credential volume.
+The existing `auth-dir` must be writable and persistent.
+The plugin stores its GitHub OAuth credential through CLIProxyAPI's normal auth storage.
+It does not need a separate credential volume.
 
-If the deployment also uses CLIProxyAPI's native Claude subscription provider,
-prevent duplicate Claude model IDs from being scheduled through Copilot:
+If the deployment also uses CLIProxyAPI's native Claude subscription provider, prevent duplicate Claude model IDs from being scheduled through Copilot:
 
 ```yaml
 plugins:
@@ -117,7 +112,8 @@ plugins:
 
 ## 4. Restart and authenticate
 
-Restart CLIProxyAPI using the deployment's normal service command. Examples:
+Restart CLIProxyAPI using the deployment's normal service command.
+Examples:
 
 ```bash
 sudo systemctl restart cliproxyapi
@@ -134,9 +130,8 @@ plugin loaded plugin_id=cliproxyapi-copilot
 plugin registered plugin_id=cliproxyapi-copilot
 ```
 
-Open the existing CLIProxyAPI management center, start the **Copilot** login,
-and complete GitHub's device-code flow. The login uses the deployment's normal
-management authentication and auth directory.
+Open the existing CLIProxyAPI management center, start the **Copilot** login, and complete GitHub's device-code flow.
+The login uses the deployment's normal management authentication and auth directory.
 
 ## 5. Verify the installation
 
@@ -148,8 +143,7 @@ curl -fsS \
   http://127.0.0.1:8317/v0/management/plugins
 ```
 
-After Copilot authentication, query the normal model endpoint with an existing
-CLIProxyAPI client key:
+After Copilot authentication, query the normal model endpoint with an existing CLIProxyAPI client key:
 
 ```bash
 curl -fsS \
@@ -157,15 +151,13 @@ curl -fsS \
   http://127.0.0.1:8317/v1/models
 ```
 
-The result should include Copilot models such as `gpt-5.6-sol` and
-`gpt-5.6-terra`. Existing Claude and other provider models remain available.
+The result should include Copilot models such as `gpt-5.6-sol` and `gpt-5.6-terra`.
+Existing Claude and other provider models remain available.
 
 ## Updating or removing the plugin
 
-Version tags automatically publish marketplace-compatible packages. To update
-from a release, verify the archive against `checksums.txt`, extract
-`cliproxyapi-copilot.so`, replace the installed library, and restart
-CLIProxyAPI.
+Version tags automatically publish marketplace-compatible packages.
+To update from a release, verify the archive against `checksums.txt`, extract `cliproxyapi-copilot.so`, replace the installed library, and restart CLIProxyAPI.
 
 To disable it without deleting credentials:
 
@@ -176,7 +168,5 @@ plugins:
       enabled: false
 ```
 
-To remove it completely, stop CLIProxyAPI, delete the installed library, remove
-only the `cliproxyapi-copilot` configuration entry, and restart. Delete the
-plugin's Copilot auth entry through the normal management UI only if the stored
-credential should also be revoked or removed.
+To remove it completely, stop CLIProxyAPI, delete the installed library, remove only the `cliproxyapi-copilot` configuration entry, and restart.
+Delete the plugin's Copilot auth entry through the normal management UI only if the stored credential should also be revoked or removed.
