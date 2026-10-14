@@ -1,10 +1,10 @@
 # Route Claude Code through Claude and Copilot subscriptions
 
-This guide deploys the official CLIProxyAPI with this repository's GitHub
-Copilot plugin, authenticates both a Claude subscription and a GitHub Copilot
-subscription, and configures Claude Code to use both through one local endpoint.
+This guide deploys the official CLIProxyAPI with this repository's GitHub Copilot plugin.
+It authenticates Claude and GitHub Copilot subscriptions and configures Claude Code to use both through one local endpoint.
 
-Every step is an explicit command; no repository setup scripts are involved.
+Every step is an explicit command.
+No repository setup scripts are involved.
 
 The resulting path is:
 
@@ -19,9 +19,8 @@ official CLIProxyAPI
                                       (OpenAI Responses or Chat Completions)
 ```
 
-CCR is not required. The plugin translates Claude Messages requests to the
-Copilot endpoint supported by each model and translates responses back to
-Claude Code.
+CCR is not required.
+The plugin translates Claude Messages requests to the Copilot endpoint supported by each model and translates responses back to Claude Code.
 
 ## Prerequisites
 
@@ -32,13 +31,10 @@ Claude Code.
 - An active Claude subscription
 - An active GitHub Copilot subscription
 
-The Compose stack binds only to `127.0.0.1:8317`, so it is not reachable from
-other machines by default.
+The Compose stack binds only to `127.0.0.1:8317`, so it is not reachable from other machines by default.
 
-This guide creates the repository's complete Compose stack. If CLIProxyAPI is
-already deployed, install only the plugin using
-[`install-existing-deployment.md`](install-existing-deployment.md), then resume
-here at **Authenticate GitHub Copilot**.
+This guide creates the repository's complete Compose stack.
+If CLIProxyAPI is already deployed, install only the plugin using [`install-existing-deployment.md`](install-existing-deployment.md), then resume here at **Authenticate GitHub Copilot**.
 
 ## 1. Clone the repository
 
@@ -55,8 +51,8 @@ The deployment needs two local secrets:
 - A CLIProxyAPI management password
 - An API key used by Claude Code
 
-Generate them once into `.runtime/secrets.env` with mode `0600`. The
-`.runtime/` directory is ignored by Git.
+Generate them once into `.runtime/secrets.env` with mode `0600`.
+The `.runtime/` directory is ignored by Git.
 
 ```bash
 mkdir -p .runtime
@@ -69,15 +65,12 @@ umask 077
 chmod 600 .runtime/secrets.env
 ```
 
-Skip this step if `.runtime/secrets.env` already exists. Regenerating it
-replaces both secrets, which invalidates the rendered runtime configuration
-and any Claude Code sessions using the old API key.
+Skip this step if `.runtime/secrets.env` already exists.
+Regenerating it replaces both secrets, which invalidates the rendered runtime configuration and any Claude Code sessions using the old API key.
 
 ## 3. Render the runtime configuration
 
-CLIProxyAPI does not expand environment variables in `api-keys`, so the inert
-`__CLIPROXYAPI_API_KEY__` placeholder in the committed `config/config.yaml`
-template must be replaced locally:
+CLIProxyAPI does not expand environment variables in `api-keys`, so the inert `__CLIPROXYAPI_API_KEY__` placeholder in the committed `config/config.yaml` template must be replaced locally:
 
 ```bash
 sed "s/__CLIPROXYAPI_API_KEY__/$(sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/secrets.env)/g" \
@@ -95,10 +88,8 @@ Build the plugin shared library inside the pinned Go container:
 make build
 ```
 
-Docker Hub currently publishes this CLIProxyAPI release as `v7.2.118` rather
-than the unprefixed `7.2.118` tag that Compose pins. If the pinned tag is not
-already present locally, pull the published tag and create the local
-equivalent:
+Docker Hub currently publishes this CLIProxyAPI release as `v7.2.118` rather than the unprefixed `7.2.118` tag that Compose pins.
+If the pinned tag is not already present locally, pull the published tag and create the local equivalent:
 
 ```bash
 docker image inspect eceasy/cli-proxy-api:7.2.118 >/dev/null 2>&1 ||
@@ -108,8 +99,9 @@ docker pull eceasy/cli-proxy-api:7.2.118 || {
 }
 ```
 
-Start the stack. The `--env-file` flag passes the management password to the
-container; the API key is only read from the mounted `.runtime/config.yaml`:
+Start the stack.
+The `--env-file` flag passes the management password to the container.
+The API key is only read from the mounted `.runtime/config.yaml`:
 
 ```bash
 docker compose --env-file .runtime/secrets.env up -d
@@ -126,8 +118,8 @@ curl -fsS -o /dev/null -w 'API health: %{http_code}\n' \
   http://127.0.0.1:8317/v1/models
 ```
 
-Expect `API health: 200`. OAuth credentials created in the next steps are
-stored in the Docker volume `cliproxyapi_official_copilot_dev_home`.
+Expect `API health: 200`.
+OAuth credentials created in the next steps are stored in the Docker volume `cliproxyapi_official_copilot_dev_home`.
 
 Open the management center:
 
@@ -151,8 +143,8 @@ In the management center:
 4. Enter the displayed device code.
 5. Approve access and wait for the management center to report success.
 
-The plugin stores the GitHub OAuth credential through CLIProxyAPI's normal auth
-storage. Short-lived Copilot API tokens remain in process memory.
+The plugin stores the GitHub OAuth credential through CLIProxyAPI's normal auth storage.
+Short-lived Copilot API tokens remain in process memory.
 
 Confirm that the credential exists:
 
@@ -169,8 +161,9 @@ curl -fsS \
 Start the built-in **Anthropic/Claude** login from the management center.
 CLIProxyAPI uses Anthropic's OAuth flow unchanged.
 
-Anthropic redirects to `localhost:54545`. This Compose stack intentionally does
-not publish that port. When the browser reaches the final callback:
+Anthropic redirects to `localhost:54545`.
+This Compose stack intentionally does not publish that port.
+When the browser reaches the final callback:
 
 1. Copy the complete URL from the browser address bar.
 2. Assign it to `REDIRECT_URL`.
@@ -187,8 +180,7 @@ curl -fsS -X POST \
   http://127.0.0.1:8317/v0/management/oauth-callback
 ```
 
-Return to the management center and wait for the login status to become
-successful.
+Return to the management center and wait for the login status to become successful.
 
 ## 7. Verify models and inference
 
@@ -214,9 +206,8 @@ The list should include models from both subscriptions, including:
 - `claude-opus-5`
 - `claude-sonnet-5`
 
-The included configuration excludes `claude-*` from the Copilot plugin's
-catalog. This prevents duplicate Claude model IDs from being scheduled through
-Copilot instead of CLIProxyAPI's native Claude subscription provider.
+The included configuration excludes `claude-*` from the Copilot plugin's catalog.
+This prevents duplicate Claude model IDs from being scheduled through Copilot instead of CLIProxyAPI's native Claude subscription provider.
 
 Test Copilot through the Responses API:
 
@@ -239,9 +230,8 @@ curl -fsS http://127.0.0.1:8317/v1/messages \
 
 ## 8. Configure Claude Code globally
 
-Claude Code reads its API key through `apiKeyHelper`, a shell command it runs
-at startup. Using a command that reads `.runtime/secrets.env` avoids copying
-the key into `~/.claude/settings.json`.
+Claude Code reads its API key through `apiKeyHelper`, a shell command it runs at startup.
+Using a command that reads `.runtime/secrets.env` avoids copying the key into `~/.claude/settings.json`.
 
 If Claude Code settings already exist, back them up:
 
@@ -250,8 +240,8 @@ test ! -f "$HOME/.claude/settings.json" ||
   cp "$HOME/.claude/settings.json" "$HOME/.claude/settings.json.backup"
 ```
 
-Merge the following values into `~/.claude/settings.json`. Replace the
-`/home/YOUR_USER` path in `apiKeyHelper` with the actual clone location:
+Merge the following values into `~/.claude/settings.json`.
+Replace the `/home/YOUR_USER` path in `apiKeyHelper` with the actual clone location:
 
 ```json
 {
@@ -269,12 +259,11 @@ Merge the following values into `~/.claude/settings.json`. Replace the
 }
 ```
 
-Do not leave old `ANTHROPIC_AUTH_TOKEN` or `ANTHROPIC_API_KEY` values in the
-settings file or shell environment. They override or conflict with
-`apiKeyHelper` and commonly cause `401 Invalid API key`.
+Do not leave old `ANTHROPIC_AUTH_TOKEN` or `ANTHROPIC_API_KEY` values in the settings file or shell environment.
+They override or conflict with `apiKeyHelper` and commonly cause `401 Invalid API key`.
 
-Exit every running Claude Code process after changing the settings. Claude Code
-caches credentials at process startup.
+Exit every running Claude Code process after changing the settings.
+Claude Code caches credentials at process startup.
 
 Start a fresh session:
 
@@ -331,8 +320,7 @@ make build
 docker restart cliproxyapi-official-copilot-dev
 ```
 
-If `config/config.yaml` changed, re-render `.runtime/config.yaml` (step 3)
-before restarting.
+If `config/config.yaml` changed, re-render `.runtime/config.yaml` (step 3) before restarting.
 
 Stop the service without deleting OAuth credentials:
 
@@ -375,8 +363,8 @@ curl -fsS \
   http://127.0.0.1:8317/v0/management/plugins
 ```
 
-The `cliproxyapi-copilot` plugin should be registered and enabled. Re-run Copilot
-device login if no Copilot auth file exists.
+The `cliproxyapi-copilot` plugin should be registered and enabled.
+Re-run Copilot device login if no Copilot auth file exists.
 
 ### Claude Code does not show all models
 
@@ -390,9 +378,8 @@ Then restart Claude Code and use `/model` (singular).
 
 ### Inspecting full proxy errors
 
-Production defaults disable debug request logging because logs can contain
-prompts. For temporary troubleshooting, set these values in
-`.runtime/config.yaml`:
+Production defaults disable debug request logging because logs can contain prompts.
+For temporary troubleshooting, set these values in `.runtime/config.yaml`:
 
 ```yaml
 debug: true
@@ -400,18 +387,15 @@ logging-to-file: true
 logs-max-total-size-mb: 100
 ```
 
-Restart the isolated container and inspect `logs/`. Return the settings to
-`false` and remove sensitive logs afterward.
+Restart the isolated container and inspect `logs/`.
+Return the settings to `false` and remove sensitive logs afterward.
 
 ## Security notes
 
-- The plugin is a trusted in-process shared library. Review and build it from
-  source.
-- Keep port `8317` bound to `127.0.0.1` unless TLS, network controls, and
-  stronger operational protections are added.
-- Never commit `.runtime/`, OAuth files, logs, callback URLs, API keys, or
-  management passwords.
-- The Docker image and Go dependency are version-pinned, but a tag is not as
-  immutable as a digest. Pin the verified image digest for stricter
-  supply-chain control.
+- The plugin is a trusted in-process shared library.
+  Review and build it from source.
+- Keep port `8317` bound to `127.0.0.1` unless TLS, network controls, and stronger operational protections are added.
+- Never commit `.runtime/`, OAuth files, logs, callback URLs, API keys, or management passwords.
+- The Docker image and Go dependency are version-pinned, but a tag is not as immutable as a digest.
+  Pin the verified image digest for stricter supply-chain control.
 - Use only accounts and subscriptions you are authorized to access.

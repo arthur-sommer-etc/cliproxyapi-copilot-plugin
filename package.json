@@ -1,0 +1,26 @@
+{
+  "devDependencies": {
+    "husky": "9.1.7",
+    "markdownlint-cli2": "0.23.3",
+    "npm-run-all2": "9.0.3"
+  },
+  "engines": {
+    "node": ">=24.15.0 <25"
+  },
+  "name": "cpa-copilot-bridge",
+  "packageManager": "pnpm@12.11.2",
+  "private": true,
+  "scripts": {
+    "check": "run-p check:*",
+    "check:go-format": "gofmt -d cmd internal && test -z \"$(gofmt -l cmd internal)\"",
+    "check:go-test": "make test",
+    "check:go-vet": "go vet ./...",
+    "check:markdownlint-cli2": "markdownlint-cli2",
+    "fix": "run-p fix:*",
+    "fix:go-format": "gofmt -w cmd internal",
+    "fix:markdownlint-cli2": "markdownlint-cli2 --fix",
+    "pre-commit": "run-s check",
+    "pre-push": "run-s check",
+    "prepare": "husky"
+  }
+}
