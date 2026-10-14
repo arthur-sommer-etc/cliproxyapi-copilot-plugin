@@ -51,8 +51,7 @@ func (s *Service) copilotToken(ctx context.Context, callbackID, authID string, s
 		cached.ExpiresAt.After(now.Add(cfg.tokenExpiryBuffer())) {
 		s.tokenMu.Unlock()
 		return cached, nil
-	}
-	if flight := s.tokenInflight[key]; flight != nil {
+	} else if flight := s.tokenInflight[key]; flight != nil {
 		done := flight.done
 		s.tokenMu.Unlock()
 		select {
@@ -61,24 +60,25 @@ func (s *Service) copilotToken(ctx context.Context, callbackID, authID string, s
 		case <-done:
 			return flight.entry, flight.err
 		}
-	}
-	flight := &tokenFlight{done: make(chan struct{})}
-	s.tokenInflight[key] = flight
-	s.tokenMu.Unlock()
+	} else {
+		flight := &tokenFlight{done: make(chan struct{})}
+		s.tokenInflight[key] = flight
+		s.tokenMu.Unlock()
 
-	entry, errExchange := s.exchangeCopilotToken(ctx, callbackID, fingerprint, storage.GitHubAccessToken)
+		entry, errExchange := s.exchangeCopilotToken(ctx, callbackID, fingerprint, storage.GitHubAccessToken)
 
-	s.tokenMu.Lock()
-	flight.entry = entry
-	flight.err = errExchange
-	if errExchange == nil {
-		s.tokenEntries[key] = entry
-		pruneTokenCache(s.tokenEntries, cfg, s.now())
+		s.tokenMu.Lock()
+		flight.entry = entry
+		flight.err = errExchange
+		if errExchange == nil {
+			s.tokenEntries[key] = entry
+			pruneTokenCache(s.tokenEntries, cfg, s.now())
+		}
+		delete(s.tokenInflight, key)
+		close(flight.done)
+		s.tokenMu.Unlock()
+		return entry, errExchange
 	}
-	delete(s.tokenInflight, key)
-	close(flight.done)
-	s.tokenMu.Unlock()
-	return entry, errExchange
 }
 
 func (s *Service) exchangeCopilotToken(ctx context.Context, callbackID, fingerprint, githubToken string) (copilotTokenEntry, error) {

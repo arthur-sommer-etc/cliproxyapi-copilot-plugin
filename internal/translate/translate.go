@@ -63,8 +63,9 @@ func ResponseFromEndpoint(ctx context.Context, endpoint, destination, model stri
 			return nil, fmt.Errorf("Copilot API returned invalid JSON")
 		}
 		return append([]byte(nil), body...), nil
+	} else {
+		return response(ctx, from, to, model, original, translated, body)
 	}
-	return response(ctx, from, to, model, original, translated, body)
 }
 
 func StreamToResponses(ctx context.Context, endpoint, model string, original, translated, frame []byte, state *any) ([][]byte, error) {
@@ -79,8 +80,9 @@ func StreamFromEndpoint(ctx context.Context, endpoint, destination, model string
 	to := sdktranslator.FromString(destination)
 	if from == to {
 		return [][]byte{append([]byte(nil), frame...)}, nil
+	} else {
+		return stream(ctx, from, to, model, original, translated, frame, state)
 	}
-	return stream(ctx, from, to, model, original, translated, frame, state)
 }
 
 func ResponsesSSEToClaude(ctx context.Context, model string, original, translated, frame []byte, state *any) ([][]byte, error) {
@@ -93,8 +95,7 @@ func request(from, to sdktranslator.Format, model string, body []byte, stream bo
 	}
 	if from == sdktranslator.FormatClaude && to == sdktranslator.FormatOpenAIResponse {
 		return claudeRequestToResponses(model, body, stream)
-	}
-	if from != to && !registry.HasRequestTransformer(from, to) {
+	} else if from != to && !registry.HasRequestTransformer(from, to) {
 		intermediate, ok := intermediateFormat(from, to)
 		if !ok {
 			return nil, fmt.Errorf("official translator has no request route from %s to %s", from, to)
@@ -105,12 +106,13 @@ func request(from, to sdktranslator.Format, model string, body []byte, stream bo
 			return nil, fmt.Errorf("official two-hop request translation from %s to %s failed", from, to)
 		}
 		return out, nil
+	} else {
+		out := registry.TranslateRequest(from, to, model, body, stream)
+		if len(out) == 0 || !json.Valid(out) {
+			return nil, fmt.Errorf("official request translation from %s to %s failed", from, to)
+		}
+		return out, nil
 	}
-	out := registry.TranslateRequest(from, to, model, body, stream)
-	if len(out) == 0 || !json.Valid(out) {
-		return nil, fmt.Errorf("official request translation from %s to %s failed", from, to)
-	}
-	return out, nil
 }
 
 func response(ctx context.Context, from, to sdktranslator.Format, model string, original, translated, body []byte) ([]byte, error) {
@@ -119,8 +121,7 @@ func response(ctx context.Context, from, to sdktranslator.Format, model string, 
 	}
 	if from == sdktranslator.FormatOpenAIResponse && to == sdktranslator.FormatClaude {
 		return responsesResponseToClaude(model, body)
-	}
-	if from != to && !registry.HasNonStreamResponseTransformer(to, from) {
+	} else if from != to && !registry.HasNonStreamResponseTransformer(to, from) {
 		intermediate, ok := intermediateFormat(to, from)
 		if !ok {
 			return nil, fmt.Errorf("official translator has no response route from %s to %s", from, to)
@@ -132,19 +133,19 @@ func response(ctx context.Context, from, to sdktranslator.Format, model string, 
 			return nil, fmt.Errorf("official two-hop response translation from %s to %s failed", from, to)
 		}
 		return out, nil
+	} else {
+		out := registry.TranslateNonStream(ctx, from, to, model, original, translated, body, nil)
+		if len(out) == 0 || !json.Valid(out) {
+			return nil, fmt.Errorf("official response translation from %s to %s failed", from, to)
+		}
+		return out, nil
 	}
-	out := registry.TranslateNonStream(ctx, from, to, model, original, translated, body, nil)
-	if len(out) == 0 || !json.Valid(out) {
-		return nil, fmt.Errorf("official response translation from %s to %s failed", from, to)
-	}
-	return out, nil
 }
 
 func stream(ctx context.Context, from, to sdktranslator.Format, model string, original, translated, frame []byte, state *any) ([][]byte, error) {
 	if from == sdktranslator.FormatOpenAIResponse && to == sdktranslator.FormatClaude {
 		return responsesStreamToClaude(model, frame, state)
-	}
-	if from != to && !registry.HasStreamResponseTransformer(to, from) {
+	} else if from != to && !registry.HasStreamResponseTransformer(to, from) {
 		intermediate, ok := intermediateFormat(to, from)
 		if !ok {
 			return nil, fmt.Errorf("official translator has no stream route from %s to %s", from, to)
@@ -164,12 +165,13 @@ func stream(ctx context.Context, from, to sdktranslator.Format, model string, or
 			out = append(out, registry.TranslateStream(ctx, intermediate, to, model, original, intermediateRequest, firstFrame, &hopState.Second)...)
 		}
 		return out, nil
+	} else {
+		out := registry.TranslateStream(ctx, from, to, model, original, translated, frame, state)
+		if len(out) == 1 && bytes.Equal(out[0], frame) && from != to {
+			return nil, fmt.Errorf("official stream translation from %s to %s fell back unchanged", from, to)
+		}
+		return out, nil
 	}
-	out := registry.TranslateStream(ctx, from, to, model, original, translated, frame, state)
-	if len(out) == 1 && bytes.Equal(out[0], frame) && from != to {
-		return nil, fmt.Errorf("official stream translation from %s to %s fell back unchanged", from, to)
-	}
-	return out, nil
 }
 
 type twoHopStreamState struct {
