@@ -54,17 +54,19 @@ type rateLimitedGitHubUserError struct {
 }
 
 func (e *rateLimitedGitHubUserError) Error() string {
-	if e == nil || e.cause == nil {
-		return "GitHub account verification was rate limited"
+	message := "GitHub account verification was rate limited"
+	if e != nil && e.cause != nil {
+		message = e.cause.Error()
 	}
-	return e.cause.Error()
+	return message
 }
 
 func (e *rateLimitedGitHubUserError) Unwrap() error {
-	if e == nil {
-		return nil
+	var cause error
+	if e != nil {
+		cause = e.cause
 	}
-	return e.cause
+	return cause
 }
 
 type deviceSession struct {
@@ -442,10 +444,11 @@ func oauthAccessTokenExpired(token oauthTokenResponse, issuedAt, now time.Time) 
 
 func retryOAuthUserVerification(err error) bool {
 	var statusErr *StatusError
+	retryable := true
 	if errors.As(err, &statusErr) {
-		return statusErr.Retryable
+		retryable = statusErr.Retryable
 	}
-	return true
+	return retryable
 }
 
 func classifyDeviceToken(statusCode int, token oauthTokenResponse, currentInterval time.Duration) pollDecision {
@@ -541,12 +544,10 @@ func githubUserRateLimitRetryAfter(resp transport.Response, now time.Time) (int6
 		seconds, ok := parseRetryAfterSeconds(value, now)
 		if !ok {
 			fallbackDelay = true
-			continue
-		}
-		if !hasTiming || seconds > retryAfterSeconds {
+		} else if !hasTiming || seconds > retryAfterSeconds {
 			retryAfterSeconds = seconds
 		}
-		hasTiming = true
+		hasTiming = hasTiming || ok
 	}
 	if remainingIsZero {
 		resetValue := strings.TrimSpace(resp.Headers.Get("X-RateLimit-Reset"))

@@ -88,13 +88,11 @@ func normalizeModelPrefixes(prefixes []string) []string {
 	for _, prefix := range prefixes {
 		prefix = strings.ToLower(strings.TrimSpace(prefix))
 		if prefix == "" {
-			continue
+			// Empty prefixes do not exclude models.
+		} else if _, exists := seen[prefix]; !exists {
+			seen[prefix] = struct{}{}
+			out = append(out, prefix)
 		}
-		if _, exists := seen[prefix]; exists {
-			continue
-		}
-		seen[prefix] = struct{}{}
-		out = append(out, prefix)
 	}
 	return out
 }

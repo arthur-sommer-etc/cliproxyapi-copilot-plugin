@@ -178,18 +178,21 @@ type twoHopStreamState struct {
 }
 
 func intermediateFormat(from, to sdktranslator.Format) (sdktranslator.Format, bool) {
-	for _, candidate := range []sdktranslator.Format{
+	candidates := []sdktranslator.Format{
 		sdktranslator.FormatOpenAI,
 		sdktranslator.FormatOpenAIResponse,
 		sdktranslator.FormatClaude,
-	} {
+	}
+	var intermediate sdktranslator.Format
+	for i := 0; i < len(candidates) && intermediate == ""; i++ {
+		candidate := candidates[i]
 		if candidate != from && candidate != to &&
 			registry.HasRequestTransformer(from, candidate) &&
 			registry.HasRequestTransformer(candidate, to) {
-			return candidate, true
+			intermediate = candidate
 		}
 	}
-	return "", false
+	return intermediate, intermediate != ""
 }
 
 func endpointFormat(endpoint string) (sdktranslator.Format, error) {

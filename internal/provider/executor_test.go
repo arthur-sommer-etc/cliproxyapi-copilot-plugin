@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
@@ -23,6 +24,39 @@ func TestCopilotHeadersUseRecognizedIntegration(t *testing.T) {
 		if got := headers.Get(name); got != want {
 			t.Errorf("%s = %q, want %q", name, got, want)
 		}
+	}
+}
+
+func TestClaudeTokenSegmentsPreserveOrderAndIgnoreMedia(t *testing.T) {
+	root := gjson.Parse(`{
+		"system": ["system one", {"type":"text","text":"system two"}, {"type":"image","text":"ignored"}],
+		"messages": [{"role":"user","content":[
+			"plain text",
+			{"type":"thinking","thinking":"reasoning"},
+			{"type":"image","source":{"data":"ignored"}},
+			{"type":"tool_result","tool_use_id":"call","content":[{"type":"text","text":"result"}]},
+			{"type":"document","title":"title","context":"context","source":{"type":"text","data":"document"}},
+			{"type":"tool_use","id":"next","name":"lookup","input":{"q": "query"}}
+		]}],
+		"tools":[{"name":"lookup","description":"description","input_schema":{"type": "object"}}],
+		"tool_choice":{"type":"tool","name":"lookup"}
+	}`)
+	var segments []string
+	collectSystemTokenSegments(root.Get("system"), &segments)
+	collectMessageTokenSegments(root.Get("messages"), &segments)
+	collectToolTokenSegments(root.Get("tools"), &segments)
+	collectToolChoiceTokenSegments(root.Get("tool_choice"), &segments)
+	want := []string{"system one", "system two", "user", "plain text", "reasoning", "call", "result", "title", "context", "document", "next", "lookup", `{"q":"query"}`, "lookup", "description", `{"type":"object"}`, "tool", "lookup"}
+	if !reflect.DeepEqual(segments, want) {
+		t.Errorf("segments = %q, want %q", segments, want)
+	}
+	var absent []string
+	collectSystemTokenSegments(gjson.Result{}, &absent)
+	collectMessageTokenSegments(gjson.Result{}, &absent)
+	collectToolTokenSegments(gjson.Result{}, &absent)
+	collectToolChoiceTokenSegments(gjson.Result{}, &absent)
+	if absent != nil {
+		t.Errorf("missing fields produced segments: %q", absent)
 	}
 }
 

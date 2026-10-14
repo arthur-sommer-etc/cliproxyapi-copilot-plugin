@@ -87,14 +87,16 @@ func authData(storage authStorage, id, fileName, prefix, proxyURL string, disabl
 }
 
 func nextGitHubRefresh(storage authStorage, now time.Time) time.Time {
+	var refreshAt time.Time
 	if storage.ExpiresAt > 0 {
-		refreshAt := time.Unix(storage.ExpiresAt, 0).Add(-10 * time.Minute)
+		refreshAt = time.Unix(storage.ExpiresAt, 0).Add(-10 * time.Minute)
 		if refreshAt.Before(now.Add(time.Minute)) {
-			return now.Add(time.Minute)
+			refreshAt = now.Add(time.Minute)
 		}
-		return refreshAt
+	} else {
+		refreshAt = now.Add(24 * time.Hour)
 	}
-	return now.Add(24 * time.Hour)
+	return refreshAt
 }
 
 func credentialFileName(login string) string {

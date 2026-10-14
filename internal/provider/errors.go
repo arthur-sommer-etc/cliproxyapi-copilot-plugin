@@ -13,10 +13,11 @@ type StatusError struct {
 }
 
 func (e *StatusError) Error() string {
-	if e == nil {
-		return ""
+	var message string
+	if e != nil {
+		message = e.Message
 	}
-	return e.Message
+	return message
 }
 
 func statusError(code, message string, status int) error {

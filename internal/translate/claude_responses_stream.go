@@ -178,52 +178,54 @@ func responsesStreamToClaude(model string, frame []byte, state *any) ([][]byte, 
 }
 
 func (s *responsesClaudeStreamState) start(response, payload map[string]any) [][]byte {
-	if s.Started {
-		return nil
+	var out [][]byte
+	if !s.Started {
+		s.Started = true
+		s.MessageID = firstNonEmptyString(stringValue(response["id"]), stringValue(payload["response_id"]), "msg_copilot")
+		s.Model = firstNonEmptyString(stringValue(response["model"]), s.Model)
+		usage := objectValue(response["usage"])
+		message := map[string]any{
+			"id":            s.MessageID,
+			"type":          "message",
+			"role":          "assistant",
+			"model":         s.Model,
+			"content":       []any{},
+			"stop_reason":   nil,
+			"stop_sequence": nil,
+			"usage": map[string]any{
+				"input_tokens":  numberValue(usage["input_tokens"]),
+				"output_tokens": 0,
+			},
+		}
+		out = [][]byte{claudeSSE("message_start", map[string]any{"type": "message_start", "message": message})}
 	}
-	s.Started = true
-	s.MessageID = firstNonEmptyString(stringValue(response["id"]), stringValue(payload["response_id"]), "msg_copilot")
-	s.Model = firstNonEmptyString(stringValue(response["model"]), s.Model)
-	usage := objectValue(response["usage"])
-	message := map[string]any{
-		"id":            s.MessageID,
-		"type":          "message",
-		"role":          "assistant",
-		"model":         s.Model,
-		"content":       []any{},
-		"stop_reason":   nil,
-		"stop_sequence": nil,
-		"usage": map[string]any{
-			"input_tokens":  numberValue(usage["input_tokens"]),
-			"output_tokens": 0,
-		},
-	}
-	return [][]byte{claudeSSE("message_start", map[string]any{"type": "message_start", "message": message})}
+	return out
 }
 
 func (s *responsesClaudeStreamState) block(key, kind string) *responsesClaudeBlock {
 	if key == "" {
 		key = fmt.Sprintf("%s:%d", kind, len(s.Blocks))
 	}
-	if block := s.Blocks[key]; block != nil {
-		return block
+	block := s.Blocks[key]
+	if block == nil {
+		block = &responsesClaudeBlock{Index: s.NextBlock, Kind: kind}
+		s.NextBlock++
+		s.Blocks[key] = block
 	}
-	block := &responsesClaudeBlock{Index: s.NextBlock, Kind: kind}
-	s.NextBlock++
-	s.Blocks[key] = block
 	return block
 }
 
 func (s *responsesClaudeStreamState) openText(block *responsesClaudeBlock) [][]byte {
-	if block.Open {
-		return nil
+	var out [][]byte
+	if !block.Open {
+		block.Open = true
+		out = [][]byte{claudeSSE("content_block_start", map[string]any{
+			"type":          "content_block_start",
+			"index":         block.Index,
+			"content_block": map[string]any{"type": "text", "text": ""},
+		})}
 	}
-	block.Open = true
-	return [][]byte{claudeSSE("content_block_start", map[string]any{
-		"type":          "content_block_start",
-		"index":         block.Index,
-		"content_block": map[string]any{"type": "text", "text": ""},
-	})}
+	return out
 }
 
 func (s *responsesClaudeStreamState) openThinking(block *responsesClaudeBlock) [][]byte {
@@ -246,45 +248,48 @@ func (s *responsesClaudeStreamState) openThinking(block *responsesClaudeBlock) [
 }
 
 func (s *responsesClaudeStreamState) openTool(block *responsesClaudeBlock) [][]byte {
-	if block.Open {
-		return nil
+	var out [][]byte
+	if !block.Open {
+		block.Open = true
+		out = [][]byte{claudeSSE("content_block_start", map[string]any{
+			"type":  "content_block_start",
+			"index": block.Index,
+			"content_block": map[string]any{
+				"type":  "tool_use",
+				"id":    block.FunctionID,
+				"name":  block.FunctionName,
+				"input": map[string]any{},
+			},
+		})}
 	}
-	block.Open = true
-	return [][]byte{claudeSSE("content_block_start", map[string]any{
-		"type":  "content_block_start",
-		"index": block.Index,
-		"content_block": map[string]any{
-			"type":  "tool_use",
-			"id":    block.FunctionID,
-			"name":  block.FunctionName,
-			"input": map[string]any{},
-		},
-	})}
+	return out
 }
 
 func (s *responsesClaudeStreamState) delta(block *responsesClaudeBlock, deltaType, field, value string) [][]byte {
-	if value == "" {
-		return nil
+	var out [][]byte
+	if value != "" {
+		block.SawDelta = true
+		block.Accumulated += value
+		out = [][]byte{claudeSSE("content_block_delta", map[string]any{
+			"type":  "content_block_delta",
+			"index": block.Index,
+			"delta": map[string]any{"type": deltaType, field: value},
+		})}
 	}
-	block.SawDelta = true
-	block.Accumulated += value
-	return [][]byte{claudeSSE("content_block_delta", map[string]any{
-		"type":  "content_block_delta",
-		"index": block.Index,
-		"delta": map[string]any{"type": deltaType, field: value},
-	})}
+	return out
 }
 
 func (s *responsesClaudeStreamState) closeBlock(key string) [][]byte {
 	block := s.Blocks[key]
-	if block == nil || !block.Open {
-		return nil
+	var out [][]byte
+	if block != nil && block.Open {
+		block.Open = false
+		out = [][]byte{claudeSSE("content_block_stop", map[string]any{
+			"type":  "content_block_stop",
+			"index": block.Index,
+		})}
 	}
-	block.Open = false
-	return [][]byte{claudeSSE("content_block_stop", map[string]any{
-		"type":  "content_block_stop",
-		"index": block.Index,
-	})}
+	return out
 }
 
 func (s *responsesClaudeStreamState) finish(response map[string]any) [][]byte {
@@ -324,17 +329,17 @@ func parseSSEFrame(frame []byte) (event string, data []byte, done bool, err erro
 			dataLines = append(dataLines, strings.TrimSpace(strings.TrimPrefix(line, "data:")))
 		}
 	}
-	if len(dataLines) == 0 {
-		return event, nil, false, nil
+	if len(dataLines) > 0 {
+		joined := strings.Join(dataLines, "\n")
+		if joined == "[DONE]" {
+			done = true
+		} else if !json.Valid([]byte(joined)) {
+			return "", nil, false, fmt.Errorf("Responses SSE data is invalid JSON")
+		} else {
+			data = []byte(joined)
+		}
 	}
-	joined := strings.Join(dataLines, "\n")
-	if joined == "[DONE]" {
-		return event, nil, true, nil
-	}
-	if !json.Valid([]byte(joined)) {
-		return "", nil, false, fmt.Errorf("Responses SSE data is invalid JSON")
-	}
-	return event, []byte(joined), false, nil
+	return event, data, done, nil
 }
 
 func claudeSSE(event string, payload map[string]any) []byte {
@@ -343,10 +348,11 @@ func claudeSSE(event string, payload map[string]any) []byte {
 }
 
 func itemKey(payload map[string]any) string {
-	if index := numberKey(payload["output_index"]); index != "" {
-		return "item:" + index
+	index := numberKey(payload["output_index"])
+	if index == "" {
+		index = firstNonEmptyString(stringValue(payload["item_id"]), stringValue(objectValue(payload["item"])["id"]))
 	}
-	return "item:" + firstNonEmptyString(stringValue(payload["item_id"]), stringValue(objectValue(payload["item"])["id"]))
+	return "item:" + index
 }
 
 func contentKey(payload map[string]any) string {

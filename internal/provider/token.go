@@ -121,23 +121,28 @@ func (s *Service) exchangeCopilotToken(ctx context.Context, callbackID, fingerpr
 }
 
 func tokenExpiry(token copilotTokenResponse, now time.Time) time.Time {
-	if token.ExpiresAt > 0 {
-		return time.Unix(token.ExpiresAt, 0)
+	seconds := token.ExpiresAt
+	var parts []string
+	if seconds <= 0 {
+		parts = strings.Split(token.Token, ";")
 	}
-	for _, part := range strings.Split(token.Token, ";") {
-		key, value, ok := strings.Cut(strings.TrimSpace(part), "=")
+	for i := 0; i < len(parts) && seconds <= 0; i++ {
+		key, value, ok := strings.Cut(strings.TrimSpace(parts[i]), "=")
 		if !ok || key != "exp" {
-			continue
-		}
-		seconds, errParse := strconv.ParseInt(value, 10, 64)
-		if errParse == nil && seconds > 0 {
-			return time.Unix(seconds, 0)
+			// Other token fields do not define its expiry.
+		} else if parsed, errParse := strconv.ParseInt(value, 10, 64); errParse == nil && parsed > 0 {
+			seconds = parsed
 		}
 	}
-	if token.RefreshIn > 0 {
-		return now.Add(time.Duration(token.RefreshIn) * time.Second)
+	var expiresAt time.Time
+	if seconds > 0 {
+		expiresAt = time.Unix(seconds, 0)
+	} else if token.RefreshIn > 0 {
+		expiresAt = now.Add(time.Duration(token.RefreshIn) * time.Second)
+	} else {
+		expiresAt = now.Add(20 * time.Minute)
 	}
-	return now.Add(20 * time.Minute)
+	return expiresAt
 }
 
 func copilotAPIBase(endpoints map[string]string, cfg Config) (string, error) {

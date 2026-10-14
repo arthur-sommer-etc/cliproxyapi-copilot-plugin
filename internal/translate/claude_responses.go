@@ -92,15 +92,14 @@ func claudeRequestToResponses(model string, body []byte, stream bool) ([]byte, e
 		parts := claudeContentParts(message["content"])
 		pending := make([]any, 0)
 		flushMessage := func() {
-			if len(pending) == 0 {
-				return
+			if len(pending) > 0 {
+				input = append(input, map[string]any{
+					"type":    "message",
+					"role":    role,
+					"content": pending,
+				})
+				pending = nil
 			}
-			input = append(input, map[string]any{
-				"type":    "message",
-				"role":    role,
-				"content": pending,
-			})
-			pending = nil
 		}
 		for _, part := range parts {
 			partType := stringValue(part["type"])
@@ -268,29 +267,33 @@ func claudeSystemText(value any) string {
 }
 
 func claudeReasoningEffort(root map[string]any) string {
+	var effort string
 	if outputConfig, ok := root["output_config"].(map[string]any); ok {
-		switch effort := strings.ToLower(stringValue(outputConfig["effort"])); effort {
+		switch configured := strings.ToLower(stringValue(outputConfig["effort"])); configured {
 		case "low", "medium", "high":
-			return effort
+			effort = configured
 		case "max":
-			return "high"
+			effort = "high"
 		}
 	}
-	thinking, _ := root["thinking"].(map[string]any)
-	if stringValue(thinking["type"]) != "enabled" && stringValue(thinking["type"]) != "adaptive" {
-		return ""
+	var thinking map[string]any
+	if effort == "" {
+		thinking, _ = root["thinking"].(map[string]any)
 	}
-	budget := int64Value(thinking["budget_tokens"])
-	switch {
-	case budget == 0:
-		return "medium"
-	case budget <= 2048:
-		return "low"
-	case budget <= 8192:
-		return "medium"
-	default:
-		return "high"
+	if effort == "" && (stringValue(thinking["type"]) == "enabled" || stringValue(thinking["type"]) == "adaptive") {
+		budget := int64Value(thinking["budget_tokens"])
+		switch {
+		case budget == 0:
+			effort = "medium"
+		case budget <= 2048:
+			effort = "low"
+		case budget <= 8192:
+			effort = "medium"
+		default:
+			effort = "high"
+		}
 	}
+	return effort
 }
 
 func claudeContentParts(value any) []map[string]any {
@@ -372,9 +375,11 @@ func claudeToolResultOutput(value any) (any, error) {
 }
 
 func responsesReasoningText(item map[string]any) string {
-	for _, field := range []string{"summary", "content"} {
+	var text string
+	fields := []string{"summary", "content"}
+	for i := 0; i < len(fields) && text == ""; i++ {
 		var builder strings.Builder
-		for _, rawPart := range arrayValue(item[field]) {
+		for _, rawPart := range arrayValue(item[fields[i]]) {
 			switch part := rawPart.(type) {
 			case string:
 				builder.WriteString(part)
@@ -383,34 +388,35 @@ func responsesReasoningText(item map[string]any) string {
 			}
 		}
 		if builder.Len() > 0 {
-			return builder.String()
+			text = builder.String()
 		}
 	}
-	return ""
+	return text
 }
 
 func responsesFailure(root map[string]any) error {
 	status := strings.ToLower(stringValue(root["status"]))
-	if status != "failed" && status != "cancelled" {
-		return nil
+	var err error
+	if status == "failed" || status == "cancelled" {
+		errorObject := objectValue(root["error"])
+		message := firstNonEmptyString(stringValue(errorObject["message"]), stringValue(root["error"]), "unknown upstream error")
+		err = fmt.Errorf("Copilot Responses request %s: %s", status, message)
 	}
-	errorObject := objectValue(root["error"])
-	message := firstNonEmptyString(stringValue(errorObject["message"]), stringValue(root["error"]), "unknown upstream error")
-	return fmt.Errorf("Copilot Responses request %s: %s", status, message)
+	return err
 }
 
 func responsesStopReason(root map[string]any, hasToolUse bool) string {
 	reason := strings.ToLower(stringValue(objectValue(root["incomplete_details"])["reason"]))
-	switch reason {
-	case "max_output_tokens", "max_tokens":
+	switch {
+	case reason == "max_output_tokens" || reason == "max_tokens":
 		return "max_tokens"
-	case "content_filter":
+	case reason == "content_filter":
 		return "refusal"
-	}
-	if hasToolUse {
+	case hasToolUse:
 		return "tool_use"
+	default:
+		return "end_turn"
 	}
-	return "end_turn"
 }
 
 func decodeObject(raw []byte) (map[string]any, error) {
@@ -440,7 +446,7 @@ func arrayValue(value any) []any {
 func objectValue(value any) map[string]any {
 	out, _ := value.(map[string]any)
 	if out == nil {
-		return map[string]any{}
+		out = map[string]any{}
 	}
 	return out
 }
@@ -456,30 +462,27 @@ func rawStringValue(value any) string {
 }
 
 func firstString(values map[string]any, keys ...string) string {
-	for _, key := range keys {
-		if value := stringValue(values[key]); value != "" {
-			return value
-		}
+	var value string
+	for i := 0; i < len(keys) && value == ""; i++ {
+		value = stringValue(values[keys[i]])
 	}
-	return ""
+	return value
 }
 
 func firstRawString(values map[string]any, keys ...string) string {
-	for _, key := range keys {
-		if value := rawStringValue(values[key]); value != "" {
-			return value
-		}
+	var value string
+	for i := 0; i < len(keys) && value == ""; i++ {
+		value = rawStringValue(values[keys[i]])
 	}
-	return ""
+	return value
 }
 
 func firstNonEmptyString(values ...string) string {
-	for _, value := range values {
-		if value = strings.TrimSpace(value); value != "" {
-			return value
-		}
+	var value string
+	for i := 0; i < len(values) && value == ""; i++ {
+		value = strings.TrimSpace(values[i])
 	}
-	return ""
+	return value
 }
 
 func numberValue(value any) any {

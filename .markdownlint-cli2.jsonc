@@ -7,10 +7,8 @@
       "style": "compact"
     }
   },
+  "gitignore": true,
   "globs": [
     "**/*.md"
-  ],
-  "ignores": [
-    "node_modules/**"
   ]
 }
