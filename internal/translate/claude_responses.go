@@ -384,7 +384,7 @@ func responsesReasoningText(item map[string]any) string {
 			case string:
 				builder.WriteString(part)
 			case map[string]any:
-				builder.WriteString(stringValue(part["text"]))
+				builder.WriteString(rawStringValue(part["text"]))
 			}
 		}
 		if builder.Len() > 0 {

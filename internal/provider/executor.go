@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -12,6 +13,7 @@ import (
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/translate"
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/transport"
 	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
+	"github.com/tidwall/gjson"
 )
 
 const (
@@ -46,7 +48,8 @@ func (s *Service) Execute(ctx context.Context, req ExecuteRequest) (pluginapi.Ex
 	if errEndpoint != nil {
 		return pluginapi.ExecutorResponse{}, errEndpoint
 	}
-	requestBody, errTranslate := translate.RequestForEndpointFrom(sourceFormat, req.Model, req.Payload, false, endpoint)
+	replay := reasoningReplay(req, endpoint, token.APIBaseURL, storage)
+	requestBody, errTranslate := replay.Request(sourceFormat, req.Model, originalPayload(req), false, endpoint)
 	if errTranslate != nil {
 		return pluginapi.ExecutorResponse{}, statusError("translation_error", errTranslate.Error(), http.StatusUnprocessableEntity)
 	}
@@ -54,7 +57,8 @@ func (s *Service) Execute(ctx context.Context, req ExecuteRequest) (pluginapi.Ex
 	if errDo != nil {
 		return pluginapi.ExecutorResponse{}, errDo
 	}
-	body, errResponse := translate.ResponseFromEndpoint(ctx, endpoint, sourceFormat, req.Model, req.OriginalRequest, requestBody, resp.Body)
+	replay = reasoningReplay(req, endpoint, token.APIBaseURL, storage)
+	body, errResponse := replay.Response(ctx, endpoint, sourceFormat, req.Model, req.OriginalRequest, requestBody, resp.Body)
 	if errResponse != nil {
 		return pluginapi.ExecutorResponse{}, statusError("translation_error", errResponse.Error(), http.StatusBadGateway)
 	}
@@ -84,7 +88,8 @@ func (s *Service) ExecuteStream(ctx context.Context, req ExecuteRequest) (http.H
 	if errEndpoint != nil {
 		return nil, errEndpoint
 	}
-	requestBody, errTranslate := translate.RequestForEndpointFrom(sourceFormat, req.Model, req.Payload, true, endpoint)
+	replay := reasoningReplay(req, endpoint, token.APIBaseURL, storage)
+	requestBody, errTranslate := replay.Request(sourceFormat, req.Model, originalPayload(req), true, endpoint)
 	if errTranslate != nil {
 		return nil, statusError("translation_error", errTranslate.Error(), http.StatusUnprocessableEntity)
 	}
@@ -99,7 +104,12 @@ func (s *Service) ExecuteStream(ctx context.Context, req ExecuteRequest) (http.H
 		}
 		return nil, upstreamStatusError(upstream.StatusCode, redact.ErrorBody(body, token.Token, storage.GitHubAccessToken))
 	}
-	go s.pumpStream(req.StreamID, endpoint, sourceFormat, req.Model, req.OriginalRequest, requestBody, upstream)
+	if endpoint != translate.EndpointChatCompletions || sourceFormat == "openai" {
+		replay = nil
+	} else {
+		replay = reasoningReplay(req, endpoint, token.APIBaseURL, storage)
+	}
+	go s.pumpStream(req.StreamID, endpoint, sourceFormat, req.Model, req.OriginalRequest, requestBody, upstream, replay)
 	headers := filterResponseHeaders(upstream.Headers)
 	headers.Set("Content-Type", "text/event-stream")
 	headers.Set("Cache-Control", "no-cache")
@@ -124,6 +134,9 @@ func (s *Service) doModelRequest(ctx context.Context, callbackID, authID string,
 			return transport.Response{}, token, errToken
 		}
 		token = refreshed
+		if request.URL != token.APIBaseURL+endpoint && hasChatReasoning(body) {
+			return transport.Response{}, token, statusError("reasoning_scope_mismatch", "Copilot reasoning cannot move to another API origin during refresh", http.StatusUnprocessableEntity)
+		}
 		request.URL = token.APIBaseURL + endpoint
 		request.Headers = copilotHeaders(token.Token, stream)
 		resp, errDo = s.host.Do(ctx, callbackID, request)
@@ -156,6 +169,9 @@ func (s *Service) openModelStream(ctx context.Context, callbackID, authID string
 			return transport.Stream{}, token, errToken
 		}
 		token = refreshed
+		if request.URL != token.APIBaseURL+endpoint && hasChatReasoning(body) {
+			return transport.Stream{}, token, statusError("reasoning_scope_mismatch", "Copilot reasoning cannot move to another API origin during refresh", http.StatusUnprocessableEntity)
+		}
 		request.URL = token.APIBaseURL + endpoint
 		request.Headers = copilotHeaders(token.Token, true)
 		stream, errOpen = s.host.OpenStream(ctx, callbackID, request)
@@ -184,11 +200,41 @@ func (s *Service) collectStreamError(ctx context.Context, stream transport.Strea
 	return body, nil
 }
 
-func (s *Service) pumpStream(outputID, endpoint, destination, model string, original, translated []byte, upstream transport.Stream) {
+func originalPayload(req ExecuteRequest) []byte {
+	if len(req.OriginalRequest) > 0 {
+		return req.OriginalRequest
+	}
+	return req.Payload
+}
+
+func reasoningReplay(req ExecuteRequest, endpoint, apiBaseURL string, storage authStorage) *translate.CopilotReplay {
+	identity := map[string]any{"auth_id": req.AuthID}
+	for _, name := range []string{"Client-Session-Id", "Session-Id", "X-Session-Id", "Conversation-Id", "X-Claude-Code-Session-Id"} {
+		if values := req.Headers.Values(name); len(values) > 0 {
+			identity[name] = values
+		}
+	}
+	scope, _ := json.Marshal(identity)
+	return translate.NewCopilotReplay(string(scope), req.Model, endpoint, apiBaseURL, storage.GitHubAccessToken)
+}
+
+func hasChatReasoning(body []byte) bool {
+	for _, message := range gjson.GetBytes(body, "messages").Array() {
+		if message.Get("reasoning_text").Exists() || message.Get("reasoning_opaque").Exists() {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Service) pumpStream(outputID, endpoint, destination, model string, original, translated []byte, upstream transport.Stream, replay *translate.CopilotReplay) {
 	ctx := context.Background()
 	var terminalErr error
+	closed := false
 	defer func() {
-		_ = s.host.CloseStream(ctx, upstream.ID)
+		if !closed {
+			_ = s.host.CloseStream(ctx, upstream.ID)
+		}
 		message := ""
 		if terminalErr != nil {
 			message = redact.Text(terminalErr.Error())
@@ -198,8 +244,15 @@ func (s *Service) pumpStream(outputID, endpoint, destination, model string, orig
 
 	decoder := &sse.Decoder{}
 	var state any
+	var reasoningState translate.CopilotChatStream
 	emit := func(frame []byte) error {
-		frames, errTranslate := translate.StreamFromEndpoint(ctx, endpoint, destination, model, original, translated, frame, &state)
+		var frames [][]byte
+		var errTranslate error
+		if replay != nil {
+			frames, errTranslate = replay.Stream(ctx, destination, model, original, translated, frame, &reasoningState)
+		} else {
+			frames, errTranslate = translate.StreamFromEndpoint(ctx, endpoint, destination, model, original, translated, frame, &state)
+		}
 		if errTranslate != nil {
 			return errTranslate
 		}
@@ -237,6 +290,25 @@ func (s *Service) pumpStream(outputID, endpoint, destination, model string, orig
 	if trailing := decoder.Flush(); len(trailing) > 0 {
 		if errEmit := emit(trailing); errEmit != nil {
 			terminalErr = fmt.Errorf("translate final Copilot stream frame: %w", errEmit)
+			return
+		}
+	}
+	if replay != nil {
+		closed = true
+		if errClose := s.host.CloseStream(ctx, upstream.ID); errClose != nil {
+			terminalErr = fmt.Errorf("close Copilot reasoning stream: %w", errClose)
+			return
+		}
+		frames, errFinish := replay.FinishStream(ctx, destination, model, original, translated, &reasoningState)
+		if errFinish != nil {
+			terminalErr = errFinish
+			return
+		}
+		for _, frame := range frames {
+			if errEmit := s.host.Emit(ctx, outputID, frame); errEmit != nil {
+				terminalErr = errEmit
+				return
+			}
 		}
 	}
 }
