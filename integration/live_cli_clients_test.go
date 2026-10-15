@@ -499,6 +499,34 @@ func liveSearchCompleted(client string, result liveCLIResult) bool {
 	return result.toolStarted[name] > 0 && result.toolCompleted[name] > 0 && result.sourceURL
 }
 
+func TestDelegatedAnswerPredicatesRequireTheCorrectResult(t *testing.T) {
+	for _, test := range []struct {
+		text string
+		want bool
+	}{
+		{text: "323", want: true},
+		{text: "The answer is 323.", want: true},
+		{text: "17 * 19 = 323", want: true},
+		{text: "[Subagent hand-back] The report follows:\n  323\nagentId: fixture-child", want: true},
+		{text: "Message Type: FINAL_ANSWER\nTask name: fixture\nPayload:\n323", want: true},
+		{text: "The result is not 323, it is 322", want: false},
+		{text: "not 323", want: false},
+		{text: "not 323\n323", want: false},
+		{text: "323\n322", want: false},
+		{text: "Message Type: FINAL_ANSWER\nTask name: fixture\nPayload:\nnot 323", want: false},
+		{text: "322", want: false},
+	} {
+		t.Run(test.text, func(t *testing.T) {
+			if got := containsDelegatedAnswer(test.text); got != test.want {
+				t.Errorf("containsDelegatedAnswer(%q) = %t, want %t", test.text, got, test.want)
+			}
+			if got := delegatedAnswerIsCorrect(test.text); got != test.want {
+				t.Errorf("delegatedAnswerIsCorrect(%q) = %t, want %t", test.text, got, test.want)
+			}
+		})
+	}
+}
+
 func TestLiveCLIEventEvidence(t *testing.T) {
 	ordinary := parseLiveCLIEvents("codex", []byte(`{"type":"item.started","item":{"id":"m1","type":"agent_message"}}
 {"type":"item.completed","item":{"id":"m1","type":"agent_message","text":"I searched and delegated. https://example.com"}}
@@ -669,8 +697,28 @@ func claudeToolResultText(content any) string {
 }
 
 func containsDelegatedAnswer(text string) bool {
-	return regexp.MustCompile(`\b323\b`).MatchString(text)
+	return delegatedAnswerIsCorrect(text)
 }
+
+func delegatedAnswerIsCorrect(text string) bool {
+	text = strings.NewReplacer("**", "", "__", "", "`", "").Replace(strings.TrimSpace(text))
+	if delegatedAnswerPattern.MatchString(text) {
+		return true
+	}
+	if report := strings.LastIndex(text, "The report follows:"); report >= 0 {
+		answer := text[report+len("The report follows:"):]
+		if metadata := strings.Index(answer, "\nagentId:"); metadata >= 0 {
+			answer = answer[:metadata]
+		}
+		return delegatedAnswerPattern.MatchString(strings.TrimSpace(answer))
+	}
+	if payload := strings.LastIndex(text, "\nPayload:"); payload >= 0 {
+		return delegatedAnswerPattern.MatchString(strings.TrimSpace(text[payload+len("\nPayload:"):]))
+	}
+	return false
+}
+
+var delegatedAnswerPattern = regexp.MustCompile(`(?i)^(?:323|(?:the\s+)?(?:delegated\s+)?(?:answer|result)\s+(?:is|:)\s*323|(?:the\s+)?(?:subagent|agent)\s+(?:returned|reported)\s+323\s+as\s+(?:the\s+)?answer\s+to\s+17\s+(?:multiplied\s+by|times)\s+19|(?:(?:the\s+)?(?:subagent|agent)\s+)?(?:calculated\s+)?17\s*(?:\*|×|x)\s*19\s*=\s*323)[.!]?$`)
 
 func logLiveCLIResult(t *testing.T, client, task string, result liveCLIResult) {
 	t.Helper()

@@ -75,7 +75,7 @@ func liveAttachmentOriginalResponsesToolCalls(captures []liveAttachmentIngressCa
 	calls := make(map[string]liveAttachmentCapturedToolCall)
 	for _, capture := range captures {
 		requestURL, err := url.Parse(capture.Request.URL)
-		if err != nil || requestURL.Path != "/v1/responses" || !capture.Dispatched || !capture.BodyComplete || capture.CaptureTruncated || capture.Response.Status < 200 || capture.Response.Status >= 300 {
+		if err != nil || requestURL.Path != "/v1/responses" || !capture.Dispatched || !capture.BodyComplete || !capture.StreamTerminalComplete || capture.CaptureTruncated || capture.Response.Status < 200 || capture.Response.Status >= 300 {
 			continue
 		}
 		for _, event := range attachmentStreamObjects(capture.Response.Body) {

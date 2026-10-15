@@ -250,7 +250,9 @@ func (i *liveAttachmentIngress) serveHTTP(writer http.ResponseWriter, request *h
 		capture.StreamOutcome = "semantic_complete_function_call_downstream_cancelled"
 	case capture.ErrorClass == "local_host_response_read_error" && liveAttachmentIngressTextTerminalCancellation(capture, request.Context().Err(), forward.Context().Err()):
 		capture.StreamOutcome = "semantic_complete_text_terminal_downstream_cancelled"
-	case streamEndedCleanly && capture.ErrorClass == "" && !capture.CaptureTruncated:
+	case (response.StatusCode < 200 || response.StatusCode >= 300) && streamEndedCleanly && capture.ErrorClass == "" && !capture.CaptureTruncated:
+		capture.StreamOutcome = "http_refusal"
+	case streamEndedCleanly && capture.ErrorClass == "" && !capture.CaptureTruncated && capture.StreamTerminalComplete:
 		capture.StreamOutcome = "clean_eof"
 	case capture.ErrorClass != "":
 		capture.StreamOutcome = "unconfirmed_stream_failure"
@@ -727,6 +729,53 @@ func TestAttachmentIngressContinuesAfterForwardedFunctionCallTerminalCancellatio
 	captures, captureErr = ingress.captures()
 	if captureErr != nil || len(captures) != 2 || !captures[1].Dispatched || !captures[1].BodyComplete || !captures[1].ResponseBodyComplete || captures[1].ErrorClass != "" {
 		t.Fatal("second original-client turn was not retained as a complete local-host response")
+	}
+}
+
+func TestAttachmentIngressCleanEOFRequiresCompleteResponsesTerminal(t *testing.T) {
+	terminalBody := "event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"item\":{\"type\":\"function_call\",\"id\":\"item-a\",\"call_id\":\"call-a\",\"name\":\"Read\",\"arguments\":\"{}\"}}\n\n" +
+		"event: response.completed\ndata: {\"type\":\"response.completed\",\"response\":{\"object\":\"response\",\"status\":\"completed\",\"model\":\"gpt-6-luna\",\"usage\":{\"input_tokens\":1,\"output_tokens\":1},\"output\":[{\"type\":\"function_call\",\"status\":\"completed\",\"id\":\"item-a\",\"call_id\":\"call-a\",\"name\":\"Read\",\"arguments\":\"{}\"}]}}\n\n"
+	for _, test := range []struct {
+		name          string
+		body          string
+		wantCompleted bool
+	}{
+		{name: "completed terminal", body: terminalBody, wantCompleted: true},
+		{name: "output item without completed terminal", body: strings.Split(terminalBody, "event: response.completed")[0]},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			gate := newLiveServerToolGate(t, t.TempDir())
+			ingress := newLiveAttachmentIngress(t, gate, "http://127.0.0.1:1", t.TempDir(), "codex")
+			ingress.client.Transport = liveToolRoundTrip(func(*http.Request) (*http.Response, error) {
+				return &http.Response{StatusCode: http.StatusOK, Header: http.Header{"Content-Type": []string{"text/event-stream"}}, Body: io.NopCloser(strings.NewReader(test.body)), ContentLength: int64(len(test.body))}, nil
+			})
+			request, err := http.NewRequest(http.MethodPost, ingress.URL()+"/v1/responses", strings.NewReader(`{"model":"gpt-6-luna","stream":true}`))
+			if err != nil {
+				t.Fatal(err)
+			}
+			response, err := http.DefaultClient.Do(request)
+			if err != nil {
+				t.Fatal(err)
+			}
+			_, _ = io.Copy(io.Discard, response.Body)
+			_ = response.Body.Close()
+			captures, err := ingress.captures()
+			if err != nil || len(captures) != 1 {
+				t.Fatal("original-client response capture was unavailable")
+			}
+			capture := captures[0]
+			if capture.StreamTerminalComplete != test.wantCompleted || capture.StreamOutcome != map[bool]string{true: "clean_eof", false: "unconfirmed_stream_failure"}[test.wantCompleted] {
+				t.Fatalf("terminal complete=%t outcome=%q, want complete=%t", capture.StreamTerminalComplete, capture.StreamOutcome, test.wantCompleted)
+			}
+			calls := liveAttachmentOriginalResponsesToolCalls([]liveAttachmentIngressCapture{capture})
+			if (len(calls) == 1) != test.wantCompleted {
+				t.Fatalf("original Responses tool call evidence count=%d, want completed=%t", len(calls), test.wantCompleted)
+			}
+			_, failure := ingress.state()
+			if (failure == nil) != test.wantCompleted {
+				t.Fatalf("ingress failure=%v, want completed=%t", failure, test.wantCompleted)
+			}
+		})
 	}
 }
 

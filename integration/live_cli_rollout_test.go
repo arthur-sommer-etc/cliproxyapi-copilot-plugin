@@ -9,7 +9,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -214,12 +213,12 @@ func rolloutChildCompleted(child liveCodexRollout) bool {
 			for _, raw := range content {
 				block, _ := raw.(map[string]any)
 				text, _ := block["text"].(string)
-				assistantAnswer = assistantAnswer || block["type"] == "output_text" && rolloutHasAnswer(text)
+				assistantAnswer = assistantAnswer || block["type"] == "output_text" && delegatedAnswerIsCorrect(text)
 			}
 		}
 		if row.Type == "event_msg" && (row.Payload["type"] == "task_complete" || row.Payload["type"] == "turn_complete") {
 			text, _ := row.Payload["last_agent_message"].(string)
-			if turnID != "" && row.Payload["turn_id"] == turnID && assistantAnswer && row.Payload["error"] == nil && rolloutHasAnswer(text) {
+			if turnID != "" && row.Payload["turn_id"] == turnID && assistantAnswer && row.Payload["error"] == nil && delegatedAnswerIsCorrect(text) {
 				return true
 			}
 		}
@@ -231,7 +230,7 @@ func rolloutChildHandback(rows []liveCodexRolloutRow, after int, childPath, pare
 	for _, row := range rows[after+1:] {
 		if row.Type == "inter_agent_communication" && row.Payload["author"] == childPath && row.Payload["recipient"] == parentPath {
 			text, _ := row.Payload["content"].(string)
-			if rolloutHasAnswer(text) {
+			if delegatedAnswerIsCorrect(text) {
 				return true
 			}
 		}
@@ -240,17 +239,13 @@ func rolloutChildHandback(rows []liveCodexRolloutRow, after int, childPath, pare
 			for _, raw := range content {
 				block, _ := raw.(map[string]any)
 				text, _ := block["text"].(string)
-				if block["type"] == "input_text" && rolloutHasAnswer(text) {
+				if block["type"] == "input_text" && delegatedAnswerIsCorrect(text) {
 					return true
 				}
 			}
 		}
 	}
 	return false
-}
-
-func rolloutHasAnswer(text string) bool {
-	return regexp.MustCompile(`\b323\b`).MatchString(text)
 }
 
 func TestLiveCodexRecordedV2Delegation(t *testing.T) {

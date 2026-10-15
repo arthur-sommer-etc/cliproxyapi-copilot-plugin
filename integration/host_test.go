@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -36,6 +37,7 @@ type fixture struct {
 }
 
 const (
+	nativeHostRequestTimeout         = 10 * time.Second
 	matrixChatModel                  = "bridge-gemini-3.8"
 	matrixResponsesModel             = "bridge-gpt-6-luna"
 	matrixMessagesModel              = "bridge-sonnet-5.5"
@@ -602,6 +604,50 @@ func nativeClaudeCacheControlForText(blocks []map[string]any, text string) bool 
 	return false
 }
 
+func nativeHostHTTPClient(timeout time.Duration) *http.Client {
+	return &http.Client{Timeout: timeout}
+}
+
+func TestNativeHostHTTPClientBoundsStalledRequests(t *testing.T) {
+	started := make(chan struct{})
+	server := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, request *http.Request) {
+		close(started)
+		<-request.Context().Done()
+	}))
+	defer server.Close()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, server.URL, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := make(chan error, 1)
+	go func() {
+		response, err := nativeHostHTTPClient(25 * time.Millisecond).Do(request)
+		if response != nil {
+			response.Body.Close()
+		}
+		result <- err
+	}()
+	select {
+	case <-started:
+	case <-time.After(time.Second):
+		cancel()
+		t.Fatal("stalled request did not reach the test server")
+	}
+	select {
+	case err := <-result:
+		var timeoutError net.Error
+		if !errors.As(err, &timeoutError) || !timeoutError.Timeout() {
+			t.Fatalf("stalled request error = %v, want a client timeout", err)
+		}
+	case <-time.After(time.Second):
+		cancel()
+		<-result
+		t.Fatal("stalled request did not return before the test watchdog")
+	}
+}
+
 func TestNativeHostOAuthExcludedModelsFilterPluginModels(t *testing.T) {
 	binary := os.Getenv("CPA_BINARY")
 	if binary == "" {
@@ -616,7 +662,7 @@ func TestNativeHostOAuthExcludedModelsFilterPluginModels(t *testing.T) {
 		t.Fatal(err)
 	}
 	request.Header.Set("Authorization", "Bearer fixture-client-key")
-	response, err := http.DefaultClient.Do(request)
+	response, err := nativeHostHTTPClient(nativeHostRequestTimeout).Do(request)
 	if err != nil {
 		t.Fatalf("list native models: %v", err)
 	}
@@ -722,7 +768,7 @@ func requestNativeCodexModels(t *testing.T, base string) map[string]nativeCodexM
 		t.Fatal(err)
 	}
 	request.Header.Set("Authorization", "Bearer fixture-client-key")
-	response, err := http.DefaultClient.Do(request)
+	response, err := nativeHostHTTPClient(nativeHostRequestTimeout).Do(request)
 	if err != nil {
 		t.Fatalf("list native Codex models: %v", err)
 	}

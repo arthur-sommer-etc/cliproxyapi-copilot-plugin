@@ -386,8 +386,24 @@ func TestLiveChatAndClaudeStreamValidation(t *testing.T) {
 		{
 			name:      "Chat chunk schema and done marker",
 			api:       "Chat",
-			body:      `data: {"object":"chat.completion.chunk","model":"gemini-3.8-flash","choices":[{"index":0,"delta":{"role":"assistant","content":"LIVE_MATRIX_OK"},"finish_reason":null}]}` + "\n\n" + "data: [DONE]\n\n",
+			body:      `data: {"object":"chat.completion.chunk","model":"gemini-3.8-flash","choices":[{"index":0,"delta":{"role":"assistant","content":"LIVE_MATRIX_OK"},"finish_reason":null}]}` + "\n\n" + `data: {"object":"chat.completion.chunk","model":"gemini-3.8-flash","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}` + "\n\n" + "data: [DONE]\n\n",
 			wantModel: "gemini-3.8-flash", wantText: "LIVE_MATRIX_OK", wantSchema: true, wantTerminal: true,
+		},
+		{
+			name:         "Chat rejects missing finish reason",
+			api:          "Chat",
+			body:         `data: {"object":"chat.completion.chunk","model":"gemini-3.8-flash","choices":[{"index":0,"delta":{"role":"assistant","content":"LIVE_MATRIX_OK"},"finish_reason":null}]}` + "\n\n" + "data: [DONE]\n\n",
+			wantModel:    "gemini-3.8-flash",
+			wantText:     "LIVE_MATRIX_OK",
+			wantTerminal: true,
+		},
+		{
+			name:         "Chat rejects non-success finish reason",
+			api:          "Chat",
+			body:         `data: {"object":"chat.completion.chunk","model":"gemini-3.8-flash","choices":[{"index":0,"delta":{"role":"assistant","content":"LIVE_MATRIX_OK"},"finish_reason":"length"}]}` + "\n\n" + "data: [DONE]\n\n",
+			wantModel:    "gemini-3.8-flash",
+			wantText:     "LIVE_MATRIX_OK",
+			wantTerminal: true,
 		},
 		{
 			name:         "Chat rejects non chunk object",
@@ -417,6 +433,23 @@ func TestLiveChatAndClaudeStreamValidation(t *testing.T) {
 			wantModel: "claude-haiku-5.5", wantText: "LIVE_MATRIX_OK", wantSchema: true, wantTerminal: true,
 		},
 		{
+			name: "Claude rejects message stop without end turn reason",
+			api:  "Claude Messages",
+			body: `data: {"type":"message_start","message":{"type":"message","role":"assistant","model":"claude-haiku-5.5","content":[]}}` + "\n\n" +
+				`data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"LIVE_MATRIX_OK"}}` + "\n\n" +
+				`data: {"type":"message_delta","delta":{"stop_reason":null,"stop_sequence":null}}` + "\n\n" +
+				`data: {"type":"message_stop"}` + "\n\n",
+			wantModel: "claude-haiku-5.5", wantText: "LIVE_MATRIX_OK", wantTerminal: true,
+		},
+		{
+			name: "Claude rejects tool-use stop reason in text-only matrix",
+			api:  "Claude Messages",
+			body: `data: {"type":"message_start","message":{"type":"message","role":"assistant","model":"claude-haiku-5.5","content":[]}}` + "\n\n" +
+				`data: {"type":"message_delta","delta":{"stop_reason":"tool_use","stop_sequence":null}}` + "\n\n" +
+				`data: {"type":"message_stop"}` + "\n\n",
+			wantModel: "claude-haiku-5.5", wantTerminal: true,
+		},
+		{
 			name: "Claude rejects missing root identity",
 			api:  "Claude Messages",
 			body: `data: {"type":"message_start","message":{"type":"message","role":"user","content":[]}}` + "\n\n" +
@@ -440,6 +473,30 @@ func TestLiveChatAndClaudeStreamValidation(t *testing.T) {
 			}
 			if terminalOK != test.wantTerminal {
 				t.Errorf("terminal event=%t, want %t", terminalOK, test.wantTerminal)
+			}
+		})
+	}
+}
+
+func TestLiveJSONResponsesRequireSuccessfulTerminalReason(t *testing.T) {
+	tests := []struct {
+		name  string
+		api   string
+		body  string
+		valid bool
+	}{
+		{name: "Chat completed", api: "Chat", body: `{"object":"chat.completion","model":"gemini-3.8-flash","choices":[{"message":{"role":"assistant","content":"LIVE_MATRIX_OK"},"finish_reason":"stop"}]}`, valid: true},
+		{name: "Chat missing finish reason", api: "Chat", body: `{"object":"chat.completion","model":"gemini-3.8-flash","choices":[{"message":{"role":"assistant","content":"LIVE_MATRIX_OK"}}]}`},
+		{name: "Chat rejected finish reason", api: "Chat", body: `{"object":"chat.completion","model":"gemini-3.8-flash","choices":[{"message":{"role":"assistant","content":"LIVE_MATRIX_OK"},"finish_reason":"length"}]}`},
+		{name: "Messages completed", api: "Claude Messages", body: `{"type":"message","role":"assistant","model":"claude-haiku-5.5","content":[{"type":"text","text":"LIVE_MATRIX_OK"}],"stop_reason":"end_turn"}`, valid: true},
+		{name: "Messages missing stop reason", api: "Claude Messages", body: `{"type":"message","role":"assistant","model":"claude-haiku-5.5","content":[{"type":"text","text":"LIVE_MATRIX_OK"}]}`},
+		{name: "Messages rejected stop reason", api: "Claude Messages", body: `{"type":"message","role":"assistant","model":"claude-haiku-5.5","content":[{"type":"text","text":"LIVE_MATRIX_OK"}],"stop_reason":"tool_use"}`},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			_, _, valid, terminal := validateLiveResponse(test.api, false, "application/json", []byte(test.body))
+			if valid != test.valid || terminal != test.valid {
+				t.Fatalf("schema valid=%t terminal=%t, want schema valid=%t terminal=%t", valid, terminal, test.valid, test.valid)
 			}
 		})
 	}
@@ -1147,7 +1204,7 @@ func validateLiveResponse(api string, stream bool, contentType string, body []by
 			return "", model, false, false
 		}
 		choice, ok := choices[0].(map[string]any)
-		if !ok {
+		if !ok || choice["finish_reason"] != "stop" {
 			return "", model, false, false
 		}
 		message, ok := choice["message"].(map[string]any)
@@ -1162,7 +1219,8 @@ func validateLiveResponse(api string, stream bool, contentType string, body []by
 		}
 		return liveResponseText(response), model, true, true
 	default:
-		if response["type"] != "message" || response["role"] != "assistant" {
+		content, contentOK := response["content"].([]any)
+		if response["type"] != "message" || response["role"] != "assistant" || !contentOK || response["stop_reason"] != liveClaudeStopReason(content) {
 			return "", model, false, false
 		}
 		return liveContentText(response["content"]), model, true, true
@@ -1273,19 +1331,29 @@ func liveChatStreamValid(events []map[string]any) bool {
 				return false
 			}
 			if finish, exists := choice["finish_reason"]; exists && finish != nil {
-				if reason, ok := finish.(string); !ok || reason == "" {
+				if reason, ok := finish.(string); !ok || reason != "stop" {
 					return false
 				}
 				hasFinish = true
 			}
 		}
 	}
-	return true
+	return hasFinish
 }
 
 func liveClaudeStreamValid(events []map[string]any) bool {
 	starts, stops := 0, 0
+	stopReasons := 0
+	stopReason := "end_turn"
 	messageModel := ""
+	for _, event := range events {
+		if event["type"] == "content_block_start" {
+			block, _ := event["content_block"].(map[string]any)
+			if block["type"] == "tool_use" {
+				stopReason = "tool_use"
+			}
+		}
+	}
 	for index, event := range events {
 		switch event["type"] {
 		case "ping":
@@ -1317,25 +1385,34 @@ func liveClaudeStreamValid(events []map[string]any) bool {
 				return false
 			}
 		case "message_delta":
-			delta, ok := event["delta"].(map[string]any)
-			if !ok {
+			if stops != 0 || stopReasons != 0 {
 				return false
 			}
-			if reason, exists := delta["stop_reason"]; exists && reason != nil {
-				if _, ok := reason.(string); !ok {
-					return false
-				}
+			delta, ok := event["delta"].(map[string]any)
+			if !ok || delta["stop_reason"] != stopReason {
+				return false
 			}
+			stopReasons++
 		case "message_stop":
 			stops++
-			if index != len(events)-1 {
+			if index != len(events)-1 || stopReasons != 1 {
 				return false
 			}
 		default:
 			return false
 		}
 	}
-	return starts == 1 && stops == 1 && messageModel != ""
+	return starts == 1 && stops == 1 && stopReasons == 1 && messageModel != ""
+}
+
+func liveClaudeStopReason(content []any) string {
+	for _, item := range content {
+		block, _ := item.(map[string]any)
+		if block["type"] == "tool_use" {
+			return "tool_use"
+		}
+	}
+	return "end_turn"
 }
 
 func liveClaudeBlockStartValid(block map[string]any) bool {
