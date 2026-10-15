@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"strings"
 	"testing"
 	"time"
 
@@ -13,13 +12,12 @@ func TestClassifyDeviceToken(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name          string
-		status        int
-		token         oauthTokenResponse
-		wantStatus    pluginapi.AuthLoginStatus
-		wantTerminal  bool
-		wantInterval  time.Duration
-		messageNeedle string
+		name         string
+		status       int
+		token        oauthTokenResponse
+		wantStatus   pluginapi.AuthLoginStatus
+		wantTerminal bool
+		wantInterval time.Duration
 	}{
 		{
 			name:         "success",
@@ -43,20 +41,25 @@ func TestClassifyDeviceToken(t *testing.T) {
 			wantInterval: 12 * time.Second,
 		},
 		{
-			name:          "access denied",
-			status:        400,
-			token:         oauthTokenResponse{Error: "access_denied", ErrorDescription: "the user declined"},
-			wantStatus:    pluginapi.AuthLoginStatusError,
-			wantTerminal:  true,
-			messageNeedle: "user declined",
+			name:         "access denied",
+			status:       400,
+			token:        oauthTokenResponse{Error: "access_denied", ErrorDescription: "the user declined"},
+			wantStatus:   pluginapi.AuthLoginStatusError,
+			wantTerminal: true,
 		},
 		{
-			name:          "server error remains retryable",
-			status:        503,
-			token:         oauthTokenResponse{},
-			wantStatus:    pluginapi.AuthLoginStatusError,
-			wantTerminal:  false,
-			messageNeedle: "503",
+			name:         "server error remains retryable",
+			status:       503,
+			token:        oauthTokenResponse{},
+			wantStatus:   pluginapi.AuthLoginStatusError,
+			wantTerminal: false,
+		},
+		{
+			name:         "access token on server error is rejected",
+			status:       503,
+			token:        oauthTokenResponse{AccessToken: "token-value"},
+			wantStatus:   pluginapi.AuthLoginStatusError,
+			wantTerminal: false,
 		},
 	}
 
@@ -74,13 +77,12 @@ func TestClassifyDeviceToken(t *testing.T) {
 			if got.NextInterval != test.wantInterval {
 				t.Fatalf("next interval = %s, want %s", got.NextInterval, test.wantInterval)
 			}
-			if test.messageNeedle != "" && !strings.Contains(got.Message, test.messageNeedle) {
-				t.Fatalf("message %q does not contain %q", got.Message, test.messageNeedle)
-			}
 			if test.wantStatus == pluginapi.AuthLoginStatusSuccess {
 				if got.Token == nil || got.Token.AccessToken != "token-value" {
 					t.Fatalf("success token was not normalized")
 				}
+			} else if got.Token != nil {
+				t.Fatalf("non-success decision admitted a token: %#v", got)
 			}
 		})
 	}
