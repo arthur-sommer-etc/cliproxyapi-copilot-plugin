@@ -28,9 +28,10 @@ type copilotReplayValue struct {
 }
 
 type chatMessageGroup struct {
-	start int
-	end   int
-	value map[string]any
+	start     int
+	end       int
+	value     map[string]any
+	reasoning []any
 }
 
 // NewCopilotReplay binds replay to the host-selected route and persistent OAuth credential.
@@ -82,7 +83,7 @@ func (r *CopilotReplay) Request(source, model string, body []byte, stream bool, 
 					end = start
 				}
 			}
-			prefix = append(prefix, group.value)
+			prefix = append(prefix, group.historyShape())
 		}
 		if reasoningOnly && replayDigest(prefix) == value.History {
 			start, end = len(messages), len(messages)
@@ -197,7 +198,7 @@ func (r *CopilotReplay) Response(ctx context.Context, endpoint, destination, mod
 		return nil, err
 	}
 	if carrier != "" {
-		out, err = attachChatCarrier(out, carrier)
+		out, err = attachChatCarrier(out, carrier, stringValue(objectValue(choices[0])["finish_reason"]))
 		if err != nil {
 			return nil, err
 		}
@@ -222,7 +223,7 @@ func (r *CopilotReplay) seal(message map[string]any, request []byte) (string, er
 	messages, _ := root["messages"].([]any)
 	var history []any
 	for _, group := range groupChatMessages(messages) {
-		history = append(history, group.value)
+		history = append(history, group.historyShape())
 	}
 	assistant := map[string]any{"role": "assistant"}
 	for _, field := range []string{"content", "tool_calls", "reasoning_text", "reasoning_opaque"} {
@@ -274,6 +275,16 @@ func groupChatMessages(messages []any) []chatMessageGroup {
 	for index, raw := range messages {
 		message := objectValue(raw)
 		shape := chatMessageShape(message)
+		var reasoning []any
+		fields := make(map[string]any)
+		for _, field := range []string{"reasoning_text", "reasoning_opaque"} {
+			if value, exists := message[field]; exists {
+				fields[field] = value
+			}
+		}
+		if len(fields) > 0 {
+			reasoning = append(reasoning, fields)
+		}
 		if len(groups) > 0 && stringValue(shape["role"]) == "assistant" && stringValue(groups[len(groups)-1].value["role"]) == "assistant" {
 			group := &groups[len(groups)-1]
 			group.end = index + 1
@@ -281,11 +292,23 @@ func groupChatMessages(messages []any) []chatMessageGroup {
 			priorCalls, _ := group.value["tool_calls"].([]any)
 			calls, _ := shape["tool_calls"].([]any)
 			group.value["tool_calls"] = append(priorCalls, calls...)
+			group.reasoning = append(group.reasoning, reasoning...)
 		} else {
-			groups = append(groups, chatMessageGroup{start: index, end: index + 1, value: shape})
+			groups = append(groups, chatMessageGroup{start: index, end: index + 1, value: shape, reasoning: reasoning})
 		}
 	}
 	return groups
+}
+
+func (g chatMessageGroup) historyShape() map[string]any {
+	value := make(map[string]any, len(g.value)+1)
+	for key, item := range g.value {
+		value[key] = item
+	}
+	if len(g.reasoning) > 0 {
+		value["copilot_reasoning"] = g.reasoning
+	}
+	return value
 }
 
 func chatMessageShape(message map[string]any) map[string]any {
@@ -348,7 +371,7 @@ func concatenateChatContent(first, second any) any {
 	return parts
 }
 
-func attachChatCarrier(body []byte, carrier string) ([]byte, error) {
+func attachChatCarrier(body []byte, carrier, finishReason string) ([]byte, error) {
 	root, err := decodeObject(body)
 	if err != nil {
 		return nil, err
@@ -366,5 +389,17 @@ func attachChatCarrier(body []byte, carrier string) ([]byte, error) {
 		items = append(items, map[string]any{"id": "rs_copilot_" + replayDigest(carrier)[:20], "type": "reasoning", "summary": []any{}, "encrypted_content": carrier})
 	}
 	root["output"] = items
+	applyChatFinish(root, finishReason)
 	return json.Marshal(root)
+}
+
+func applyChatFinish(response map[string]any, reason string) {
+	switch reason {
+	case "length":
+		response["status"] = "incomplete"
+		response["incomplete_details"] = map[string]any{"reason": "max_output_tokens"}
+	case "content_filter":
+		response["status"] = "incomplete"
+		response["incomplete_details"] = map[string]any{"reason": "content_filter"}
+	}
 }

@@ -16,6 +16,7 @@ Treat the carrier as private conversation data and retain it unchanged in the ne
 Replay verifies the selected account, persistent OAuth credential, model, API endpoint and available conversation headers.
 When conversation headers are absent, the complete preceding transcript still binds replay.
 The bridge compares ordinary assistant content and tool calls before restoring the original provider message.
+Later carriers also bind every earlier restored reasoning field.
 Changed history, thinking text, arguments, call identifiers, credential or route returns a translation error before inference.
 Foreign signed reasoning and unsigned thinking history that lacks a recovery carrier are rejected on Chat conversion.
 The bridge does not silently discard those blocks or reinterpret foreign signatures.
@@ -38,6 +39,8 @@ This delay lets the bridge attach the late opaque value before closing the corre
 Converted Chat streams have an 8 MiB wire budget.
 Overflow, malformed trailing frames, missing termination and transport failures prevent successful completion.
 Messages tool blocks are emitted sequentially even when upstream function arguments arrive in parallel.
+Separated thinking segments are concatenated into one recoverable thinking item before the buffered assistant output.
+Token limits and content filters retain their incomplete response status and corresponding Messages stop reason.
 
 ## Earlier Attempt
 

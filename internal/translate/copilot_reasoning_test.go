@@ -34,6 +34,8 @@ func TestCopilotGeminiThinkingRoundTrip(t *testing.T) {
 			message string
 		}{
 			{"answer", `{"role":"assistant","content":"answer","reasoning_text":" plan\n","reasoning_opaque":"synthetic-opaque"}`},
+			{"answer whitespace", `{"role":"assistant","content":" answer\n","reasoning_text":"plan","reasoning_opaque":"synthetic-opaque"}`},
+			{"large tool integer", `{"role":"assistant","content":null,"reasoning_text":"plan","reasoning_opaque":"synthetic-opaque","tool_calls":[{"id":"call_a","type":"function","function":{"name":"first","arguments":"{\"n\":9007199254740993}"}},{"id":"call_b","type":"function","function":{"name":"second","arguments":"{\"n\":2}"}}]}`},
 			{"parallel tools", `{"role":"assistant","content":"checking","reasoning_text":"plan","reasoning_opaque":{"synthetic":"state"},"tool_calls":[{"id":"call_a","type":"function","function":{"name":"first","arguments":"{\"n\":1}"}},{"id":"call_b","type":"function","function":{"name":"second","arguments":"{\"n\":2}"}}]}`},
 			{"text without opaque", `{"role":"assistant","content":"answer","reasoning_text":"plan"}`},
 			{"opaque without text", `{"role":"assistant","content":"answer","reasoning_opaque":"synthetic-opaque"}`},

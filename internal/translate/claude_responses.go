@@ -196,7 +196,7 @@ func responsesResponseToClaude(model string, body []byte) ([]byte, error) {
 				}
 				switch stringValue(part["type"]) {
 				case "output_text", "text", "refusal":
-					content = append(content, map[string]any{"type": "text", "text": firstString(part, "text", "refusal")})
+					content = append(content, map[string]any{"type": "text", "text": firstRawString(part, "text", "refusal")})
 				}
 			}
 		case "reasoning":
@@ -219,8 +219,8 @@ func responsesResponseToClaude(model string, body []byte) ([]byte, error) {
 			var input map[string]any
 			if strings.TrimSpace(arguments) == "" {
 				input = map[string]any{}
-			} else if errArguments := json.Unmarshal([]byte(arguments), &input); errArguments != nil {
-				return nil, fmt.Errorf("decode Responses tool arguments: %w", errArguments)
+			} else if input, err = decodeObject([]byte(arguments)); err != nil {
+				return nil, fmt.Errorf("decode Responses tool arguments: %w", err)
 			}
 			content = append(content, map[string]any{
 				"type":  "tool_use",

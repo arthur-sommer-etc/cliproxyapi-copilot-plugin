@@ -12,23 +12,25 @@ const maxCopilotReasoningStreamBytes = 8 << 20
 
 // CopilotChatStream retains a thinking suffix until late opaque state is available at transport EOF.
 type CopilotChatStream struct {
-	responses  any
-	claude     any
-	frames     [][]byte
-	size       int
-	buffered   bool
-	done       bool
-	sawFinish  bool
-	finished   bool
-	failure    error
-	sequence   int
-	message    map[string]any
-	tools      []any
-	carrier    string
-	signed     bool
-	toolFrames map[int][][]byte
-	toolOrder  []int
-	toolDone   map[int]bool
+	responses     any
+	claude        any
+	frames        [][]byte
+	size          int
+	buffered      bool
+	done          bool
+	sawFinish     bool
+	finishReason  string
+	reasoningSent bool
+	finished      bool
+	failure       error
+	sequence      int
+	message       map[string]any
+	tools         []any
+	carrier       string
+	signed        bool
+	toolFrames    map[int][][]byte
+	toolOrder     []int
+	toolDone      map[int]bool
 }
 
 // Stream preserves ordinary streaming latency and buffers from the first Copilot thinking field.
@@ -75,6 +77,7 @@ func (r *CopilotReplay) chatStream(ctx context.Context, destination, model strin
 			}
 			if reason := stringValue(choice["finish_reason"]); reason != "" {
 				state.sawFinish = true
+				state.finishReason = reason
 			}
 		}
 	}
@@ -195,8 +198,12 @@ func (s *CopilotChatStream) translate(ctx context.Context, destination, model st
 		choices, _ := root["choices"].([]any)
 		for _, raw := range choices {
 			delta := objectValue(objectValue(raw)["delta"])
-			if text, exists := delta["reasoning_text"]; exists {
-				delta["reasoning_content"] = text
+			delete(delta, "reasoning_text")
+			if s.carrier != "" && !s.reasoningSent {
+				if text, exists := s.message["reasoning_text"]; exists {
+					delta["reasoning_content"] = text
+				}
+				s.reasoningSent = true
 			}
 		}
 		data, err = json.Marshal(root)
@@ -222,12 +229,19 @@ func (s *CopilotChatStream) translate(ctx context.Context, destination, model st
 			item["encrypted_content"] = s.carrier
 			s.signed = true
 		}
+		if event == "response.completed" {
+			root := objectValue(payload["response"])
+			applyChatFinish(root, s.finishReason)
+			if stringValue(root["status"]) == "incomplete" {
+				payload["type"] = "response.incomplete"
+			}
+		}
 		if s.carrier != "" && event == "response.completed" {
 			response, err := json.Marshal(payload["response"])
 			if err != nil {
 				return nil, err
 			}
-			response, err = attachChatCarrier(response, s.carrier)
+			response, err = attachChatCarrier(response, s.carrier, s.finishReason)
 			if err != nil {
 				return nil, err
 			}
