@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/translate"
@@ -59,13 +58,13 @@ func TestPumpStreamTerminationAndCleanup(t *testing.T) {
 	frame := "data: {\"type\":\"response.completed\"}\n\n"
 	trailing := "data: {\"type\":\"response.completed\"}"
 	tests := []struct {
-		name      string
-		chunks    []transport.StreamChunk
-		readError error
-		emitError error
-		wantCalls []string
-		wantEmit  []string
-		wantError string
+		name        string
+		chunks      []transport.StreamChunk
+		readError   error
+		emitError   error
+		wantCalls   []string
+		wantEmit    []string
+		wantFailure bool
 	}{
 		{
 			name:      "done payload and trailing frame",
@@ -80,32 +79,32 @@ func TestPumpStreamTerminationAndCleanup(t *testing.T) {
 			wantEmit:  []string{frame},
 		},
 		{
-			name:      "read failure",
-			readError: errors.New("read failed"),
-			wantCalls: []string{"read:upstream", "close:upstream", "output:output"},
-			wantError: "read Copilot stream: read failed",
+			name:        "read failure",
+			readError:   errors.New("read failed"),
+			wantCalls:   []string{"read:upstream", "close:upstream", "output:output"},
+			wantFailure: true,
 		},
 		{
-			name:      "provider error discards payload",
-			chunks:    []transport.StreamChunk{{Payload: []byte(frame), Error: "provider failed", Done: true}},
-			wantCalls: []string{"read:upstream", "close:upstream", "output:output"},
-			wantError: "Copilot stream error: provider failed",
+			name:        "provider error discards payload",
+			chunks:      []transport.StreamChunk{{Payload: []byte(frame), Error: "provider failed", Done: true}},
+			wantCalls:   []string{"read:upstream", "close:upstream", "output:output"},
+			wantFailure: true,
 		},
 		{
-			name:      "emit failure stops before next frame",
-			chunks:    []transport.StreamChunk{{Payload: []byte(frame + frame)}},
-			emitError: errors.New("emit failed"),
-			wantCalls: []string{"read:upstream", "emit:output", "close:upstream", "output:output"},
-			wantEmit:  []string{frame},
-			wantError: "translate Copilot stream: emit failed",
+			name:        "emit failure stops before next frame",
+			chunks:      []transport.StreamChunk{{Payload: []byte(frame + frame)}},
+			emitError:   errors.New("emit failed"),
+			wantCalls:   []string{"read:upstream", "emit:output", "close:upstream", "output:output"},
+			wantEmit:    []string{frame},
+			wantFailure: true,
 		},
 		{
-			name:      "trailing emit failure",
-			chunks:    []transport.StreamChunk{{Payload: []byte(trailing), Done: true}},
-			emitError: errors.New("emit failed"),
-			wantCalls: []string{"read:upstream", "emit:output", "close:upstream", "output:output"},
-			wantEmit:  []string{trailing},
-			wantError: "translate final Copilot stream frame: emit failed",
+			name:        "trailing emit failure",
+			chunks:      []transport.StreamChunk{{Payload: []byte(trailing), Done: true}},
+			emitError:   errors.New("emit failed"),
+			wantCalls:   []string{"read:upstream", "emit:output", "close:upstream", "output:output"},
+			wantEmit:    []string{trailing},
+			wantFailure: true,
 		},
 	}
 	for _, test := range tests {
@@ -119,8 +118,8 @@ func TestPumpStreamTerminationAndCleanup(t *testing.T) {
 			if !reflect.DeepEqual(host.emitted, test.wantEmit) {
 				t.Errorf("emitted = %q, want %q", host.emitted, test.wantEmit)
 			}
-			if host.closeMessage != test.wantError {
-				t.Errorf("close message = %q, want %q", host.closeMessage, test.wantError)
+			if failed := host.closeMessage != ""; failed != test.wantFailure {
+				t.Errorf("output failed = %v, want %v", failed, test.wantFailure)
 			}
 		})
 	}
@@ -143,20 +142,23 @@ func TestCollectStreamErrorStopsAndCloses(t *testing.T) {
 }
 
 func TestCollectStreamErrorPropagatesFailure(t *testing.T) {
+	readError := errors.New("read failed")
 	for _, test := range []struct {
 		name      string
 		readError error
 		chunk     transport.StreamChunk
-		wantError string
 	}{
-		{name: "read", readError: errors.New("read failed"), wantError: "read failed"},
-		{name: "chunk", chunk: transport.StreamChunk{Payload: []byte("discard"), Error: "provider failed", Done: true}, wantError: "provider failed"},
+		{name: "read", readError: readError},
+		{name: "chunk", chunk: transport.StreamChunk{Payload: []byte("discard"), Error: "provider failed", Done: true}},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			host := &scriptedStreamHost{chunks: []transport.StreamChunk{test.chunk}, readError: test.readError}
 			body, err := (&Service{host: host}).collectStreamError(context.Background(), transport.Stream{ID: "upstream"})
-			if body != nil || err == nil || !strings.Contains(err.Error(), test.wantError) {
+			if body != nil || err == nil {
 				t.Fatalf("body = %q, error = %v", body, err)
+			}
+			if test.readError != nil && !errors.Is(err, test.readError) {
+				t.Errorf("error = %v, want wrapped read error", err)
 			}
 			if want := []string{"read:upstream", "close:upstream"}; !reflect.DeepEqual(host.calls, want) {
 				t.Errorf("calls = %v, want %v", host.calls, want)

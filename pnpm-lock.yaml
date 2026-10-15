@@ -162,18 +162,30 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    husky:
+      specifier: ^9.1.7
+      version: 9.1.7
+    markdownlint-cli2:
+      specifier: ^0.23.3
+      version: 0.23.3
+    npm-run-all2:
+      specifier: ^9.0.3
+      version: 9.0.3
+
 importers:
 
   .:
     devDependencies:
       husky:
-        specifier: 9.1.7
+        specifier: 'catalog:'
         version: 9.1.7
       markdownlint-cli2:
-        specifier: 0.23.3
+        specifier: 'catalog:'
         version: 0.23.3
       npm-run-all2:
-        specifier: 9.0.3
+        specifier: 'catalog:'
         version: 9.0.3
 
 packages:

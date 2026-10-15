@@ -727,7 +727,7 @@ func TestStartLoginBoundsConcurrentSessionsAndReturns429WhenFull(t *testing.T) {
 		t.Fatal("saturated StartLogin did not return promptly")
 	}
 	var status *StatusError
-	if !errors.As(saturated, &status) || status.HTTPStatus != http.StatusTooManyRequests || status.Message != "Too many active GitHub device login sessions" {
+	if !errors.As(saturated, &status) || status.HTTPStatus != http.StatusTooManyRequests || status.Code != "oauth_sessions_full" || status.Retryable {
 		close(release)
 		t.Fatalf("saturated StartLogin error = %v, want static HTTP 429", saturated)
 	}
