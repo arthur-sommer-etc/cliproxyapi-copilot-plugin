@@ -38,8 +38,8 @@ From that field onward, it buffers the remaining stream until DONE, transport EO
 This delay lets the bridge attach the late opaque value before closing the corresponding thinking block.
 Converted Chat streams have an 8 MiB wire budget.
 Overflow, malformed trailing frames, missing termination and transport failures prevent successful completion.
-Messages tool blocks are emitted sequentially even when upstream function arguments arrive in parallel.
-Separated thinking segments are concatenated into one recoverable thinking item before the buffered assistant output.
+Messages content blocks are emitted sequentially even when text, thinking and parallel tool arguments overlap upstream.
+Separated thinking segments are concatenated into one recoverable thinking item.
 Token limits and content filters retain their incomplete response status and corresponding Messages stop reason.
 
 ## Earlier Attempt

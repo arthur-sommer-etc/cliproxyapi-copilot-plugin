@@ -179,3 +179,71 @@ func assertTokenLimit(t *testing.T, destination string, body []byte) {
 		t.Fatalf("terminal fields = %s", body)
 	}
 }
+
+func TestCopilotCombinedThinkingStreamRoundTrip(t *testing.T) {
+	for _, destination := range []string{"claude", "openai-response"} {
+		for _, priorContent := range []bool{false, true} {
+			t.Run(destination+"/"+map[bool]string{false: "combined role", true: "prior text"}[priorContent], func(t *testing.T) {
+				replay := testReplay()
+				request := initialReasoningRequest(destination)
+				chat, err := replay.Request(destination, "gemini-3.8-flash", request, true, EndpointChatCompletions)
+				if err != nil {
+					t.Fatal(err)
+				}
+				frames := reasoningStreamFrames(true)
+				frames = append([][]byte{[]byte(`data: {"id":"chat_1","choices":[{"index":0,"delta":{"role":"assistant","reasoning_text":"plan","content":"answer"}}]}` + "\n\n")}, frames[3:]...)
+				if priorContent {
+					frames = append([][]byte{[]byte(`data: {"id":"chat_1","choices":[{"index":0,"delta":{"role":"assistant","content":"first"}}]}` + "\n\n")}, frames...)
+				}
+				var state CopilotChatStream
+				var output [][]byte
+				for index, frame := range frames {
+					converted, err := replay.Stream(context.Background(), destination, "gemini-3.8-flash", request, chat, frame, &state)
+					if err != nil {
+						t.Fatal(err)
+					}
+					output = append(output, converted...)
+					if priorContent && index == 0 {
+						var text string
+						for _, frame := range converted {
+							_, data, _, _ := parseSSEFrame(frame)
+							if gjson.GetBytes(data, "type").String() == "content_block_delta" {
+								text += gjson.GetBytes(data, "delta.text").String()
+							} else if gjson.GetBytes(data, "type").String() == "response.output_text.delta" {
+								text += gjson.GetBytes(data, "delta").String()
+							}
+						}
+						if text != "first" {
+							t.Fatalf("early content = %q", text)
+						}
+					}
+				}
+				converted, err := replay.FinishStream(context.Background(), destination, "gemini-3.8-flash", request, chat, &state)
+				if err != nil {
+					t.Fatal(err)
+				}
+				response := assembledReasoningResponse(t, destination, append(output, converted...))
+				next := nextReasoningRequest(t, destination, request, response)
+				restored, err := replay.Request(destination, "gemini-3.8-flash", next, false, EndpointChatCompletions)
+				if err != nil {
+					t.Fatal(err)
+				}
+				want := `{"role":"assistant","content":"answer","reasoning_text":"plan","reasoning_opaque":"synthetic-opaque"}`
+				if priorContent {
+					want = `{"role":"assistant","content":"firstanswer","reasoning_text":"plan","reasoning_opaque":"synthetic-opaque"}`
+				}
+				assertRestoredAssistant(t, restored, want)
+			})
+		}
+	}
+}
+
+func TestCopilotRejectsMalformedToolArguments(t *testing.T) {
+	replay := testReplay()
+	response := []byte(`{"id":"chat_1","choices":[{"index":0,"message":{"role":"assistant","content":null,"reasoning_text":"plan","tool_calls":[{"id":"call_a","type":"function","function":{"name":"first","arguments":"{\"n\":1}garbage"}}]},"finish_reason":"tool_calls"}]}`)
+	_, err := replay.Response(context.Background(), EndpointChatCompletions, "claude", "gemini-3.8-flash", nil, []byte(`{"messages":[]}`), response)
+	var syntax *json.SyntaxError
+	if !errors.As(err, &syntax) {
+		t.Fatalf("error type = %T", err)
+	}
+}

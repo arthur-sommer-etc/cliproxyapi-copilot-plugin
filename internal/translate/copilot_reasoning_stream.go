@@ -28,9 +28,9 @@ type CopilotChatStream struct {
 	tools         []any
 	carrier       string
 	signed        bool
-	toolFrames    map[int][][]byte
-	toolOrder     []int
-	toolDone      map[int]bool
+	blockFrames   map[int][][]byte
+	blockOrder    []int
+	blockDone     map[int]bool
 }
 
 // Stream preserves ordinary streaming latency and buffers from the first Copilot thinking field.
@@ -280,15 +280,15 @@ func (s *CopilotChatStream) emit(destination, model string, payload map[string]a
 		if err != nil {
 			return nil, err
 		}
-		return s.orderedClaudeTools(frames)
+		return s.orderedClaudeBlocks(frames)
 	}
 	return [][]byte{frame}, nil
 }
 
-func (s *CopilotChatStream) orderedClaudeTools(frames [][]byte) ([][]byte, error) {
-	if s.toolFrames == nil {
-		s.toolFrames = make(map[int][][]byte)
-		s.toolDone = make(map[int]bool)
+func (s *CopilotChatStream) orderedClaudeBlocks(frames [][]byte) ([][]byte, error) {
+	if s.blockFrames == nil {
+		s.blockFrames = make(map[int][][]byte)
+		s.blockDone = make(map[int]bool)
 	}
 	var output [][]byte
 	for _, frame := range frames {
@@ -302,23 +302,36 @@ func (s *CopilotChatStream) orderedClaudeTools(frames [][]byte) ([][]byte, error
 		}
 		kind := stringValue(payload["type"])
 		index := int(int64Value(payload["index"]))
-		if kind == "content_block_start" && stringValue(objectValue(payload["content_block"])["type"]) == "tool_use" {
-			s.toolFrames[index] = nil
-			s.toolOrder = append(s.toolOrder, index)
-		}
-		if _, tool := s.toolFrames[index]; tool && (kind == "content_block_start" || kind == "content_block_delta" || kind == "content_block_stop") {
-			s.toolFrames[index] = append(s.toolFrames[index], frame)
-			if kind == "content_block_stop" {
-				s.toolDone[index] = true
+		if kind == "content_block_start" {
+			if _, exists := s.blockFrames[index]; exists {
+				return nil, ErrCopilotReasoning
 			}
-			for len(s.toolOrder) > 0 && s.toolDone[s.toolOrder[0]] {
-				first := s.toolOrder[0]
-				output = append(output, s.toolFrames[first]...)
-				delete(s.toolFrames, first)
-				delete(s.toolDone, first)
-				s.toolOrder = s.toolOrder[1:]
+			s.blockFrames[index] = nil
+			s.blockOrder = append(s.blockOrder, index)
+		}
+		if kind == "content_block_start" || kind == "content_block_delta" || kind == "content_block_stop" {
+			if _, exists := s.blockFrames[index]; !exists {
+				return nil, ErrCopilotReasoning
+			}
+			s.blockFrames[index] = append(s.blockFrames[index], frame)
+			if kind == "content_block_stop" {
+				s.blockDone[index] = true
+			}
+			for len(s.blockOrder) > 0 {
+				first := s.blockOrder[0]
+				output = append(output, s.blockFrames[first]...)
+				s.blockFrames[first] = nil
+				if !s.blockDone[first] {
+					break
+				}
+				delete(s.blockFrames, first)
+				delete(s.blockDone, first)
+				s.blockOrder = s.blockOrder[1:]
 			}
 		} else {
+			if len(s.blockOrder) > 0 && (kind == "message_delta" || kind == "message_stop") {
+				return nil, ErrCopilotReasoning
+			}
 			output = append(output, frame)
 		}
 	}

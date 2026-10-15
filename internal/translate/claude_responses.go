@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 )
 
@@ -428,6 +429,13 @@ func decodeObject(raw []byte) (map[string]any, error) {
 	}
 	if out == nil {
 		return nil, fmt.Errorf("expected a JSON object")
+	}
+	var extra any
+	if err := decoder.Decode(&extra); err != io.EOF {
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("expected a single JSON object")
 	}
 	return out, nil
 }
