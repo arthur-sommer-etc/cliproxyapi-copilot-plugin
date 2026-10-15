@@ -89,7 +89,7 @@ make build
 ```
 
 Docker Hub publishes this CLIProxyAPI release as `v7.3.20`.
-If the pinned tag is not already present locally, pull the published tag and create the local equivalent:
+Pull the published tag if it is not already present locally:
 
 ```bash
 docker pull eceasy/cli-proxy-api:v7.3.20
