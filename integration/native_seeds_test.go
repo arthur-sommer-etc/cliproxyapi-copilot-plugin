@@ -54,6 +54,16 @@ func readNativeSeed(t *testing.T, name string) []byte {
 	return body
 }
 
+func TestNativeResponsesCompactionSSESeedIsValid(t *testing.T) {
+	events, done := parseSSEDataEventsWithDone(t, readNativeSeed(t, "responses-compaction.sse"))
+	if done {
+		t.Fatal("Responses compaction SSE seed must finish with response.completed without [DONE]")
+	}
+	if len(events) == 0 || events[len(events)-1]["type"] != "response.completed" {
+		t.Fatal("Responses compaction SSE seed has no completed terminal event")
+	}
+}
+
 func newNativeFixture(t *testing.T) *fixture {
 	t.Helper()
 	var manifest struct {
