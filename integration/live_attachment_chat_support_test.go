@@ -1362,6 +1362,37 @@ func TestLiveChatAttachmentRecordedNativeStreamWithoutObject(t *testing.T) {
 		t.Fatal(err)
 	}
 	body = []byte(captured)
+	var events []map[string]any
+	for _, line := range strings.Split(captured, "\n") {
+		if !strings.HasPrefix(line, "data: ") || strings.TrimPrefix(line, "data: ") == "[DONE]" {
+			continue
+		}
+		var event map[string]any
+		if err := json.Unmarshal([]byte(strings.TrimPrefix(line, "data: ")), &event); err != nil {
+			t.Fatalf("decode captured Chat event: %v", err)
+		}
+		events = append(events, event)
+	}
+	reasoning := make([]string, 0, 11)
+	for _, event := range events {
+		choices, _ := event["choices"].([]any)
+		for _, rawChoice := range choices {
+			choice, _ := rawChoice.(map[string]any)
+			delta, _ := choice["delta"].(map[string]any)
+			if value, exists := delta["reasoning_text"]; exists {
+				text, _ := value.(string)
+				reasoning = append(reasoning, text)
+			}
+		}
+	}
+	if len(reasoning) != 11 || reasoning[0] != "[SANITIZED_REASONING_TEXT]" {
+		t.Fatal("the captured native Chat reasoning text is not sanitized")
+	}
+	for _, text := range reasoning[1:] {
+		if text != "" {
+			t.Fatal("captured reasoning text remains in a later delta")
+		}
+	}
 	stream, ok := liveChatCompletionStream(body, "claude-haiku-5.5")
 	if !ok || stream.ResponseID != "chatcmpl-replay" || stream.Model != "claude-haiku-5.5" || stream.FinishReason != "stop" || stream.Text != "The top half is a bright red, and the bottom half is a royal blue. The image is split into two roughly equal horizontal bands." || stream.PromptTokens != 12856 || stream.OutputTokens != 118 || stream.TotalTokens != 12974 {
 		t.Fatal("the captured native Chat stream without object fields was not validated completely")

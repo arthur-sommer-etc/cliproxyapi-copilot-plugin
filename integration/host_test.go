@@ -1134,6 +1134,7 @@ func startProxyInRoot(t *testing.T, binary, upstream, root string, authJSON []by
 	stop := func() { stopOnce.Do(func() { cancel(); _ = command.Wait(); _ = logFile.Close() }) }
 	t.Cleanup(stop)
 	base := fmt.Sprintf("http://127.0.0.1:%d", port)
+	client := &http.Client{Timeout: time.Second}
 	deadline := time.NewTimer(15 * time.Second)
 	defer deadline.Stop()
 	ticker := time.NewTicker(50 * time.Millisecond)
@@ -1146,7 +1147,7 @@ func startProxyInRoot(t *testing.T, binary, upstream, root string, authJSON []by
 		case <-ticker.C:
 			request, _ := http.NewRequest(http.MethodGet, base+"/v1/models", nil)
 			request.Header.Set("Authorization", "Bearer fixture-client-key")
-			response, err := http.DefaultClient.Do(request)
+			response, err := client.Do(request)
 			if err == nil {
 				body, _ := io.ReadAll(response.Body)
 				_ = response.Body.Close()

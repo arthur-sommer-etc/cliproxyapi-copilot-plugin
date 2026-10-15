@@ -329,9 +329,13 @@ Existing Claude and other provider models remain available.
 ## Updating or removing the plugin
 
 Version tags automatically publish marketplace-compatible packages. To update
-from a release, verify the archive against `checksums.txt`, extract
-`cliproxyapi-copilot.so`, replace the installed library, and restart
-CLIProxyAPI.
+from a release, verify the plugin archive against `checksums.txt` and inspect
+`cliproxyapi-copilot.host-requirements.json` for the required host module
+identity. In a source checkout at the same release tag, run
+`make prepare-runtime-host` to build the matching plugin and host from that
+release's `go.mod`. Install both outputs using the procedures in step 2, then
+restart CLIProxyAPI so it loads the matching pair. The release archive does
+not replace the host binary automatically.
 
 To disable it without deleting credentials:
 

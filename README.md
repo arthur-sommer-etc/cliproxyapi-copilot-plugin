@@ -122,8 +122,11 @@ integration headers because Copilot rejects unrecognized
 
 ## Build and test
 
-Use Docker with Compose v2, Go 1.27.2 or newer, and Python 3.9 or newer for `make test`.
-The production plugin build uses `golang:1-bookworm`, matching the Debian Bookworm runtime of the official image.
+`make test` requires Go 1.27.2 or newer and Python 3.9 or newer. `make build`,
+`make prepare-runtime-host`, and `make test-native` require Docker. Running the
+development deployment requires Docker Compose v2. The production plugin build
+uses `golang:1-bookworm`, matching the Debian Bookworm runtime of the official
+image.
 
 ```sh
 make test

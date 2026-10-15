@@ -151,8 +151,12 @@ func TestCapturedNativeResponsesItemIDsRemainCorrelated(t *testing.T) {
 			folder := "native-attachment-captures/" + name
 			events, _ := liveBodySSEEvents(t, readLiveBodyFixture(t, folder, "response.sse"))
 			itemIDs := make(map[int]string)
+			var terminalOutput []any
 			for _, rawEvent := range events {
 				event := objectValue(rawEvent)
+				if stringValue(event["type"]) == "response.completed" {
+					terminalOutput = arrayValue(objectValue(event["response"])["output"])
+				}
 				if stringValue(event["type"]) != "response.output_item.added" {
 					continue
 				}
@@ -180,6 +184,14 @@ func TestCapturedNativeResponsesItemIDsRemainCorrelated(t *testing.T) {
 				}
 				if stringValue(event["type"]) == "response.output_item.done" && stringValue(objectValue(event["item"])["id"]) != id {
 					t.Fatal("captured completed output item changed its ID")
+				}
+			}
+			if len(terminalOutput) != len(itemIDs) {
+				t.Fatal("captured terminal snapshot changed its output item count")
+			}
+			for index, rawItem := range terminalOutput {
+				if stringValue(objectValue(rawItem)["id"]) != itemIDs[index] {
+					t.Fatal("captured terminal snapshot changed an output item ID")
 				}
 			}
 			derived, err := decodeObject(readLiveBodyFixture(t, folder, "derived-response.json"))

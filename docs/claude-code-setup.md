@@ -397,12 +397,14 @@ Rebuild after updating the repository:
 ```bash
 git pull
 make test
-make build
-docker restart cliproxyapi-official-copilot-dev
+make prepare-runtime-host
+docker compose --env-file .runtime/secrets.env up -d --force-recreate
 ```
 
-If `config/config.yaml` changed, re-render `.runtime/config.yaml` (step 3)
-before restarting.
+`make prepare-runtime-host` rebuilds both the plugin and its paired host. The
+Compose command replaces the running container so it mounts the rebuilt host
+and plugin. If `config/config.yaml` changed, re-render `.runtime/config.yaml`
+(step 3) before recreating the container.
 
 Stop the service without deleting OAuth credentials:
 
@@ -428,7 +430,7 @@ rm -rf .runtime build .cache logs
 
 ```bash
 sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/secrets.env
-sed -n 's/^  - "\([^"]*\)"/\1/p' .runtime/config.yaml
+sed -n '/^api-keys:/,/^[^ ]/s/^    - "\([^"]*\)"/\1/p' .runtime/config.yaml
 ```
 
 Do not paste either value into an issue.
