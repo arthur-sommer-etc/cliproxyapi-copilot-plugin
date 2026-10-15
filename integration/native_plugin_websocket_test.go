@@ -82,7 +82,11 @@ func TestNativeHostPluginResponsesWebsocket(t *testing.T) {
 			if err := connection.WriteJSON(map[string]any{"type": "response.create", "model": model, "input": replay, "stream": true, "prompt_cache_key": matrixCompactCacheKey}); err != nil {
 				t.Fatalf("send synthetic WebSocket capsule replay: %v", err)
 			}
-			readPluginResponsesWebsocket(t, connection)
+			replayEvents := readPluginResponsesWebsocket(t, connection)
+			replayCompleted := nativeCompletedResponse(t, replayEvents)
+			if replayCompleted["model"] != model {
+				t.Fatalf("WebSocket capsule replay completed with model %v, want %q", replayCompleted["model"], model)
+			}
 			replayRequest, replayPath := lastUpstreamRequest(t, state)
 			if replayPath != "/responses" || replayRequest["model"] != model {
 				t.Fatalf("capsule replay routed to %q with model %v", replayPath, replayRequest["model"])

@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -177,6 +178,7 @@ func assertCapturedClaudeGPTReadFixtureIntegrity(t *testing.T, readFile func(*te
 		}
 		actualShape = capturedClaudeGPTPNGReadShape(actualShape)
 	} else {
+		assertCapturedResponsesArgumentDeltasMatchDone(t, body)
 		actualShape = capturedClaudeGPTPNGReadSSEShape(t, body)
 	}
 	actualShapeJSON, err := json.Marshal(actualShape)
@@ -191,6 +193,48 @@ func assertCapturedClaudeGPTReadFixtureIntegrity(t *testing.T, readFile func(*te
 	shapeHash := sha256.Sum256(wantShapeJSON)
 	if hex.EncodeToString(shapeHash[:]) != record.SourceShapeSHA256 {
 		t.Fatalf("source-derived shape hash changed for %s", name)
+	}
+}
+
+func assertCapturedResponsesArgumentDeltasMatchDone(t *testing.T, body []byte) {
+	t.Helper()
+	events := capturedClaudeGPTPNGReadSSEFrames(t, body)
+	deltas := make(map[string]string)
+	done := make(map[string]string)
+	for _, frame := range events {
+		_, data, terminal, err := parseSSEFrame(frame)
+		if err != nil {
+			t.Fatalf("parse captured Responses frame: %v", err)
+		}
+		if terminal {
+			continue
+		}
+		var event map[string]any
+		if err := json.Unmarshal(data, &event); err != nil {
+			t.Fatal("captured Responses event could not be decoded")
+		}
+		index := fmt.Sprint(event["output_index"])
+		switch event["type"] {
+		case "response.function_call_arguments.delta":
+			if delta, ok := event["delta"].(string); ok {
+				deltas[index] += delta
+			}
+		case "response.function_call_arguments.done":
+			if arguments, ok := event["arguments"].(string); ok {
+				done[index] = arguments
+			}
+		}
+	}
+	if len(deltas) != len(done) {
+		t.Fatal("captured Responses argument deltas and completed events have different output counts")
+	}
+	for index, arguments := range done {
+		if deltas[index] != arguments {
+			t.Fatalf("captured Responses argument deltas for output %s do not match the completed arguments", index)
+		}
+		if regexp.MustCompile(`(?:/Users/|/private/var/|/var/folders/|/tmp/|/Volumes/|/System/Volumes/|/home/)`).MatchString(arguments) {
+			t.Fatalf("captured Responses argument output %s contains a private filesystem path", index)
+		}
 	}
 }
 

@@ -58,6 +58,7 @@ func TestCapturedNativePDFToolPassthrough(t *testing.T) {
 			if nativeAttachmentSHA256(request) != capture.RequestSHA256 || nativeAttachmentSHA256(body) != capture.ResponseSSESHA256 || capture.HTTPStatus != 200 || !bytes.HasSuffix(body, []byte("\n\n")) {
 				t.Fatal("the complete sanitized native capture or SSE delimiter changed")
 			}
+			assertCapturedResponsesArgumentDeltasMatchDone(t, body)
 			for _, stream := range []bool{false, true} {
 				original := bytes.Clone(request)
 				translated, err := RequestForEndpointFrom(capture.Source, capture.Model, request, stream, capture.Endpoint)

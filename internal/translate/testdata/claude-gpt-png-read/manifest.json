@@ -87,8 +87,8 @@
       "fixture": "bodies/hop-001-responses-response.sse",
       "shape": "bodies/hop-001-responses-response.shape.json",
       "source_body_sha256": "11f450f557b7e67efca094c3f0b42d853bb77baf926c0e5111c9028721cc1811",
-      "sanitized_source_sha256": "b896f61b257d53753bac2ea1b757ae93dd35046b9ce560cf172a9f1b5e86a795",
-      "fixture_sha256": "b896f61b257d53753bac2ea1b757ae93dd35046b9ce560cf172a9f1b5e86a795",
+      "sanitized_source_sha256": "adcd27f89696e939f429d50ef128666ad31b8fa5aeacd2cfde1f17e07cdf9d8f",
+      "fixture_sha256": "adcd27f89696e939f429d50ef128666ad31b8fa5aeacd2cfde1f17e07cdf9d8f",
       "source_shape_sha256": "cf765a5ac3c1ee691beacb648195f0abf77641e98e2a7dd8ede6cb7d3250c7c2"
     },
     {

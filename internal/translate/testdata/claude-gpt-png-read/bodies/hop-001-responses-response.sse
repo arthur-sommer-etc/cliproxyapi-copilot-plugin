@@ -23,85 +23,85 @@ event: response.function_call_arguments.delta
 data: {"delta":"\"/","item_id":"fixture_opaque_id_010","obfuscation":"PfXQQaiutjSHc0","output_index":0,"sequence_number":7,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"tmp","item_id":"fixture_opaque_id_011","obfuscation":"ZbxlL4p24W1Q2","output_index":0,"sequence_number":8,"type":"response.function_call_arguments.delta"}
+data: {"delta":"fix","item_id":"fixture_opaque_id_011","obfuscation":"ZbxlL4p24W1Q2","output_index":0,"sequence_number":8,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"/c","item_id":"fixture_opaque_id_012","obfuscation":"S8uc1vfv2IkWG6","output_index":0,"sequence_number":9,"type":"response.function_call_arguments.delta"}
+data: {"delta":"tu","item_id":"fixture_opaque_id_012","obfuscation":"S8uc1vfv2IkWG6","output_index":0,"sequence_number":9,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"pa","item_id":"fixture_opaque_id_013","obfuscation":"lOOqjur8C5lJWQ","output_index":0,"sequence_number":10,"type":"response.function_call_arguments.delta"}
+data: {"delta":"re","item_id":"fixture_opaque_id_013","obfuscation":"lOOqjur8C5lJWQ","output_index":0,"sequence_number":10,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"-server","item_id":"fixture_opaque_id_014","obfuscation":"zWEoMYR82","output_index":0,"sequence_number":11,"type":"response.function_call_arguments.delta"}
+data: {"delta":"/privat","item_id":"fixture_opaque_id_014","obfuscation":"zWEoMYR82","output_index":0,"sequence_number":11,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"-tools","item_id":"fixture_opaque_id_015","obfuscation":"xO1KUSnb0p","output_index":0,"sequence_number":12,"type":"response.function_call_arguments.delta"}
+data: {"delta":"e-path","item_id":"fixture_opaque_id_015","obfuscation":"xO1KUSnb0p","output_index":0,"sequence_number":12,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":".us","item_id":"fixture_opaque_id_016","obfuscation":"vocgHXIdysaqS","output_index":0,"sequence_number":13,"type":"response.function_call_arguments.delta"}
+data: {"delta":"-00","item_id":"fixture_opaque_id_016","obfuscation":"vocgHXIdysaqS","output_index":0,"sequence_number":13,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"UL","item_id":"fixture_opaque_id_017","obfuscation":"r8TEeA3tgpjPsV","output_index":0,"sequence_number":14,"type":"response.function_call_arguments.delta"}
+data: {"delta":"2.","item_id":"fixture_opaque_id_017","obfuscation":"r8TEeA3tgpjPsV","output_index":0,"sequence_number":14,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"b","item_id":"fixture_opaque_id_018","obfuscation":"z33WTWzxJjx3iPH","output_index":0,"sequence_number":15,"type":"response.function_call_arguments.delta"}
+data: {"delta":"p","item_id":"fixture_opaque_id_018","obfuscation":"z33WTWzxJjx3iPH","output_index":0,"sequence_number":15,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"6","item_id":"fixture_opaque_id_019","obfuscation":"RpCaUJGYnYzB2vV","output_index":0,"sequence_number":16,"type":"response.function_call_arguments.delta"}
+data: {"delta":"n","item_id":"fixture_opaque_id_019","obfuscation":"RpCaUJGYnYzB2vV","output_index":0,"sequence_number":16,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"/","item_id":"fixture_opaque_id_020","obfuscation":"nBj6WRDFbOKwxln","output_index":0,"sequence_number":17,"type":"response.function_call_arguments.delta"}
+data: {"delta":"g","item_id":"fixture_opaque_id_020","obfuscation":"nBj6WRDFbOKwxln","output_index":0,"sequence_number":17,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"fixtures","item_id":"fixture_opaque_id_021","obfuscation":"n54JaLrG","output_index":0,"sequence_number":18,"type":"response.function_call_arguments.delta"}
+data: {"delta":"\",\"limit","item_id":"fixture_opaque_id_021","obfuscation":"n54JaLrG","output_index":0,"sequence_number":18,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"/","item_id":"fixture_opaque_id_022","obfuscation":"OEwL3YToHXHX3bk","output_index":0,"sequence_number":19,"type":"response.function_call_arguments.delta"}
+data: {"delta":"\"","item_id":"fixture_opaque_id_022","obfuscation":"OEwL3YToHXHX3bk","output_index":0,"sequence_number":19,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"visual","item_id":"fixture_opaque_id_023","obfuscation":"KQlTwoX0M7","output_index":0,"sequence_number":20,"type":"response.function_call_arguments.delta"}
+data: {"delta":":1000,","item_id":"fixture_opaque_id_023","obfuscation":"KQlTwoX0M7","output_index":0,"sequence_number":20,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":".png","item_id":"fixture_opaque_id_024","obfuscation":"ZllqPEL6SLSM","output_index":0,"sequence_number":21,"type":"response.function_call_arguments.delta"}
+data: {"delta":"\"off","item_id":"fixture_opaque_id_024","obfuscation":"ZllqPEL6SLSM","output_index":0,"sequence_number":21,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"\",\"","item_id":"fixture_opaque_id_025","obfuscation":"1NbIpLFBIuGhJ","output_index":0,"sequence_number":22,"type":"response.function_call_arguments.delta"}
+data: {"delta":"set","item_id":"fixture_opaque_id_025","obfuscation":"1NbIpLFBIuGhJ","output_index":0,"sequence_number":22,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"limit","item_id":"fixture_opaque_id_026","obfuscation":"iEY5kHE37Ar","output_index":0,"sequence_number":23,"type":"response.function_call_arguments.delta"}
+data: {"delta":"\":0","item_id":"fixture_opaque_id_026","obfuscation":"iEY5kHE37Ar","output_index":0,"sequence_number":23,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"\":","item_id":"fixture_opaque_id_027","obfuscation":"6K47RIN9ABGNUF","output_index":0,"sequence_number":24,"type":"response.function_call_arguments.delta"}
+data: {"delta":",","item_id":"fixture_opaque_id_027","obfuscation":"6K47RIN9ABGNUF","output_index":0,"sequence_number":24,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"100","item_id":"fixture_opaque_id_028","obfuscation":"YR5yT62rgsdeo","output_index":0,"sequence_number":25,"type":"response.function_call_arguments.delta"}
+data: {"delta":"\"","item_id":"fixture_opaque_id_028","obfuscation":"YR5yT62rgsdeo","output_index":0,"sequence_number":25,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"0","item_id":"fixture_opaque_id_029","obfuscation":"SDmiUryBzcenLWa","output_index":0,"sequence_number":26,"type":"response.function_call_arguments.delta"}
+data: {"delta":"p","item_id":"fixture_opaque_id_029","obfuscation":"SDmiUryBzcenLWa","output_index":0,"sequence_number":26,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":",\"","item_id":"fixture_opaque_id_030","obfuscation":"hNicLshaVslmV0","output_index":0,"sequence_number":27,"type":"response.function_call_arguments.delta"}
+data: {"delta":"a","item_id":"fixture_opaque_id_030","obfuscation":"hNicLshaVslmV0","output_index":0,"sequence_number":27,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"offset","item_id":"fixture_opaque_id_031","obfuscation":"m3oH5siryE","output_index":0,"sequence_number":28,"type":"response.function_call_arguments.delta"}
+data: {"delta":"g","item_id":"fixture_opaque_id_031","obfuscation":"m3oH5siryE","output_index":0,"sequence_number":28,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"\":","item_id":"fixture_opaque_id_032","obfuscation":"jhLuHkBDUP0Ooo","output_index":0,"sequence_number":29,"type":"response.function_call_arguments.delta"}
+data: {"delta":"e","item_id":"fixture_opaque_id_032","obfuscation":"jhLuHkBDUP0Ooo","output_index":0,"sequence_number":29,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"0","item_id":"fixture_opaque_id_033","obfuscation":"7V0nfRHbLvWTNIp","output_index":0,"sequence_number":30,"type":"response.function_call_arguments.delta"}
+data: {"delta":"s","item_id":"fixture_opaque_id_033","obfuscation":"7V0nfRHbLvWTNIp","output_index":0,"sequence_number":30,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":",\"","item_id":"fixture_opaque_id_034","obfuscation":"n4iWy5RZxmG2a8","output_index":0,"sequence_number":31,"type":"response.function_call_arguments.delta"}
+data: {"delta":"\"","item_id":"fixture_opaque_id_034","obfuscation":"n4iWy5RZxmG2a8","output_index":0,"sequence_number":31,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"pages","item_id":"fixture_opaque_id_035","obfuscation":"xmfs6y5ZJiL","output_index":0,"sequence_number":32,"type":"response.function_call_arguments.delta"}
+data: {"delta":":","item_id":"fixture_opaque_id_035","obfuscation":"xmfs6y5ZJiL","output_index":0,"sequence_number":32,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"\":","item_id":"fixture_opaque_id_036","obfuscation":"mGFZ0lLy8tEdGG","output_index":0,"sequence_number":33,"type":"response.function_call_arguments.delta"}
+data: {"delta":"\"","item_id":"fixture_opaque_id_036","obfuscation":"mGFZ0lLy8tEdGG","output_index":0,"sequence_number":33,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
-data: {"delta":"\"\"","item_id":"fixture_opaque_id_037","obfuscation":"556p3FBNviKG04","output_index":0,"sequence_number":34,"type":"response.function_call_arguments.delta"}
+data: {"delta":"\"","item_id":"fixture_opaque_id_037","obfuscation":"556p3FBNviKG04","output_index":0,"sequence_number":34,"type":"response.function_call_arguments.delta"}
 
 event: response.function_call_arguments.delta
 data: {"delta":"}","item_id":"fixture_opaque_id_038","obfuscation":"YCKyfKwatJkCfsQ","output_index":0,"sequence_number":35,"type":"response.function_call_arguments.delta"}

@@ -2444,19 +2444,30 @@ func parseSSEDataEvents(t *testing.T, stream []byte) []map[string]any {
 
 func parseSSEDataEventsWithDone(t *testing.T, stream []byte) ([]map[string]any, bool) {
 	t.Helper()
+	events, done, err := parseSSEDataEventsWithDoneBody(stream)
+	if err != nil {
+		t.Fatalf("parse SSE data events: %v", err)
+	}
+	return events, done
+}
+
+func parseSSEDataEventsWithDoneBody(stream []byte) ([]map[string]any, bool, error) {
 	var events []map[string]any
 	var done bool
 	blocks := strings.Split(strings.ReplaceAll(string(stream), "\r\n", "\n"), "\n\n")
 	for _, block := range blocks {
 		for _, line := range strings.Split(block, "\n") {
 			if strings.HasPrefix(line, "data:") {
+				if done {
+					return nil, false, fmt.Errorf("stream contained data after [DONE]")
+				}
 				data := strings.TrimSpace(strings.TrimPrefix(line, "data:"))
 				if data == "[DONE]" {
 					done = true
 				} else {
 					var event map[string]any
 					if err := json.Unmarshal([]byte(data), &event); err != nil {
-						t.Fatalf("decode SSE data event: %v: %s", err, data)
+						return nil, false, fmt.Errorf("decode SSE data event: %w", err)
 					}
 					events = append(events, event)
 				}
@@ -2464,9 +2475,20 @@ func parseSSEDataEventsWithDone(t *testing.T, stream []byte) ([]map[string]any, 
 		}
 	}
 	if len(events) == 0 {
-		t.Fatalf("stream contained no SSE data events: %s", stream)
+		return nil, false, fmt.Errorf("stream contained no SSE data events")
 	}
-	return events, done
+	return events, done, nil
+}
+
+func TestParseSSEDataEventsWithDoneRejectsDataAfterTerminalMarker(t *testing.T) {
+	for _, stream := range []string{
+		"data: {\"type\":\"chunk\"}\n\ndata: [DONE]\n\ndata: {\"type\":\"late\"}\n\n",
+		"data: {\"type\":\"chunk\"}\n\ndata: [DONE]\n\ndata: [DONE]\n\n",
+	} {
+		if _, _, err := parseSSEDataEventsWithDoneBody([]byte(stream)); err == nil {
+			t.Fatal("parser accepted a data frame after [DONE]")
+		}
+	}
 }
 
 func assertEventType(t *testing.T, event map[string]any, expected string) {
