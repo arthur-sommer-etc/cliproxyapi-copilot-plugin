@@ -317,7 +317,8 @@ test ! -f "$HOME/.claude/settings.json" ||
 ```
 
 Merge the following values into `~/.claude/settings.json`. Replace the
-`/home/YOUR_USER` path in `apiKeyHelper` with the actual clone location:
+`$HOME/cliproxyapi-copilot-plugin` path in `apiKeyHelper` if the repository is
+stored elsewhere:
 
 ```json
 {
@@ -330,7 +331,7 @@ Merge the following values into `~/.claude/settings.json`. Replace the
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "gemini-3.8-flash",
     "CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY": "1"
   },
-  "apiKeyHelper": "sed -n 's/^CLIPROXYAPI_API_KEY=//p' /home/YOUR_USER/cliproxyapi-copilot-plugin/.runtime/secrets.env"
+  "apiKeyHelper": "sed -n 's/^CLIPROXYAPI_API_KEY=//p' \"$HOME/cliproxyapi-copilot-plugin/.runtime/secrets.env\""
 }
 ```
 
