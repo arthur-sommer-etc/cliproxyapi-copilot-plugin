@@ -1,0 +1,18 @@
+{
+  "max_tokens": 512,
+  "messages": [
+    {
+      "content": "Fetch https://science.nasa.gov/moon/facts/ with the web_fetch server tool and give the page title.",
+      "role": "user"
+    }
+  ],
+  "model": "claude-haiku-5.5",
+  "stream": false,
+  "tools": [
+    {
+      "max_uses": 1,
+      "name": "web_fetch",
+      "type": "web_fetch_20250910"
+    }
+  ]
+}

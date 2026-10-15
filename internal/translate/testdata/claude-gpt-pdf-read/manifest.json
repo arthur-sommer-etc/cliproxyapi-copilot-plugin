@@ -1,0 +1,251 @@
+{
+  "format": "body-only full original-client Claude Messages to GPT Responses PDF Read cycles",
+  "source_scope": "For each capture case, original_client_request.body and local_host_response.body from original-client hops 001/002 plus public_request.body and public_response.body from gates 003/004. No headers, authorization, host fields, transport metadata, gate 001/002 bodies, or test-hop wrappers are included.",
+  "sanitizer": {
+    "preserved": "All body fields, values, scalar types, numeric/null/empty values, array positions, SSE frame/event names/order, and blank-line framing are retained except declared privacy replacements.",
+    "replacements": {
+      "opaque_ids": "String identifiers in id, *_id, item_id, call_id, tool_use_id, response_id, output_item_id and event ID positions.",
+      "claude_tool_id_carriers": "Canonical cpa_tool_v1_ carriers retain their wrapper and replace embedded item/call IDs using the same global deterministic ID map as standalone IDs.",
+      "opaque_ciphertext": [
+        "encrypted_content",
+        "encrypted_index",
+        "signature"
+      ],
+      "private_paths": "Absolute local paths map to deterministic typed string sentinels using longest full path first across all 16 bodies.",
+      "private_identity": [
+        "account_uuid",
+        "device_id",
+        "session_id",
+        "client_id",
+        "user_id",
+        "account_id"
+      ],
+      "cache_and_safety": [
+        "prompt_cache_key",
+        "safety_identifier"
+      ]
+    },
+    "replacement_rule": "Each replacement preserves key, position, and string type. Equal source values map to equal sentinels across all cases and body contexts. Nested serialized JSON argument strings replace only the exact path substring.",
+    "media_note": "Actual captured JPEG payload bytes and all other non-private body values remain intact; decoded hashes are checked across original tool_result and Responses function output.",
+    "source_pdf_note": "The local PDF file is not present in the approved request/response body captures; no source-PDF byte hash or comparison claim is made."
+  },
+  "bodies": [
+    {
+      "name": "text-missing-fail-hop-001-claude-request",
+      "kind": "json",
+      "source_capture": "client-hop-001.json",
+      "source_body_key": "original_client_request.body",
+      "fixture": "bodies/text-missing-fail-hop-001-claude-request.json",
+      "shape": "bodies/text-missing-fail-hop-001-claude-request.shape.json",
+      "source_body_sha256": "8fb678bb6886c88b0d2dfb166f3c966ef091f449661e61709d69babc219aebb2",
+      "sanitized_source_sha256": "07912983b95b6b388a387d75bd5b644df0c899a5758587a5381cb0ec52e7df83",
+      "fixture_sha256": "07912983b95b6b388a387d75bd5b644df0c899a5758587a5381cb0ec52e7df83",
+      "source_shape_sha256": "28382403f8831e8863206051513b91db48676174b965b6f637481b2322d38a96",
+      "case": "text-missing-fail"
+    },
+    {
+      "name": "text-missing-fail-hop-001-claude-response",
+      "kind": "sse",
+      "source_capture": "client-hop-001.json",
+      "source_body_key": "local_host_response.body",
+      "fixture": "bodies/text-missing-fail-hop-001-claude-response.sse",
+      "shape": "bodies/text-missing-fail-hop-001-claude-response.shape.json",
+      "source_body_sha256": "ce64cdacf388b67facae5195e89de5a4241c0cf1b3061a965a3af574e51eea61",
+      "sanitized_source_sha256": "d8953416314024f1694e5a6c7e10338688614bd3b64a6a4c7111696653578c67",
+      "fixture_sha256": "d8953416314024f1694e5a6c7e10338688614bd3b64a6a4c7111696653578c67",
+      "source_shape_sha256": "1b6e62a5c2e950b0bcd1bcd9b4033ec6a4c4f43d731c66fc7df024e377d65c9c",
+      "case": "text-missing-fail"
+    },
+    {
+      "name": "text-missing-fail-hop-001-responses-request",
+      "kind": "json",
+      "source_capture": "gate-003.json",
+      "source_body_key": "public_request.body",
+      "fixture": "bodies/text-missing-fail-hop-001-responses-request.json",
+      "shape": "bodies/text-missing-fail-hop-001-responses-request.shape.json",
+      "source_body_sha256": "1ff66c6a5e80700875d8ee01f0868ef18a17779d90946f3b1ebaf3e5c2ffe785",
+      "sanitized_source_sha256": "c534f3a6df5965b429155198c5bd63ac7b946822b292595a8660c9149787bfd7",
+      "fixture_sha256": "c534f3a6df5965b429155198c5bd63ac7b946822b292595a8660c9149787bfd7",
+      "source_shape_sha256": "8f5e23d8e215903719d8442db19a56d44acd8c28bc2129602033df5fa4885432",
+      "case": "text-missing-fail"
+    },
+    {
+      "name": "text-missing-fail-hop-001-responses-response",
+      "kind": "sse",
+      "source_capture": "gate-003.json",
+      "source_body_key": "public_response.body",
+      "fixture": "bodies/text-missing-fail-hop-001-responses-response.sse",
+      "shape": "bodies/text-missing-fail-hop-001-responses-response.shape.json",
+      "source_body_sha256": "76549b6f68a22579fbbbbc1cb5735fbea50aa58c54e63c67cfe03feb3b90dce8",
+      "sanitized_source_sha256": "00607aa03dfea1d1ad894bd4f70e611f697638284babe73db6c1724153697ca9",
+      "fixture_sha256": "00607aa03dfea1d1ad894bd4f70e611f697638284babe73db6c1724153697ca9",
+      "source_shape_sha256": "9729adc22bf45ab006e8bfd9603aa924492a4a027abd20e14937156125c85910",
+      "case": "text-missing-fail"
+    },
+    {
+      "name": "text-missing-fail-hop-002-claude-request",
+      "kind": "json",
+      "source_capture": "client-hop-002.json",
+      "source_body_key": "original_client_request.body",
+      "fixture": "bodies/text-missing-fail-hop-002-claude-request.json",
+      "shape": "bodies/text-missing-fail-hop-002-claude-request.shape.json",
+      "source_body_sha256": "b20cc8667f3ae5bf6d732a521478b3082d1291398a33a44b8486dec00df24154",
+      "sanitized_source_sha256": "2de66b5c7378720a055171e7772430917dd3cca567c311f70d3558fa9f30c575",
+      "fixture_sha256": "2de66b5c7378720a055171e7772430917dd3cca567c311f70d3558fa9f30c575",
+      "source_shape_sha256": "f1d85c4c70cf060538deb4047ae796474c9d1741f3769b81e85deaa18659b2b1",
+      "case": "text-missing-fail"
+    },
+    {
+      "name": "text-missing-fail-hop-002-claude-response",
+      "kind": "sse",
+      "source_capture": "client-hop-002.json",
+      "source_body_key": "local_host_response.body",
+      "fixture": "bodies/text-missing-fail-hop-002-claude-response.sse",
+      "shape": "bodies/text-missing-fail-hop-002-claude-response.shape.json",
+      "source_body_sha256": "d71e7b2bc0def6be433804b45f244816e8f7c07bbf61c6e79dea39caab303f02",
+      "sanitized_source_sha256": "1b0f1f1c7c8e898e76a6b19bcdbb2b63a4268c66f2fbd9734e74adfe0056da85",
+      "fixture_sha256": "1b0f1f1c7c8e898e76a6b19bcdbb2b63a4268c66f2fbd9734e74adfe0056da85",
+      "source_shape_sha256": "89891d179855579a176d3609808ca18a8ff2d08b6bf5d2943064eb15214a9b0c",
+      "case": "text-missing-fail"
+    },
+    {
+      "name": "text-missing-fail-hop-002-responses-request",
+      "kind": "json",
+      "source_capture": "gate-004.json",
+      "source_body_key": "public_request.body",
+      "fixture": "bodies/text-missing-fail-hop-002-responses-request.json",
+      "shape": "bodies/text-missing-fail-hop-002-responses-request.shape.json",
+      "source_body_sha256": "dc520674012330e122607e6fcc180447df2a0767c62adfdfa5f1caee973cfeb1",
+      "sanitized_source_sha256": "f2d9e4343b8a456e50e866d500910e12f1a18855608721d1ae3f41dc1ae9acb3",
+      "fixture_sha256": "f2d9e4343b8a456e50e866d500910e12f1a18855608721d1ae3f41dc1ae9acb3",
+      "source_shape_sha256": "e0e7be95008837f583c311b63fb810bdf83023f8eadb543f5c24d85d08c4b30c",
+      "case": "text-missing-fail"
+    },
+    {
+      "name": "text-missing-fail-hop-002-responses-response",
+      "kind": "sse",
+      "source_capture": "gate-004.json",
+      "source_body_key": "public_response.body",
+      "fixture": "bodies/text-missing-fail-hop-002-responses-response.sse",
+      "shape": "bodies/text-missing-fail-hop-002-responses-response.shape.json",
+      "source_body_sha256": "0cf7dbbb4de9c722b871e58e029ec0e88b1328b96af7b8764e2df6b01903f341",
+      "sanitized_source_sha256": "d8621f087998e6dc0bf39037cf5d872813994aa75ee8edb3c3338b88995ac102",
+      "fixture_sha256": "d8621f087998e6dc0bf39037cf5d872813994aa75ee8edb3c3338b88995ac102",
+      "source_shape_sha256": "f90c1e7a9a0372fc60fc2c28d7f43350f71c25a4c791ddb2d12739101c03def5",
+      "case": "text-missing-fail"
+    },
+    {
+      "name": "content-visible-range-1-20-hop-001-claude-request",
+      "kind": "json",
+      "source_capture": "client-hop-001.json",
+      "source_body_key": "original_client_request.body",
+      "fixture": "bodies/content-visible-range-1-20-hop-001-claude-request.json",
+      "shape": "bodies/content-visible-range-1-20-hop-001-claude-request.shape.json",
+      "source_body_sha256": "78bd15cba10093d04b1a973e9db78f6c41712afac53535ecfcf951a0be4b22e7",
+      "sanitized_source_sha256": "cb06d22972a26a8aded2cc6a1832c3c7ccffd4f70cb92fa4261bf98be9aa9df1",
+      "fixture_sha256": "cb06d22972a26a8aded2cc6a1832c3c7ccffd4f70cb92fa4261bf98be9aa9df1",
+      "source_shape_sha256": "28382403f8831e8863206051513b91db48676174b965b6f637481b2322d38a96",
+      "case": "content-visible-range-1-20"
+    },
+    {
+      "name": "content-visible-range-1-20-hop-001-claude-response",
+      "kind": "sse",
+      "source_capture": "client-hop-001.json",
+      "source_body_key": "local_host_response.body",
+      "fixture": "bodies/content-visible-range-1-20-hop-001-claude-response.sse",
+      "shape": "bodies/content-visible-range-1-20-hop-001-claude-response.shape.json",
+      "source_body_sha256": "721fcb26e70c5ba359462d7e4cdcc9da5a6d8c68993915eb663517ef3184694b",
+      "sanitized_source_sha256": "fea148bd6ccd2099ee32ede78c8ceddf87ad3aeed7624f7060d626c59e304f84",
+      "fixture_sha256": "fea148bd6ccd2099ee32ede78c8ceddf87ad3aeed7624f7060d626c59e304f84",
+      "source_shape_sha256": "1b6e62a5c2e950b0bcd1bcd9b4033ec6a4c4f43d731c66fc7df024e377d65c9c",
+      "case": "content-visible-range-1-20"
+    },
+    {
+      "name": "content-visible-range-1-20-hop-001-responses-request",
+      "kind": "json",
+      "source_capture": "gate-003.json",
+      "source_body_key": "public_request.body",
+      "fixture": "bodies/content-visible-range-1-20-hop-001-responses-request.json",
+      "shape": "bodies/content-visible-range-1-20-hop-001-responses-request.shape.json",
+      "source_body_sha256": "db9740d5276e2d9996658d27473e428853cd9eb2f7b107e3d598729acd9b1c92",
+      "sanitized_source_sha256": "41a6192c0cd56ead7d845d93de684ffc255c6bd7dff66b51b6810b7f5c18f65d",
+      "fixture_sha256": "41a6192c0cd56ead7d845d93de684ffc255c6bd7dff66b51b6810b7f5c18f65d",
+      "source_shape_sha256": "8f5e23d8e215903719d8442db19a56d44acd8c28bc2129602033df5fa4885432",
+      "case": "content-visible-range-1-20"
+    },
+    {
+      "name": "content-visible-range-1-20-hop-001-responses-response",
+      "kind": "sse",
+      "source_capture": "gate-003.json",
+      "source_body_key": "public_response.body",
+      "fixture": "bodies/content-visible-range-1-20-hop-001-responses-response.sse",
+      "shape": "bodies/content-visible-range-1-20-hop-001-responses-response.shape.json",
+      "source_body_sha256": "ee1ffb326034ee596dc560c043cad959f584bc8faeb42c1b7225a86cc365aa64",
+      "sanitized_source_sha256": "ac4b13b464b39794196a35b87012a998b38a585d728026d88d120b88b9adc8e6",
+      "fixture_sha256": "ac4b13b464b39794196a35b87012a998b38a585d728026d88d120b88b9adc8e6",
+      "source_shape_sha256": "1167d48a29ca1cedbf6cb81b080724be544ed3da940690bfb3d8fc7afafa37eb",
+      "case": "content-visible-range-1-20"
+    },
+    {
+      "name": "content-visible-range-1-20-hop-002-claude-request",
+      "kind": "json",
+      "source_capture": "client-hop-002.json",
+      "source_body_key": "original_client_request.body",
+      "fixture": "bodies/content-visible-range-1-20-hop-002-claude-request.json",
+      "shape": "bodies/content-visible-range-1-20-hop-002-claude-request.shape.json",
+      "source_body_sha256": "eaf7efca8805511f21758e5a7cf5ad5ae564542e572df163437edafe37ad3f37",
+      "sanitized_source_sha256": "7c1cfdcc859f802ffd491a886fed043a595444b66c2a27fecfc7c0bc773525eb",
+      "fixture_sha256": "7c1cfdcc859f802ffd491a886fed043a595444b66c2a27fecfc7c0bc773525eb",
+      "source_shape_sha256": "f1d85c4c70cf060538deb4047ae796474c9d1741f3769b81e85deaa18659b2b1",
+      "case": "content-visible-range-1-20"
+    },
+    {
+      "name": "content-visible-range-1-20-hop-002-claude-response",
+      "kind": "sse",
+      "source_capture": "client-hop-002.json",
+      "source_body_key": "local_host_response.body",
+      "fixture": "bodies/content-visible-range-1-20-hop-002-claude-response.sse",
+      "shape": "bodies/content-visible-range-1-20-hop-002-claude-response.shape.json",
+      "source_body_sha256": "d9059c0e6737176ef03589b1c0289e7d7651bc9cb6256ca4a13401356716d96a",
+      "sanitized_source_sha256": "5bf19a255962a7c99c0bd5d31a90051d17477c57895ced9c666ffd69d9f6627d",
+      "fixture_sha256": "5bf19a255962a7c99c0bd5d31a90051d17477c57895ced9c666ffd69d9f6627d",
+      "source_shape_sha256": "359d30ee6dcce73eb3ab12429bcad5387fe6c15f65d7d3d22acee37c57390755",
+      "case": "content-visible-range-1-20"
+    },
+    {
+      "name": "content-visible-range-1-20-hop-002-responses-request",
+      "kind": "json",
+      "source_capture": "gate-004.json",
+      "source_body_key": "public_request.body",
+      "fixture": "bodies/content-visible-range-1-20-hop-002-responses-request.json",
+      "shape": "bodies/content-visible-range-1-20-hop-002-responses-request.shape.json",
+      "source_body_sha256": "d9c92238e81dcab51523e0f48563e3528b28f491f4906fdd313d7cd3f7e4a695",
+      "sanitized_source_sha256": "7ab3ffb7a5d28f3391498a9f633c613d6bf34a97375d523c4504274c66e12102",
+      "fixture_sha256": "7ab3ffb7a5d28f3391498a9f633c613d6bf34a97375d523c4504274c66e12102",
+      "source_shape_sha256": "e0e7be95008837f583c311b63fb810bdf83023f8eadb543f5c24d85d08c4b30c",
+      "case": "content-visible-range-1-20"
+    },
+    {
+      "name": "content-visible-range-1-20-hop-002-responses-response",
+      "kind": "sse",
+      "source_capture": "gate-004.json",
+      "source_body_key": "public_response.body",
+      "fixture": "bodies/content-visible-range-1-20-hop-002-responses-response.sse",
+      "shape": "bodies/content-visible-range-1-20-hop-002-responses-response.shape.json",
+      "source_body_sha256": "734b331a9a6789b824491a3923c469feddd584c58ef51cc40e2307399e728f46",
+      "sanitized_source_sha256": "1d93715f461c1a244ed36eb1234632d7d607025dbc90bb9d7cc962bc4634892f",
+      "fixture_sha256": "1d93715f461c1a244ed36eb1234632d7d607025dbc90bb9d7cc962bc4634892f",
+      "source_shape_sha256": "612ea06054ceee15bc86cf105024f9c2bf560dac0679bbcb1900eaa7236da7f4",
+      "case": "content-visible-range-1-20"
+    }
+  ],
+  "evaluation": "evaluation.json",
+  "evaluation_sha256": "423dbc70bc304ca8d0475b98f56ecb0bc31b0bf765b5d1f234f306dd59804097",
+  "privacy_sentinels": {
+    "path_count": 3,
+    "identity_value_count": 2,
+    "opaque_id_count": 235,
+    "ciphertext_value_count": 6,
+    "cache_safety_value_count": 3
+  }
+}

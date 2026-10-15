@@ -1,0 +1,790 @@
+{
+  "type": "object",
+  "fields": {
+    "copilot_usage": {
+      "type": "object",
+      "fields": {
+        "token_details": {
+          "type": "array",
+          "length": 4,
+          "items": [
+            {
+              "type": "object",
+              "fields": {
+                "batch_size": {
+                  "type": "number"
+                },
+                "cost_per_batch": {
+                  "type": "number"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "token_count": {
+                  "type": "number"
+                },
+                "token_type": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "fields": {
+                "batch_size": {
+                  "type": "number"
+                },
+                "cost_per_batch": {
+                  "type": "number"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "token_count": {
+                  "type": "number"
+                },
+                "token_type": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "fields": {
+                "batch_size": {
+                  "type": "number"
+                },
+                "cost_per_batch": {
+                  "type": "number"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "token_count": {
+                  "type": "number"
+                },
+                "token_type": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "fields": {
+                "batch_size": {
+                  "type": "number"
+                },
+                "cost_per_batch": {
+                  "type": "number"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "token_count": {
+                  "type": "number"
+                },
+                "token_type": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        },
+        "total_nano_aiu": {
+          "type": "number"
+        }
+      }
+    },
+    "created_at": {
+      "type": "number"
+    },
+    "id": {
+      "type": "string"
+    },
+    "incomplete_details": {
+      "type": "null"
+    },
+    "instructions": {
+      "type": "null"
+    },
+    "max_output_tokens": {
+      "type": "null"
+    },
+    "model": {
+      "type": "string"
+    },
+    "object": {
+      "type": "string"
+    },
+    "output": {
+      "type": "array",
+      "length": 4,
+      "items": [
+        {
+          "type": "object",
+          "fields": {
+            "content": {
+              "type": "array",
+              "length": 0,
+              "items": []
+            },
+            "encrypted_content": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "summary": {
+              "type": "array",
+              "length": 0,
+              "items": []
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "fields": {
+            "action": {
+              "type": "object",
+              "fields": {
+                "queries": {
+                  "type": "array",
+                  "length": 1,
+                  "items": [
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "query": {
+                  "type": "string"
+                },
+                "sources": {
+                  "type": "array",
+                  "length": 11,
+                  "items": [
+                    {
+                      "type": "object",
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "type": {
+                  "type": "string"
+                }
+              }
+            },
+            "id": {
+              "type": "string"
+            },
+            "results": {
+              "type": "array",
+              "length": 11,
+              "items": [
+                {
+                  "type": "object",
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "status": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "fields": {
+            "content": {
+              "type": "array",
+              "length": 0,
+              "items": []
+            },
+            "encrypted_content": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "summary": {
+              "type": "array",
+              "length": 0,
+              "items": []
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "fields": {
+            "content": {
+              "type": "array",
+              "length": 1,
+              "items": [
+                {
+                  "type": "object",
+                  "fields": {
+                    "annotations": {
+                      "type": "array",
+                      "length": 1,
+                      "items": [
+                        {
+                          "type": "object",
+                          "fields": {
+                            "end_index": {
+                              "type": "number"
+                            },
+                            "start_index": {
+                              "type": "number"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "logprobs": {
+                      "type": "array",
+                      "length": 0,
+                      "items": []
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "phase": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "output_text": {
+      "type": "null"
+    },
+    "parallel_tool_calls": {
+      "type": "boolean"
+    },
+    "previous_response_id": {
+      "type": "null"
+    },
+    "prompt_cache_retention": {
+      "type": "string"
+    },
+    "reasoning": {
+      "type": "object",
+      "fields": {
+        "context": {
+          "type": "string"
+        },
+        "effort": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "null"
+        }
+      }
+    },
+    "safety_identifier": {
+      "type": "string"
+    },
+    "service_tier": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "temperature": {
+      "type": "number"
+    },
+    "text": {
+      "type": "object",
+      "fields": {
+        "format": {
+          "type": "object",
+          "fields": {
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        "verbosity": {
+          "type": "string"
+        }
+      }
+    },
+    "tool_choice": {
+      "type": "string"
+    },
+    "tool_usage": {
+      "type": "object",
+      "fields": {
+        "image_gen": {
+          "type": "object",
+          "fields": {
+            "input_tokens": {
+              "type": "number"
+            },
+            "input_tokens_details": {
+              "type": "object",
+              "fields": {
+                "image_tokens": {
+                  "type": "number"
+                },
+                "text_tokens": {
+                  "type": "number"
+                }
+              }
+            },
+            "output_tokens": {
+              "type": "number"
+            },
+            "output_tokens_details": {
+              "type": "object",
+              "fields": {
+                "image_tokens": {
+                  "type": "number"
+                },
+                "text_tokens": {
+                  "type": "number"
+                }
+              }
+            },
+            "total_tokens": {
+              "type": "number"
+            }
+          }
+        },
+        "web_search": {
+          "type": "object",
+          "fields": {
+            "num_requests": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "tools": {
+      "type": "array",
+      "length": 1,
+      "items": [
+        {
+          "type": "object",
+          "fields": {
+            "return_token_budget": {
+              "type": "string"
+            },
+            "search_content_types": {
+              "type": "array",
+              "length": 1,
+              "items": [
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "search_context_size": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "user_location": {
+              "type": "object",
+              "fields": {
+                "city": {
+                  "type": "null"
+                },
+                "country": {
+                  "type": "string"
+                },
+                "region": {
+                  "type": "null"
+                },
+                "timezone": {
+                  "type": "null"
+                },
+                "type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "top_p": {
+      "type": "number"
+    },
+    "truncation": {
+      "type": "string"
+    },
+    "usage": {
+      "type": "object",
+      "fields": {
+        "input_tokens": {
+          "type": "number"
+        },
+        "input_tokens_details": {
+          "type": "object",
+          "fields": {
+            "cache_write_tokens": {
+              "type": "number"
+            },
+            "cached_tokens": {
+              "type": "number"
+            }
+          }
+        },
+        "output_tokens": {
+          "type": "number"
+        },
+        "output_tokens_details": {
+          "type": "object",
+          "fields": {
+            "reasoning_tokens": {
+              "type": "number"
+            }
+          }
+        },
+        "total_tokens": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

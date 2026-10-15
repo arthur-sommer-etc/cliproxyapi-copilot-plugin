@@ -1,0 +1,18 @@
+event: message_start
+data: {"message":{"content":[],"id":"fixture_opaque_id_001","model":"gpt-6-luna","role":"assistant","stop_reason":null,"stop_sequence":null,"type":"message","usage":{"input_tokens":0,"output_tokens":0}},"type":"message_start"}
+
+event: content_block_start
+data: {"content_block":{"id":"cpa_tool_v1_eyJpIjoiZml4dHVyZV9vcGFxdWVfaWRfMDAyIiwiYyI6ImZpeHR1cmVfb3BhcXVlX2lkXzAwMyJ9","input":{},"name":"Read","type":"tool_use"},"index":0,"type":"content_block_start"}
+
+event: content_block_delta
+data: {"delta":{"partial_json":"{\"file_path\":\"/fixture/private-path-002.png\",\"limit\":1000,\"offset\":0,\"pages\":\"\"}","type":"input_json_delta"},"index":0,"type":"content_block_delta"}
+
+event: content_block_stop
+data: {"index":0,"type":"content_block_stop"}
+
+event: message_delta
+data: {"delta":{"stop_reason":"tool_use","stop_sequence":null},"type":"message_delta","usage":{"cache_read_input_tokens":0,"input_tokens":1382,"output_tokens":45}}
+
+event: message_stop
+data: {"type":"message_stop"}
+

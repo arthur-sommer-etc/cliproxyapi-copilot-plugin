@@ -2,15 +2,31 @@ package sse
 
 import "bytes"
 
+// Decoder incrementally extracts SSE frames and normalizes line endings to LF.
 type Decoder struct {
 	buffer []byte
+	skipLF bool
 }
 
+// Feed adds a chunk and returns complete frames with line endings normalized to LF.
 func (d *Decoder) Feed(chunk []byte) [][]byte {
 	if len(chunk) == 0 {
 		return nil
 	}
-	d.buffer = append(d.buffer, chunk...)
+	for _, value := range chunk {
+		if d.skipLF {
+			d.skipLF = false
+			if value == '\n' {
+				continue
+			}
+		}
+		if value == '\r' {
+			d.buffer = append(d.buffer, '\n')
+			d.skipLF = true
+		} else {
+			d.buffer = append(d.buffer, value)
+		}
+	}
 	var frames [][]byte
 	for {
 		end, width := frameEnd(d.buffer)
@@ -24,7 +40,9 @@ func (d *Decoder) Feed(chunk []byte) [][]byte {
 	return frames
 }
 
+// Flush returns any non-whitespace trailing bytes and resets the decoder.
 func (d *Decoder) Flush() []byte {
+	d.skipLF = false
 	if len(bytes.TrimSpace(d.buffer)) == 0 {
 		d.buffer = nil
 		return nil
@@ -35,17 +53,9 @@ func (d *Decoder) Flush() []byte {
 }
 
 func frameEnd(raw []byte) (int, int) {
-	lf := bytes.Index(raw, []byte("\n\n"))
-	crlf := bytes.Index(raw, []byte("\r\n\r\n"))
-	switch {
-	case lf < 0:
-		if crlf < 0 {
-			return -1, 0
-		}
-		return crlf, 4
-	case crlf < 0 || lf < crlf:
-		return lf, 2
-	default:
-		return crlf, 4
+	end := bytes.Index(raw, []byte("\n\n"))
+	if end < 0 {
+		return -1, 0
 	}
+	return end, 2
 }

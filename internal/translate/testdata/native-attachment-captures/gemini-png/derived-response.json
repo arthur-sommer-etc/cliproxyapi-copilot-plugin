@@ -1,0 +1,58 @@
+{
+  "created": 1791560639,
+  "id": "SANITIZED_ID_213",
+  "usage": {
+    "completion_tokens": 15,
+    "prompt_tokens": 13295,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 13368,
+    "reasoning_tokens": 58
+  },
+  "model": "gemini-3.8-flash",
+  "copilot_usage": {
+    "token_details": [
+      {
+        "batch_size": 1000000,
+        "cost_per_batch": 75000000000,
+        "model": "gemini-3.8-flash",
+        "token_count": 13295,
+        "token_type": "input"
+      },
+      {
+        "batch_size": 1000000,
+        "cost_per_batch": 7500000000,
+        "model": "gemini-3.8-flash",
+        "token_count": 0,
+        "token_type": "cache_read"
+      },
+      {
+        "batch_size": 1000000,
+        "cost_per_batch": 0,
+        "model": "gemini-3.8-flash",
+        "token_count": 0,
+        "token_type": "cache_write"
+      },
+      {
+        "batch_size": 1000000,
+        "cost_per_batch": 375000000000,
+        "model": "gemini-3.8-flash",
+        "token_count": 15,
+        "token_type": "output"
+      }
+    ],
+    "total_nano_aiu": 1002750000
+  },
+  "choices": [
+    {
+      "index": 0,
+      "finish_reason": "stop",
+      "message": {
+        "content": "The top half is **red** and the bottom half is **blue**.",
+        "role": "assistant",
+        "reasoning_opaque": "SANITIZED_OPAQUE_005"
+      }
+    }
+  ]
+}

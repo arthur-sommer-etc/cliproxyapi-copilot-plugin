@@ -1,0 +1,16 @@
+{
+  "input": "Use the python tool to compute sum(i*i for i in range(1, 11)). Print and report the result.",
+  "model": "gpt-6-luna",
+  "prompt_cache_key": "fixture_prompt_cache_key_gpt-responses-code-interpreter",
+  "store": false,
+  "stream": false,
+  "tool_choice": "required",
+  "tools": [
+    {
+      "container": {
+        "type": "auto"
+      },
+      "type": "code_interpreter"
+    }
+  ]
+}

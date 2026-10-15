@@ -1,0 +1,291 @@
+event: response.created
+data: {"response":{"access_programs":null,"background":false,"completed_at":null,"created_at":1791562721,"error":null,"frequency_penalty":0,"id":"SANITIZED_ID_001","incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"metadata":{},"model":"gpt-6-luna","moderation":null,"object":"response","output":[],"parallel_tool_calls":true,"presence_penalty":0,"previous_response_id":null,"prompt_cache_options":{"mode":"implicit","ttl":"30m"},"prompt_cache_retention":"24h","reasoning":{"context":"all_turns","effort":"medium","mode":"standard","summary":"detailed"},"safety_identifier":"SANITIZED_SAFETY_IDENTIFIER_001","service_tier":"default","status":"in_progress","store":false,"temperature":1,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"description":"SANITIZED_INSTRUCTION_003","name":"view","output_schema":null,"parameters":{"properties":{"forceReadLargeFiles":{"description":"SANITIZED_INSTRUCTION_006","type":"boolean"},"path":{"description":"SANITIZED_INSTRUCTION_004","type":"string"},"view_range":{"description":"SANITIZED_INSTRUCTION_005","items":{"type":"integer"},"type":"array"}},"required":["path"],"type":"object"},"strict":false,"type":"function"}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null},"sequence_number":0,"type":"response.created"}
+
+event: response.in_progress
+data: {"response":{"access_programs":null,"background":false,"completed_at":null,"created_at":1791562721,"error":null,"frequency_penalty":0,"id":"SANITIZED_ID_002","incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"metadata":{},"model":"gpt-6-luna","moderation":null,"object":"response","output":[],"parallel_tool_calls":true,"presence_penalty":0,"previous_response_id":null,"prompt_cache_options":{"mode":"implicit","ttl":"30m"},"prompt_cache_retention":"24h","reasoning":{"context":"all_turns","effort":"medium","mode":"standard","summary":"detailed"},"safety_identifier":"SANITIZED_SAFETY_IDENTIFIER_001","service_tier":"default","status":"in_progress","store":false,"temperature":1,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"description":"SANITIZED_INSTRUCTION_003","name":"view","output_schema":null,"parameters":{"properties":{"forceReadLargeFiles":{"description":"SANITIZED_INSTRUCTION_006","type":"boolean"},"path":{"description":"SANITIZED_INSTRUCTION_004","type":"string"},"view_range":{"description":"SANITIZED_INSTRUCTION_005","items":{"type":"integer"},"type":"array"}},"required":["path"],"type":"object"},"strict":false,"type":"function"}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null},"sequence_number":1,"type":"response.in_progress"}
+
+event: response.output_item.added
+data: {"item":{"arguments":"","call_id":"SANITIZED_ID_003","id":"SANITIZED_ID_004","name":"view","status":"in_progress","type":"function_call"},"output_index":0,"sequence_number":2,"type":"response.output_item.added"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"{\"","item_id":"SANITIZED_ID_005","obfuscation":"rQLbpm2TMHndTZ","output_index":0,"sequence_number":3,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"path","item_id":"SANITIZED_ID_006","obfuscation":"T2abSar2em4B","output_index":0,"sequence_number":4,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"\":","item_id":"SANITIZED_ID_007","obfuscation":"dW9z7B2paDk0vA","output_index":0,"sequence_number":5,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"\"/","item_id":"SANITIZED_ID_008","obfuscation":"aD4Ihcfz4D3iER","output_index":0,"sequence_number":6,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"Users","item_id":"SANITIZED_ID_009","obfuscation":"h6Z0QqRbfIs","output_index":0,"sequence_number":7,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"/r","item_id":"SANITIZED_ID_010","obfuscation":"7okS8xl0okaMPd","output_index":0,"sequence_number":8,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"into","item_id":"SANITIZED_ID_011","obfuscation":"LOtORDqghDTo","output_index":0,"sequence_number":9,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"/.","item_id":"SANITIZED_ID_012","obfuscation":"6H0octKUtAVRA5","output_index":0,"sequence_number":10,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"cod","item_id":"SANITIZED_ID_013","obfuscation":"XrHetwCAPYzrB","output_index":0,"sequence_number":11,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"ex","item_id":"SANITIZED_ID_014","obfuscation":"5OtjvIDbDXfzCA","output_index":0,"sequence_number":12,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"/","item_id":"SANITIZED_ID_015","obfuscation":"XG2AyEzb0PyJH2x","output_index":0,"sequence_number":13,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"diagn","item_id":"SANITIZED_ID_016","obfuscation":"jRgvxz3aiEK","output_index":0,"sequence_number":14,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"ostics","item_id":"SANITIZED_ID_017","obfuscation":"vm4Sb3Kp7D","output_index":0,"sequence_number":15,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"/c","item_id":"SANITIZED_ID_018","obfuscation":"KANTXp1E95LQux","output_index":0,"sequence_number":16,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"pa","item_id":"SANITIZED_ID_019","obfuscation":"HMI9OJnGlXGcY2","output_index":0,"sequence_number":17,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"-c","item_id":"SANITIZED_ID_020","obfuscation":"Bi827OZ1OWgZL3","output_index":0,"sequence_number":18,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"op","item_id":"SANITIZED_ID_021","obfuscation":"pK8ApqqRnQXxv0","output_index":0,"sequence_number":19,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"ilot","item_id":"SANITIZED_ID_022","obfuscation":"cEPPio3e6SBx","output_index":0,"sequence_number":20,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"-","item_id":"SANITIZED_ID_023","obfuscation":"fI0oYv4Jbxuizpw","output_index":0,"sequence_number":21,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"bridge","item_id":"SANITIZED_ID_024","obfuscation":"0chnQIqTRy","output_index":0,"sequence_number":22,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"/","item_id":"SANITIZED_ID_025","obfuscation":"jVUtj9a2phRQjSW","output_index":0,"sequence_number":23,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"202","item_id":"SANITIZED_ID_026","obfuscation":"wUrhCRWeyp0Kg","output_index":0,"sequence_number":24,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"6","item_id":"SANITIZED_ID_027","obfuscation":"NPH462eA1qP8Apf","output_index":0,"sequence_number":25,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"-","item_id":"SANITIZED_ID_028","obfuscation":"DGSqSuHEoYmuQpY","output_index":0,"sequence_number":26,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"10","item_id":"SANITIZED_ID_029","obfuscation":"q2EucbIUyi9Yy4","output_index":0,"sequence_number":27,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"-","item_id":"SANITIZED_ID_030","obfuscation":"cFUxamPKaqzMAsU","output_index":0,"sequence_number":28,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"09","item_id":"SANITIZED_ID_031","obfuscation":"fJs6eLnJq1yiNx","output_index":0,"sequence_number":29,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"-server","item_id":"SANITIZED_ID_032","obfuscation":"y0cEP4NTS","output_index":0,"sequence_number":30,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"-tools","item_id":"SANITIZED_ID_033","obfuscation":"SBDsBQOGJW","output_index":0,"sequence_number":31,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":".","item_id":"SANITIZED_ID_034","obfuscation":"2lmfSJkMudXAPNZ","output_index":0,"sequence_number":32,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"2","item_id":"SANITIZED_ID_035","obfuscation":"0V1Zj4O2gaQGg1a","output_index":0,"sequence_number":33,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"f","item_id":"SANITIZED_ID_036","obfuscation":"YYzDnz14HfsyXv9","output_index":0,"sequence_number":34,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"F","item_id":"SANITIZED_ID_037","obfuscation":"ZoUERqsr0lddgOT","output_index":0,"sequence_number":35,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"2","item_id":"SANITIZED_ID_038","obfuscation":"vdVPmvQ8LU8BjRT","output_index":0,"sequence_number":36,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"V","item_id":"SANITIZED_ID_039","obfuscation":"Y5Hg1zMESXz27hp","output_index":0,"sequence_number":37,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"b","item_id":"SANITIZED_ID_040","obfuscation":"6kdAa96XGT2rYU9","output_index":0,"sequence_number":38,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"/native","item_id":"SANITIZED_ID_041","obfuscation":"EBMDdGl44","output_index":0,"sequence_number":39,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"-c","item_id":"SANITIZED_ID_042","obfuscation":"Gjcm4NwSEeiedm","output_index":0,"sequence_number":40,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"op","item_id":"SANITIZED_ID_043","obfuscation":"JcxJZoR7ON1e1R","output_index":0,"sequence_number":41,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"ilot","item_id":"SANITIZED_ID_044","obfuscation":"ZuEgCuEA2Dr3","output_index":0,"sequence_number":42,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"/run","item_id":"SANITIZED_ID_045","obfuscation":"CMK6317cQK2w","output_index":0,"sequence_number":43,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"-","item_id":"SANITIZED_ID_046","obfuscation":"J3uRf6AUS2EEO4Q","output_index":0,"sequence_number":44,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"8","item_id":"SANITIZED_ID_047","obfuscation":"o8Ep8SErbuKbnmZ","output_index":0,"sequence_number":45,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"c","item_id":"SANITIZED_ID_048","obfuscation":"y1AWNkIvGSfOoae","output_index":0,"sequence_number":46,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"25","item_id":"SANITIZED_ID_049","obfuscation":"puLgI686VcXezQ","output_index":0,"sequence_number":47,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"feb","item_id":"SANITIZED_ID_050","obfuscation":"I92eVqIlHCvL8","output_index":0,"sequence_number":48,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"03","item_id":"SANITIZED_ID_051","obfuscation":"f69JI34mEudjDT","output_index":0,"sequence_number":49,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"ee","item_id":"SANITIZED_ID_052","obfuscation":"cXCO3czTO7KSTz","output_index":0,"sequence_number":50,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"44","item_id":"SANITIZED_ID_053","obfuscation":"1YNJkUajq8Jc6U","output_index":0,"sequence_number":51,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"c","item_id":"SANITIZED_ID_054","obfuscation":"9Ty7O8J2w2KSUyq","output_index":0,"sequence_number":52,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"75","item_id":"SANITIZED_ID_055","obfuscation":"KV1Jdr4CSypKVF","output_index":0,"sequence_number":53,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"b","item_id":"SANITIZED_ID_056","obfuscation":"Hrl11INTjdRJaep","output_index":0,"sequence_number":54,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"4","item_id":"SANITIZED_ID_057","obfuscation":"Ku2Hwz0Lfpic9m6","output_index":0,"sequence_number":55,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"dc","item_id":"SANITIZED_ID_058","obfuscation":"e3lufb80ae2BcA","output_index":0,"sequence_number":56,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"26","item_id":"SANITIZED_ID_059","obfuscation":"1PeTbBYuIuLtyA","output_index":0,"sequence_number":57,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"a","item_id":"SANITIZED_ID_060","obfuscation":"Dm6TancujxtRYaO","output_index":0,"sequence_number":58,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"2","item_id":"SANITIZED_ID_061","obfuscation":"U2dYybrouwvKFCG","output_index":0,"sequence_number":59,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"d","item_id":"SANITIZED_ID_062","obfuscation":"4moT8L7JFi1zolO","output_index":0,"sequence_number":60,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"49","item_id":"SANITIZED_ID_063","obfuscation":"rppM9Yqr1D6Zbc","output_index":0,"sequence_number":61,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"d","item_id":"SANITIZED_ID_064","obfuscation":"Ha830TGBXlGVZBZ","output_index":0,"sequence_number":62,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"151","item_id":"SANITIZED_ID_065","obfuscation":"RNMq54TmNGjGL","output_index":0,"sequence_number":63,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"7","item_id":"SANITIZED_ID_066","obfuscation":"FmGeO0Bm5aA5tRg","output_index":0,"sequence_number":64,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"/home","item_id":"SANITIZED_ID_067","obfuscation":"x5vIbJbpMCq","output_index":0,"sequence_number":65,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"/tmp","item_id":"SANITIZED_ID_068","obfuscation":"UYyzw1AKs2x2","output_index":0,"sequence_number":66,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"/ac","item_id":"SANITIZED_ID_069","obfuscation":"cqbjZ4GOwywLS","output_index":0,"sequence_number":67,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"p","item_id":"SANITIZED_ID_070","obfuscation":"gPHFGUSxd0dD4Oc","output_index":0,"sequence_number":68,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"-resource","item_id":"SANITIZED_ID_071","obfuscation":"3vDeQmJ","output_index":0,"sequence_number":69,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"-","item_id":"SANITIZED_ID_072","obfuscation":"VPCBGF27864lyq1","output_index":0,"sequence_number":70,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"80","item_id":"SANITIZED_ID_073","obfuscation":"icVuVzGbBQV488","output_index":0,"sequence_number":71,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"c","item_id":"SANITIZED_ID_074","obfuscation":"1KB7J8KKhr367E3","output_index":0,"sequence_number":72,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"8","item_id":"SANITIZED_ID_075","obfuscation":"yMNVE9SZwQSYb2Z","output_index":0,"sequence_number":73,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"b","item_id":"SANITIZED_ID_076","obfuscation":"pF5qdVhaLfx6W6M","output_index":0,"sequence_number":74,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"675","item_id":"SANITIZED_ID_077","obfuscation":"Qbs9quVYmQiME","output_index":0,"sequence_number":75,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"c","item_id":"SANITIZED_ID_078","obfuscation":"DhZP4K5hSOXWZi9","output_index":0,"sequence_number":76,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"de","item_id":"SANITIZED_ID_079","obfuscation":"45mtrmGEE9NhuQ","output_index":0,"sequence_number":77,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"94","item_id":"SANITIZED_ID_080","obfuscation":"llZpcShqzxL759","output_index":0,"sequence_number":78,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"b","item_id":"SANITIZED_ID_081","obfuscation":"Z2FpH9xxPMdEsE7","output_index":0,"sequence_number":79,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"fe","item_id":"SANITIZED_ID_082","obfuscation":"v8GEOpqZ0MSGy7","output_index":0,"sequence_number":80,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"8","item_id":"SANITIZED_ID_083","obfuscation":"FitRMOmIgwzHqeh","output_index":0,"sequence_number":81,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"f","item_id":"SANITIZED_ID_084","obfuscation":"rUD3qtvwirS5fF3","output_index":0,"sequence_number":82,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"62","item_id":"SANITIZED_ID_085","obfuscation":"r1kWBmtsCxeFjR","output_index":0,"sequence_number":83,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"d","item_id":"SANITIZED_ID_086","obfuscation":"YuPaKwlrKGCvsK4","output_index":0,"sequence_number":84,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"465","item_id":"SANITIZED_ID_087","obfuscation":"oRF8aaSLs2E1I","output_index":0,"sequence_number":85,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"9","item_id":"SANITIZED_ID_088","obfuscation":"khsYozlnyDU5jOg","output_index":0,"sequence_number":86,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"d","item_id":"SANITIZED_ID_089","obfuscation":"nF44lr6xJzkETek","output_index":0,"sequence_number":87,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"6","item_id":"SANITIZED_ID_090","obfuscation":"BQ7ItEoE3PELVGW","output_index":0,"sequence_number":88,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"b","item_id":"SANITIZED_ID_091","obfuscation":"lirzn6DaDcJE8wd","output_index":0,"sequence_number":89,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"da","item_id":"SANITIZED_ID_092","obfuscation":"QDeyc6OPumsY1x","output_index":0,"sequence_number":90,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"58","item_id":"SANITIZED_ID_093","obfuscation":"1ZiEdze1l85Yjw","output_index":0,"sequence_number":91,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":".pdf","item_id":"SANITIZED_ID_094","obfuscation":"JUgtDOJ2VEIK","output_index":0,"sequence_number":92,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"\"}","item_id":"SANITIZED_ID_095","obfuscation":"YP8exLenSIi0RK","output_index":0,"sequence_number":93,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.done
+data: {"arguments":"{\"path\":\"/sanitized/native-attachments/SANITIZED_FILE_001.pdf\"}","item_id":"SANITIZED_ID_096","output_index":0,"sequence_number":94,"type":"response.function_call_arguments.done"}
+
+event: response.output_item.done
+data: {"item":{"arguments":"{\"path\":\"/sanitized/native-attachments/SANITIZED_FILE_001.pdf\"}","call_id":"SANITIZED_ID_003","id":"SANITIZED_ID_097","name":"view","status":"completed","type":"function_call"},"output_index":0,"sequence_number":95,"type":"response.output_item.done"}
+
+event: response.completed
+data: {"copilot_usage":{"token_details":[{"batch_size":1000000,"cost_per_batch":10000000000,"model":"gpt-6-luna","token_count":3,"token_type":"input"},{"batch_size":1000000,"cost_per_batch":1000000000,"model":"gpt-6-luna","token_count":0,"token_type":"cache_read"},{"batch_size":1000000,"cost_per_batch":12500000000,"model":"gpt-6-luna","token_count":3802,"token_type":"cache_write"},{"batch_size":1000000,"cost_per_batch":50000000000,"model":"gpt-6-luna","token_count":103,"token_type":"output"}],"total_nano_aiu":52705000},"response":{"access_programs":null,"background":false,"completed_at":1791562722,"created_at":1791562721,"error":null,"frequency_penalty":0,"id":"SANITIZED_ID_098","incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"metadata":{},"model":"gpt-6-luna","moderation":null,"object":"response","output":[{"arguments":"{\"path\":\"/sanitized/native-attachments/SANITIZED_FILE_001.pdf\"}","call_id":"SANITIZED_ID_003","id":"SANITIZED_ID_099","name":"view","status":"completed","type":"function_call"}],"parallel_tool_calls":true,"presence_penalty":0,"previous_response_id":null,"prompt_cache_options":{"mode":"implicit","ttl":"30m"},"prompt_cache_retention":"24h","reasoning":{"context":"all_turns","effort":"medium","mode":"standard","summary":"detailed"},"safety_identifier":"SANITIZED_SAFETY_IDENTIFIER_001","service_tier":"default","status":"completed","store":false,"temperature":1,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"description":"SANITIZED_INSTRUCTION_003","name":"view","output_schema":null,"parameters":{"properties":{"forceReadLargeFiles":{"description":"SANITIZED_INSTRUCTION_006","type":"boolean"},"path":{"description":"SANITIZED_INSTRUCTION_004","type":"string"},"view_range":{"description":"SANITIZED_INSTRUCTION_005","items":{"type":"integer"},"type":"array"}},"required":["path"],"type":"object"},"strict":false,"type":"function"}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":{"input_tokens":3805,"input_tokens_details":{"cache_write_tokens":3802,"cached_tokens":0},"output_tokens":103,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":3908},"user":null},"sequence_number":96,"type":"response.completed"}
+

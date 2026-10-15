@@ -1,0 +1,6 @@
+{"type":"thread.started","thread_id":"fixture-id-1"}
+{"type":"turn.started"}
+{"type":"item.started","item":{"id":"fixture-id-2","type":"web_search","id":"fixture-id-3","query":"","action":{"type":"other"}}}
+{"type":"item.completed","item":{"id":"fixture-id-4","type":"web_search","id":"fixture-id-5","query":"site:nasa.gov Moon facts NASA facts page","action":{"type":"search","query":"site:nasa.gov Moon facts NASA facts page","queries":["site:nasa.gov Moon facts NASA facts page"]}}}
+{"type":"item.completed","item":{"id":"fixture-id-6","type":"agent_message","text":"NASA\u2019s Moon Facts page says the Moon is Earth\u2019s only natural satellite and is about 239,000 miles (385,000 kilometers) away.\n\nSource URL: https://science.nasa.gov/moon/facts/ ([science.nasa.gov](https://science.nasa.gov/moon/facts/?utm_source=openai))"}}
+{"type":"turn.completed","usage":{"input_tokens":16374,"cached_input_tokens":11899,"cache_write_input_tokens":243,"output_tokens":138,"reasoning_output_tokens":76}}

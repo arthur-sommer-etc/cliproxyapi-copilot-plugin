@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
 	"github.com/tidwall/gjson"
 	"github.com/tiktoken-go/tokenizer"
 )
@@ -180,7 +180,11 @@ func collectToolTokenSegments(tools gjson.Result, segments *[]string) {
 		appendTokenString(segments, tool.Get("type").String())
 		appendTokenString(segments, tool.Get("name").String())
 		appendTokenString(segments, tool.Get("description").String())
-		appendTokenJSON(segments, tool.Get("input_schema"))
+		schema := tool.Get("input_schema")
+		if !schema.Exists() {
+			schema = tool.Get("parameters")
+		}
+		appendTokenJSON(segments, schema)
 		return true
 	})
 }

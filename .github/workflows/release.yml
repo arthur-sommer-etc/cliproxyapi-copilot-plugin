@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Validate release tag
         id: version
@@ -27,20 +27,20 @@ jobs:
           fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
 
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+
       - name: Run tests
-        run: |
-          docker run --rm \
-            --user "$(id -u):$(id -g)" \
-            -e HOME=/src/.cache/home \
-            -e GOCACHE=/src/.cache/go-build \
-            -e GOMODCACHE=/src/.cache/go-mod \
-            -v "$PWD:/src" \
-            -w /src \
-            golang:1.26-bookworm \
-            go test ./...
+        run: make test
 
       - name: Build marketplace package
         run: make package VERSION=${{ steps.version.outputs.value }}
+
+      - name: Run synthetic native host tests
+        run: make test-native
 
       - name: Publish GitHub Release
         env:

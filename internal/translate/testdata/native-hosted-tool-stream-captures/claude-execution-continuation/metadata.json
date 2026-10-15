@@ -1,0 +1,24 @@
+{
+  "cell": "C/claude-code-execution",
+  "endpoint_path": "/v1/messages",
+  "fixture_sha256": {
+    "request": "eea1cd175612aa1cdc9df2d43e0ca1322a9b54c80c2557def7c3c0271cef03ca",
+    "response": "98e9462485fd40716c8b1459a04134c60def0915b6d58f7cdc4d0f68b235f14e"
+  },
+  "http_status": 200,
+  "native_model": "claude-haiku-5.5",
+  "original_shape_sha256": {
+    "request": "d734f9db0f2682abf0e9197075f36d0d7a7e9ada2c57212fb89c4ee0fa3658d6",
+    "response": "c9902d3a9a0955e67bfe195dbf58b9095c15e5678172f1c6473b298976da131e"
+  },
+  "response_format": "json",
+  "sanitized_source_sha256": {
+    "request": "eea1cd175612aa1cdc9df2d43e0ca1322a9b54c80c2557def7c3c0271cef03ca",
+    "response": "98e9462485fd40716c8b1459a04134c60def0915b6d58f7cdc4d0f68b235f14e"
+  },
+  "source_body_sha256": {
+    "request": "7cffda742b85953dce0a8d99fed5b884741884118e840b04c58f825a6f437394",
+    "response": "aba139d74156af9290a8012b165a1ed10a14248dacb56af3a4323f00fcbb0705"
+  },
+  "source_outcome": "native original-history continuation accepted"
+}

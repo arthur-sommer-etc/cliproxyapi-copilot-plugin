@@ -1,0 +1,276 @@
+{
+  "copilot_usage": {
+    "token_details": [
+      {
+        "batch_size": 1000000,
+        "cost_per_batch": 10000000000,
+        "model": "gpt-6-luna",
+        "token_count": 4263,
+        "token_type": "input"
+      },
+      {
+        "batch_size": 1000000,
+        "cost_per_batch": 1000000000,
+        "model": "gpt-6-luna",
+        "token_count": 0,
+        "token_type": "cache_read"
+      },
+      {
+        "batch_size": 1000000,
+        "cost_per_batch": 12500000000,
+        "model": "gpt-6-luna",
+        "token_count": 4132,
+        "token_type": "cache_write"
+      },
+      {
+        "batch_size": 1000000,
+        "cost_per_batch": 50000000000,
+        "model": "gpt-6-luna",
+        "token_count": 166,
+        "token_type": "output"
+      }
+    ],
+    "total_nano_aiu": 102580000
+  },
+  "created_at": 1791588700,
+  "id": "fixture_id_gpt-responses-search_001",
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": null,
+  "model": "gpt-6-luna",
+  "object": "response",
+  "output": [
+    {
+      "content": [],
+      "encrypted_content": "fixture_redacted_encrypted_content_gpt-responses-search_001",
+      "id": "fixture_id_gpt-responses-search_002",
+      "summary": [],
+      "type": "reasoning"
+    },
+    {
+      "action": {
+        "queries": [
+          "site:nasa.gov Moon Facts NASA"
+        ],
+        "query": "site:nasa.gov Moon Facts NASA",
+        "sources": [
+          {
+            "type": "url",
+            "url": "https://science.nasa.gov/moon/facts/"
+          },
+          {
+            "type": "url",
+            "url": "https://science.nasa.gov/moon/"
+          },
+          {
+            "type": "url",
+            "url": "https://science.nasa.gov/moon/daily-moon-guide/"
+          },
+          {
+            "type": "url",
+            "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html"
+          },
+          {
+            "type": "url",
+            "url": "https://spaceplace.nasa.gov/all-about-the-moon/en/"
+          },
+          {
+            "type": "url",
+            "url": "https://science.nasa.gov/solar-system/moon/five-things-to-know-about-the-moon/"
+          },
+          {
+            "type": "url",
+            "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/moon/"
+          },
+          {
+            "type": "url",
+            "url": "https://science.nasa.gov/solar-system/moons/facts/"
+          },
+          {
+            "type": "url",
+            "url": "https://nssdc.gsfc.nasa.gov/planetary/planets/moonpage.html"
+          },
+          {
+            "type": "url",
+            "url": "https://science.nasa.gov/moon/moon-phases/"
+          },
+          {
+            "type": "url",
+            "url": "https://spaceplace.nasa.gov/all-about-the-moon/sp/"
+          }
+        ],
+        "type": "search"
+      },
+      "id": "ws_fixture_gpt-responses-search",
+      "results": [
+        {
+          "snippet": "Earth's Moon records evidence of our solar system's history in the form of impact craters, cooled lava landforms, ancient ice deposits, and more.",
+          "title": "Moon Facts - NASA Science",
+          "type": "text_result",
+          "url": "https://science.nasa.gov/moon/facts/"
+        },
+        {
+          "snippet": "The Moon makes Earth more livable, sets the rhythm of ocean tides, and keeps a record of our solar system's history. Explore NASA lunar science here.",
+          "title": "Earth's Moon - Science@NASA",
+          "type": "text_result",
+          "url": "https://science.nasa.gov/moon/"
+        },
+        {
+          "snippet": "Your interactive map for observing the Moon each day of the year, featuring detailed views from NASA's Lunar Reconnaissance Orbiter, plus special Moon events.",
+          "title": "NASA's Daily Moon Guide",
+          "type": "text_result",
+          "url": "https://science.nasa.gov/moon/daily-moon-guide/"
+        },
+        {
+          "snippet": "Moon Home Page Directory to other Planetary Fact Sheets Author/Curator: Dr. David R. Williams, dave.williams@nasa.gov NSSDCA, Mail Code 690.1 NASA Goddard Space Flight Center Greenbelt, MD 20771 +1-301-286-1258 NASA Official: Thomas Morgan, thomas.h.morgan@nasa.gov Last Updated: 11 January 2024, DRW",
+          "title": "Moon Fact Sheet - NSSDCA",
+          "type": "text_result",
+          "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html"
+        },
+        {
+          "snippet": "All About the Moon Quick Facts: Earth has just one moon – a rocky, cratered place, roughly a quarter the size of Earth and an average of 238,855 miles away. The Moon can be seen with the naked eye most nights as it traces its 27-day orbit around our planet.",
+          "title": "All About the Moon | NASA Space Place – NASA Science for Kids",
+          "type": "text_result",
+          "url": "https://spaceplace.nasa.gov/all-about-the-moon/en/"
+        },
+        {
+          "snippet": "Looking for some quick facts to impress others when you're out enjoying a moonlit night? Well, here are five things to know about the Moon that you can share with others when you're gazing up at our natural satellite.",
+          "title": "Five Things to Know about the Moon - Science@NASA",
+          "type": "text_result",
+          "url": "https://science.nasa.gov/solar-system/moon/five-things-to-know-about-the-moon/"
+        },
+        {
+          "snippet": "Moon’s Formation At the time of its formation, the Moon had a liquid core and experienced flows of lava which created the flat basins, or “mare’s”, which we see from Earth. The Moon gradually cooled, forming a thick crust.",
+          "title": "Moon - Glenn Research Center | NASA",
+          "type": "text_result",
+          "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/moon/"
+        },
+        {
+          "snippet": "Our solar system has more than 890 moons. Many moons orbit planets, and even some asteroids have moons.",
+          "title": "Moons: Facts - Science@NASA",
+          "type": "text_result",
+          "url": "https://science.nasa.gov/solar-system/moons/facts/"
+        },
+        {
+          "snippet": "Intuitive Machines 3 - NASA Lunar Lander and Rovers (TBD) Cislunar Explorers - NASA Technology Test CubeSats (TBD) Data Lunar Data Project - Restored Apollo Data Images of the Moon (Catalog of Spaceborne Imaging) Images of the Moon (NSSDCA Photo Gallery) Lunar Exploration Lunar Exploration Timeline Lunar Landing Site Map",
+          "title": "The Moon - NSSDCA",
+          "type": "text_result",
+          "url": "https://nssdc.gsfc.nasa.gov/planetary/planets/moonpage.html"
+        },
+        {
+          "snippet": "The 8 lunar phases are: new moon, waxing crescent, first quarter, waxing gibbous, full moon, waning gibbous, third quarter, & waning crescent.",
+          "title": "Moon Phases - NASA Science",
+          "type": "text_result",
+          "url": "https://science.nasa.gov/moon/moon-phases/"
+        },
+        {
+          "snippet": "All About the Moon Quick Facts: Earth has just one moon – a rocky, cratered place, roughly a quarter the size of Earth and an average of 238,855 miles away. The Moon can be seen with the naked eye most nights as it traces its 27-day orbit around our planet.",
+          "title": "All About the Moon | NASA Space Place – NASA Science for Kids",
+          "type": "text_result",
+          "url": "https://spaceplace.nasa.gov/all-about-the-moon/sp/"
+        }
+      ],
+      "status": "completed",
+      "type": "web_search_call"
+    },
+    {
+      "content": [],
+      "encrypted_content": "fixture_redacted_encrypted_content_gpt-responses-search_002",
+      "id": "fixture_id_gpt-responses-search_004",
+      "summary": [],
+      "type": "reasoning"
+    },
+    {
+      "content": [
+        {
+          "annotations": [
+            {
+              "end_index": 230,
+              "start_index": 172,
+              "title": "Moon Facts - NASA Science",
+              "type": "url_citation",
+              "url": "https://science.nasa.gov/moon/facts/"
+            }
+          ],
+          "logprobs": [],
+          "text": "NASA fact: Apollo astronauts brought **842 pounds (382 kilograms) of lunar rocks and soil** back to Earth.\n\nSource: [NASA Moon Facts](https://science.nasa.gov/moon/facts/) ([science.nasa.gov](https://science.nasa.gov/moon/facts/))",
+          "type": "output_text"
+        }
+      ],
+      "id": "fixture_id_gpt-responses-search_005",
+      "phase": "final_answer",
+      "role": "assistant",
+      "status": "completed",
+      "type": "message"
+    }
+  ],
+  "output_text": null,
+  "parallel_tool_calls": true,
+  "previous_response_id": null,
+  "prompt_cache_retention": "24h",
+  "reasoning": {
+    "context": "all_turns",
+    "effort": "medium",
+    "summary": null
+  },
+  "safety_identifier": "fixture_safety_identifier_gpt-responses-search",
+  "service_tier": "flex",
+  "status": "completed",
+  "temperature": 1,
+  "text": {
+    "format": {
+      "type": "text"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "required",
+  "tool_usage": {
+    "image_gen": {
+      "input_tokens": 0,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 0
+      },
+      "output_tokens": 0,
+      "output_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 0
+      },
+      "total_tokens": 0
+    },
+    "web_search": {
+      "num_requests": 1
+    }
+  },
+  "tools": [
+    {
+      "type": "web_search",
+      "return_token_budget": "default",
+      "search_content_types": [
+        "text"
+      ],
+      "search_context_size": "low",
+      "user_location": {
+        "type": "approximate",
+        "city": null,
+        "country": "US",
+        "region": null,
+        "timezone": null
+      }
+    }
+  ],
+  "top_p": 0.98,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 8395,
+    "input_tokens_details": {
+      "cache_write_tokens": 4132,
+      "cached_tokens": 0
+    },
+    "output_tokens": 166,
+    "output_tokens_details": {
+      "reasoning_tokens": 105
+    },
+    "total_tokens": 8561
+  }
+}

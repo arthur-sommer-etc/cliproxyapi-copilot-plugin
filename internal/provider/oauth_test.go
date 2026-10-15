@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
 )
 
 func TestClassifyDeviceToken(t *testing.T) {
@@ -82,5 +82,48 @@ func TestClassifyDeviceToken(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestValidateGitHubVerificationURL(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name          string
+		url           string
+		base          string
+		allowInsecure bool
+		wantError     bool
+	}{
+		{name: "same HTTPS origin", url: "https://github.com/login/device?user_code=ABCD", base: "https://github.com"},
+		{name: "external host", url: "https://attacker.example/device", base: "https://github.com", wantError: true},
+		{name: "userinfo", url: "https://github.com@attacker.example/device", base: "https://github.com", wantError: true},
+		{name: "HTTP denied", url: "http://github.com/device", base: "http://github.com", wantError: true},
+		{name: "HTTP explicit test mode", url: "http://github.com/device", base: "http://github.com", allowInsecure: true},
+		{name: "fragment denied", url: "https://github.com/device#token", base: "https://github.com", wantError: true},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			_, err := validateGitHubVerificationURL(test.url, test.base, test.allowInsecure)
+			if (err != nil) != test.wantError {
+				t.Fatalf("validation error = %v, want error=%v", err, test.wantError)
+			}
+		})
+	}
+}
+
+func TestCopilotAPIBaseRejectsUntrustedURLParts(t *testing.T) {
+	t.Parallel()
+	cfg := DefaultConfig()
+	if _, err := copilotAPIBase(map[string]string{"api": "https://token@api.example"}, cfg); err == nil {
+		t.Fatal("API endpoint with userinfo was accepted")
+	}
+	if _, err := copilotAPIBase(map[string]string{"api": "http://api.example"}, cfg); err == nil {
+		t.Fatal("HTTP API endpoint was accepted without insecure test mode")
+	}
+	cfg.AllowInsecureBaseURLs = true
+	if endpoint, err := copilotAPIBase(map[string]string{"api": "http://api.example"}, cfg); err != nil || endpoint != "http://api.example" {
+		t.Fatalf("explicit insecure test endpoint = %q, error=%v", endpoint, err)
 	}
 }

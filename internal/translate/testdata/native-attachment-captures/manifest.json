@@ -1,0 +1,151 @@
+{
+  "provenance": "Six genuine forwarded native Copilot CLI inference captures from 2026-10-09.",
+  "capture_boundary": "Application request and complete SSE response bodies; transport fingerprint parity is unproven.",
+  "sanitization": "Private paths, dynamic IDs, CLI system/developer text, tool descriptions, opaque signed blobs, and reasoning text are replaced without changing JSON field topology or SSE event order. The shared persistent safety_identifier is replaced consistently with the explicit portable string sentinel SANITIZED_SAFETY_IDENTIFIER_001.",
+  "cases": [
+    {
+      "name": "gpt-png",
+      "source": "openai-response",
+      "endpoint": "/responses",
+      "requested_model": "gpt-6-luna",
+      "response_model": "gpt-6-luna",
+      "http_status": 200,
+      "content_type": "text/event-stream",
+      "request_sha256": "03d6080837d98283a90633982d664c7d7c947a4615fd6b03886e8e2d1bbe471e",
+      "response_sse_sha256": "d46b0f04718bfb4bd2f342d818a9ce3cc6840b045a543b0a3981a7d4c3a6a992",
+      "request_shape_sha256": "1189a4977abac2580dac5ca43c087c166fef931c785056c7316b3009eb607611",
+      "sse_json_events": 102,
+      "sse_done_marker": false,
+      "terminal": "completed",
+      "text": "The top half and bottom half are both blue.",
+      "attachments": [
+        {
+          "media_type": "image/png",
+          "length": 177,
+          "sha256": "648a0925b839950a3546fb16cae8db3819b4c5ab6288f4051b02daaa5fd9c02e"
+        }
+      ],
+      "tagged_files": false,
+      "observed_outcome": "visual_canary_failed",
+      "derived_json_provenance": "captured_response_completed_snapshot"
+    },
+    {
+      "name": "claude-png",
+      "source": "claude",
+      "endpoint": "/v1/messages",
+      "requested_model": "claude-haiku-5.5",
+      "response_model": "claude-haiku-5-5",
+      "http_status": 200,
+      "content_type": "text/event-stream",
+      "request_sha256": "91a15aa532d251146fb06a37b21dcf223f4909e873d5ea7fc203286c3650b77d",
+      "response_sse_sha256": "141e8c48fba56d88316a56287770d27292822c2a368fae0cc0bf4f0dcd9bf68c",
+      "request_shape_sha256": "cd35764ccd971ed8deaa91ed5a2edb464a521d90877b7a27fc3316a82ae01a43",
+      "sse_json_events": 9,
+      "sse_done_marker": true,
+      "terminal": "end_turn",
+      "text": "The top half is red and the bottom half is blue.",
+      "attachments": [
+        {
+          "media_type": "image/png",
+          "length": 177,
+          "sha256": "648a0925b839950a3546fb16cae8db3819b4c5ab6288f4051b02daaa5fd9c02e"
+        }
+      ],
+      "tagged_files": false,
+      "observed_outcome": "visual_canary_passed",
+      "derived_json_provenance": "offline_message_assembly_from_captured_sse"
+    },
+    {
+      "name": "claude-pdf",
+      "source": "claude",
+      "endpoint": "/v1/messages",
+      "requested_model": "claude-haiku-5.5",
+      "response_model": "claude-haiku-5-5",
+      "http_status": 200,
+      "content_type": "text/event-stream",
+      "request_sha256": "7b869e5f264dc98bcd319634f136238600b33d439bac78e49161d86e0d105418",
+      "response_sse_sha256": "65b747fa9e0ce9a407afecdcaec74085e7a986b03cc79ed9fb4b1791ad7dbfe7",
+      "request_shape_sha256": "cd35764ccd971ed8deaa91ed5a2edb464a521d90877b7a27fc3316a82ae01a43",
+      "sse_json_events": 37,
+      "sse_done_marker": true,
+      "terminal": "end_turn",
+      "text": "The canary text is **\"Document canary: Q7B9\"**. The text runs off the right edge of the page, so the final character may be clipped. The rectangle is **blue**.",
+      "attachments": [
+        {
+          "media_type": "application/pdf",
+          "length": 623,
+          "sha256": "e8627ac30088e8d989b1e265018ac32bc5b7b94bb4fdb51954deaff0c3ff2d68"
+        }
+      ],
+      "tagged_files": false,
+      "observed_outcome": "inline_pdf_canary_passed",
+      "derived_json_provenance": "offline_message_assembly_from_captured_sse"
+    },
+    {
+      "name": "gemini-png",
+      "source": "openai",
+      "endpoint": "/chat/completions",
+      "requested_model": "gemini-3.8-flash",
+      "response_model": "gemini-3.8-flash",
+      "http_status": 200,
+      "content_type": "text/event-stream",
+      "request_sha256": "9cfbde5dcddc58bf48c554c8118ca673ccc85c38df4d5de0e337b30c5b7c109a",
+      "response_sse_sha256": "13d09ef7f3b51e4b887ecb26c4a54250dfa4564141f125e3048fffad4524d6f9",
+      "request_shape_sha256": "14ef94b222fa5c16a85806defe71d8ed5570b89fa9b206a24a633a4760ddefa5",
+      "sse_json_events": 2,
+      "sse_done_marker": true,
+      "terminal": "stop",
+      "text": "The top half is **red** and the bottom half is **blue**.",
+      "attachments": [
+        {
+          "media_type": "image/png",
+          "length": 177,
+          "sha256": "648a0925b839950a3546fb16cae8db3819b4c5ab6288f4051b02daaa5fd9c02e"
+        }
+      ],
+      "tagged_files": false,
+      "observed_outcome": "visual_canary_passed",
+      "derived_json_provenance": "offline_chat_message_assembly_from_captured_sse"
+    },
+    {
+      "name": "gemini-pdf",
+      "source": "openai",
+      "endpoint": "/chat/completions",
+      "requested_model": "gemini-3.8-flash",
+      "response_model": "gemini-3.8-flash",
+      "http_status": 200,
+      "content_type": "text/event-stream",
+      "request_sha256": "b2ea6acea2226d85989001f1aba7ad12e6baac73bc19547c2d20dd2ca14685ad",
+      "response_sse_sha256": "05d22c82fea3896e083ff602c79e73de060ed1e83588320b192a9a98cb4764b3",
+      "request_shape_sha256": "c8ec35dd62fe06c01249c0d358a766fd005923e2853d565994cfd7568553044e",
+      "sse_json_events": 26,
+      "sse_done_marker": true,
+      "terminal": "stop",
+      "text": "The attached PDF (`sanitized-attachment-005.pdf`) is referenced as a file path on disk rather than inline content in the prompt. \n\nBecause you instructed me to answer directly without using any tools, I cannot access or inspect the file to extract the canary text and rectangle color. If you permit tool usage, I can read the file and provide the exact details.",
+      "attachments": [],
+      "tagged_files": true,
+      "observed_outcome": "initial_local_reference_only",
+      "derived_json_provenance": "offline_chat_message_assembly_from_captured_sse"
+    },
+    {
+      "name": "gpt-pdf",
+      "source": "openai-response",
+      "endpoint": "/responses",
+      "requested_model": "gpt-6-luna",
+      "response_model": "gpt-6-luna",
+      "http_status": 200,
+      "content_type": "text/event-stream",
+      "request_sha256": "39a81f8f79e5e2a680aa4959841c3018bbf0b3cd0f59eb3c6eaeefeb22b27c76",
+      "response_sse_sha256": "7e16583ca7296e7abc82a02ae93eb67afd230146e69dea52c4e0b678e46bbefc",
+      "request_shape_sha256": "cc0383fe2ef811b1e23a48f8d8883c4f5c00aa2a6f3e18bc664f1119f80c448f",
+      "sse_json_events": 36,
+      "sse_done_marker": false,
+      "terminal": "completed",
+      "text": "I can’t read the attached PDF without accessing the file, so I can’t reliably identify the canary text or rectangle color.",
+      "attachments": [],
+      "tagged_files": true,
+      "observed_outcome": "initial_local_reference_only",
+      "derived_json_provenance": "captured_response_completed_snapshot"
+    }
+  ]
+}

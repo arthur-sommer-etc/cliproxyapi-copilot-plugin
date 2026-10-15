@@ -1,0 +1,70 @@
+{
+  "captured_cases": [
+    {
+      "name": "text-missing-fail",
+      "recorded_accepted": false,
+      "recorded_error_class": "unclassified",
+      "source_result_sha256": "a80fc87140feccffa2119364fe9a50c0914afce272f500f07760b728109e96b7",
+      "actual_read_pages": "1",
+      "captured_answer_signal": "printed_code_absent",
+      "final_provider_text_sha256": "492b69d779e2260154d3f4d543e9274a016be5822660513c6f53f4a94b61271d",
+      "client_final_text_sha256": "492b69d779e2260154d3f4d543e9274a016be5822660513c6f53f4a94b61271d",
+      "claude_tool_result_jpeg_sha256": "1defa5ba3c414775b771811961819faa9d509938f8b3128930ca3484bdbd3979",
+      "responses_function_output_jpeg_sha256": "1defa5ba3c414775b771811961819faa9d509938f8b3128930ca3484bdbd3979",
+      "note": "Captured status stays false. The body signal describes the actual answer only and does not upgrade acceptance."
+    },
+    {
+      "name": "content-visible-range-1-20",
+      "recorded_accepted": false,
+      "recorded_error_class": "unclassified",
+      "source_result_sha256": "f8ea2f093f020198a8a28d68d0aecf5788776cbddd60cf0adf576d954e8ea7df",
+      "actual_read_pages": "1-20",
+      "captured_answer_signal": "printed_code_q7b9",
+      "final_provider_text_sha256": "093e73f0c0495c80435579391c0b0ee46b52b1012e78a73fe04e2ba9284e942c",
+      "client_final_text_sha256": "093e73f0c0495c80435579391c0b0ee46b52b1012e78a73fe04e2ba9284e942c",
+      "claude_tool_result_jpeg_sha256": "0ab5e7e997a5eecf128d90494e111a00c6e9e79ccee690e280cd7e7fa8187b54",
+      "responses_function_output_jpeg_sha256": "0ab5e7e997a5eecf128d90494e111a00c6e9e79ccee690e280cd7e7fa8187b54",
+      "note": "Captured status stays false. The body signal describes the actual answer only and does not upgrade acceptance."
+    }
+  ],
+  "corrected_replay": {
+    "corrected_accepted": true,
+    "historical_accepted": false,
+    "historical_result_preserved": true,
+    "replay_only": true,
+    "provider_dispatches": 0,
+    "new_condition_evaluated": "native_single_page_range_start_one_end_at_most_twenty_with_exact_read_arguments_and_one_jpeg",
+    "source_fixture_sha256": "e8627ac30088e8d989b1e265018ac32bc5b7b94bb4fdb51954deaff0c3ff2d68",
+    "source_evaluation_sha256": "1c4e36ef8569bcfe13b7f87f6fe4ad64b20f074faae22d5bd1820de0e268cd69",
+    "evidence": {
+      "client_final": true,
+      "client_tool_call": true,
+      "client_tool_result": true,
+      "client_media": true,
+      "client_media_count": 1,
+      "client_media_sha256": "0ab5e7e997a5eecf128d90494e111a00c6e9e79ccee690e280cd7e7fa8187b54",
+      "client_read_count": 1,
+      "client_read_args_sha256": "3a84f540c295453f552a48d4283fd769c7616000725e1c08d213d73af3dcbece",
+      "client_answer": true,
+      "public_model": true,
+      "public_medium_effort": true,
+      "public_endpoint": true,
+      "public_media": true,
+      "public_media_count": 1,
+      "public_media_sha256": "0ab5e7e997a5eecf128d90494e111a00c6e9e79ccee690e280cd7e7fa8187b54",
+      "public_read_count": 1,
+      "public_read_args_sha256": "3a84f540c295453f552a48d4283fd769c7616000725e1c08d213d73af3dcbece",
+      "public_tool_call": true,
+      "public_tool_result": true,
+      "public_terminal": true,
+      "public_stream_clean": true,
+      "public_stream_proven": true,
+      "original_client_media_sha256": "0ab5e7e997a5eecf128d90494e111a00c6e9e79ccee690e280cd7e7fa8187b54",
+      "original_client_media_count": 1,
+      "original_client_read_count": 1,
+      "original_client_read_args_sha256": "3a84f540c295453f552a48d4283fd769c7616000725e1c08d213d73af3dcbece",
+      "physical_inference": 2
+    },
+    "note": "This is a separate zero-dispatch source-body replay result. It does not overwrite either historical captured accepted=false record."
+  }
+}

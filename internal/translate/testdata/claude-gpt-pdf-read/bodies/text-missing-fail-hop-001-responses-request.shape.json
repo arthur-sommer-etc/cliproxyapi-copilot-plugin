@@ -1,0 +1,275 @@
+{
+  "type": "object",
+  "fields": {
+    "include": {
+      "type": "array",
+      "length": 1,
+      "items": [
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "input": {
+      "type": "array",
+      "length": 3,
+      "items": [
+        {
+          "type": "object",
+          "fields": {
+            "content": {
+              "type": "array",
+              "length": 3,
+              "items": [
+                {
+                  "type": "object",
+                  "fields": {
+                    "text": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "fields": {
+                    "text": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "fields": {
+                    "text": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "role": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "fields": {
+            "content": {
+              "type": "array",
+              "length": 1,
+              "items": [
+                {
+                  "type": "object",
+                  "fields": {
+                    "text": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "role": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "fields": {
+            "content": {
+              "type": "array",
+              "length": 1,
+              "items": [
+                {
+                  "type": "object",
+                  "fields": {
+                    "text": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "role": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "max_output_tokens": {
+      "type": "number"
+    },
+    "metadata": {
+      "type": "object",
+      "fields": {
+        "user_id": {
+          "type": "string"
+        }
+      }
+    },
+    "model": {
+      "type": "string"
+    },
+    "prompt_cache_key": {
+      "type": "string"
+    },
+    "reasoning": {
+      "type": "object",
+      "fields": {
+        "effort": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        }
+      }
+    },
+    "store": {
+      "type": "boolean"
+    },
+    "stream": {
+      "type": "boolean"
+    },
+    "tools": {
+      "type": "array",
+      "length": 1,
+      "items": [
+        {
+          "type": "object",
+          "fields": {
+            "description": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "parameters": {
+              "type": "object",
+              "fields": {
+                "$schema": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": "boolean"
+                },
+                "properties": {
+                  "type": "object",
+                  "fields": {
+                    "allow_large": {
+                      "type": "object",
+                      "fields": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "file_path": {
+                      "type": "object",
+                      "fields": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "limit": {
+                      "type": "object",
+                      "fields": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "exclusiveMinimum": {
+                          "type": "number"
+                        },
+                        "maximum": {
+                          "type": "number"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "offset": {
+                      "type": "object",
+                      "fields": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "maximum": {
+                          "type": "number"
+                        },
+                        "minimum": {
+                          "type": "number"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "pages": {
+                      "type": "object",
+                      "fields": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": {
+                  "type": "array",
+                  "length": 1,
+                  "items": [
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "type": {
+                  "type": "string"
+                }
+              }
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

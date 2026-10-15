@@ -1,0 +1,153 @@
+{
+  "format": "body-only full original-client Claude Messages to GPT Responses PNG Read capture",
+  "source_scope": "Original Messages requests/local SSE response bodies from the client-hop capture; converted public Responses request/provider SSE bodies from gates 003 and 004. No headers, authorization, host fields, or test-hop wrappers are copied.",
+  "sanitizer": {
+    "preserved": "Every body field, scalar value, number, null/empty value, array position, SSE frame, event name, and event order is kept, except the explicit privacy replacements below.",
+    "replacements": {
+      "opaque_ids": [
+        "id",
+        "item_id",
+        "call_id",
+        "tool_use_id",
+        "response_id",
+        "previous_response_id",
+        "message_id",
+        "conversation_id",
+        "event_id",
+        "output_item_id",
+        "tool_id",
+        "other *_id string fields"
+      ],
+      "claude_tool_id_carriers": "Canonical cpa_tool_v1_ carriers retain their format while embedded item and call IDs are replaced using the same global deterministic ID map as their standalone fields.",
+      "ciphertext": [
+        "encrypted_content",
+        "encrypted_index",
+        "signature"
+      ],
+      "private_paths": "Absolute private paths and exact occurrences inside JSON strings become deterministic /fixture/private-path-NNN.ext sentinels; longest known full paths are replaced before their directory prefixes.",
+      "identity": [
+        "account_uuid",
+        "device_id",
+        "session_id",
+        "client_id",
+        "user_id",
+        "account_id"
+      ],
+      "cache_and_safety": [
+        "prompt_cache_key",
+        "safety_identifier"
+      ]
+    },
+    "replacement_rule": "Replacements keep each JSON key and string type. Equal opaque IDs, ciphertext values, cache/safety values, identity values, and path strings reuse deterministic sentinels across all eight bodies, preserving cross-request/event correlation. Known Claude tool-ID carriers preserve their canonical wrapper and correlated embedded IDs.",
+    "image_note": "The actual PNG base64 payload is preserved unchanged; tests compare the SHA-256 of its decoded bytes across the Messages tool_result and Responses function_call_output.",
+    "private_path_note": "Raw private paths and client identity markers are excluded from fixtures and printed reports."
+  },
+  "bodies": [
+    {
+      "name": "hop-001-claude-request",
+      "kind": "json",
+      "source_capture": "client-hop-001.json",
+      "source_body_key": "original_client_request.body",
+      "fixture": "bodies/hop-001-claude-request.json",
+      "shape": "bodies/hop-001-claude-request.shape.json",
+      "source_body_sha256": "c2f9dacde18e998d244d5454f85f42a4b676cafaeefdc76e680c5e95bdd85d8a",
+      "sanitized_source_sha256": "25687a8e184185eb72d2d0b6fd79f7df6a1b7e4eac700a94033ef367285ba227",
+      "fixture_sha256": "25687a8e184185eb72d2d0b6fd79f7df6a1b7e4eac700a94033ef367285ba227",
+      "source_shape_sha256": "b54d25ccc2156524458902330fe678ab741a65b42e8aff3eab3714e93da65fc7"
+    },
+    {
+      "name": "hop-001-claude-response",
+      "kind": "sse",
+      "source_capture": "client-hop-001.json",
+      "source_body_key": "local_host_response.body",
+      "fixture": "bodies/hop-001-claude-response.sse",
+      "shape": "bodies/hop-001-claude-response.shape.json",
+      "source_body_sha256": "651f4f1d71ea3bca6d9ffae63c06841f8d46271d521c59e2c698e1905bd53093",
+      "sanitized_source_sha256": "fe41ee3902ab7321ea339b38c1cd65d5a6d8b779c07753ee1810de616bb04c4d",
+      "fixture_sha256": "fe41ee3902ab7321ea339b38c1cd65d5a6d8b779c07753ee1810de616bb04c4d",
+      "source_shape_sha256": "1b6e62a5c2e950b0bcd1bcd9b4033ec6a4c4f43d731c66fc7df024e377d65c9c"
+    },
+    {
+      "name": "hop-001-responses-request",
+      "kind": "json",
+      "source_capture": "gate-003.json",
+      "source_body_key": "public_request.body",
+      "fixture": "bodies/hop-001-responses-request.json",
+      "shape": "bodies/hop-001-responses-request.shape.json",
+      "source_body_sha256": "d42ffd3da3658672b674662d60ae2e2149e4261a2af7a811923c679f00e384ae",
+      "sanitized_source_sha256": "f66a4ab77770b4e137ef4ced76c6e366367e76d1387d68ea0dbfe7e1dbab942c",
+      "fixture_sha256": "f66a4ab77770b4e137ef4ced76c6e366367e76d1387d68ea0dbfe7e1dbab942c",
+      "source_shape_sha256": "72e917e90c185d8d18704b387c8a3998be7e373d91a90267d3beba9aa0af7fe5"
+    },
+    {
+      "name": "hop-001-responses-response",
+      "kind": "sse",
+      "source_capture": "gate-003.json",
+      "source_body_key": "public_response.body",
+      "fixture": "bodies/hop-001-responses-response.sse",
+      "shape": "bodies/hop-001-responses-response.shape.json",
+      "source_body_sha256": "11f450f557b7e67efca094c3f0b42d853bb77baf926c0e5111c9028721cc1811",
+      "sanitized_source_sha256": "b896f61b257d53753bac2ea1b757ae93dd35046b9ce560cf172a9f1b5e86a795",
+      "fixture_sha256": "b896f61b257d53753bac2ea1b757ae93dd35046b9ce560cf172a9f1b5e86a795",
+      "source_shape_sha256": "cf765a5ac3c1ee691beacb648195f0abf77641e98e2a7dd8ede6cb7d3250c7c2"
+    },
+    {
+      "name": "hop-002-claude-request",
+      "kind": "json",
+      "source_capture": "client-hop-002.json",
+      "source_body_key": "original_client_request.body",
+      "fixture": "bodies/hop-002-claude-request.json",
+      "shape": "bodies/hop-002-claude-request.shape.json",
+      "source_body_sha256": "740428163006ea4f5829df78b1e337918bb18d5f283965202c95c54ce9b1cabf",
+      "sanitized_source_sha256": "3df682192e3895bde3ff92b38e00ca92b9393aec6ecca600c15e1a8e810f90a9",
+      "fixture_sha256": "3df682192e3895bde3ff92b38e00ca92b9393aec6ecca600c15e1a8e810f90a9",
+      "source_shape_sha256": "5aad7a3adfb0650f31642c861db343247ee84e6e15f7b425eda1421a6a7b5ff4"
+    },
+    {
+      "name": "hop-002-claude-response",
+      "kind": "sse",
+      "source_capture": "client-hop-002.json",
+      "source_body_key": "local_host_response.body",
+      "fixture": "bodies/hop-002-claude-response.sse",
+      "shape": "bodies/hop-002-claude-response.shape.json",
+      "source_body_sha256": "bd603e2b58104c71fcf89b11187b076fb8c80836c344037b6b7b6fd7a2774d99",
+      "sanitized_source_sha256": "b54f4180d7abd0b87eb37357c72d77348c41ffb333bee620e7240f144891eb04",
+      "fixture_sha256": "b54f4180d7abd0b87eb37357c72d77348c41ffb333bee620e7240f144891eb04",
+      "source_shape_sha256": "298853b7275b1e26b36adfee3473a5d61b1b2c8fb48ff1665c94a83e9dec5bcb"
+    },
+    {
+      "name": "hop-002-responses-request",
+      "kind": "json",
+      "source_capture": "gate-004.json",
+      "source_body_key": "public_request.body",
+      "fixture": "bodies/hop-002-responses-request.json",
+      "shape": "bodies/hop-002-responses-request.shape.json",
+      "source_body_sha256": "66f9ab9dba7918b70f607420543c0908d305fc620853c591fa15bf9b76467198",
+      "sanitized_source_sha256": "a43e8bdc732bb88efee72faaf57f698221a258364beea86f0da5451eff144142",
+      "fixture_sha256": "a43e8bdc732bb88efee72faaf57f698221a258364beea86f0da5451eff144142",
+      "source_shape_sha256": "864069ac5cb7e0bb40e67fdb616ea3137ffa41d8baf14ab2eb2613ac600e9f96"
+    },
+    {
+      "name": "hop-002-responses-response",
+      "kind": "sse",
+      "source_capture": "gate-004.json",
+      "source_body_key": "public_response.body",
+      "fixture": "bodies/hop-002-responses-response.sse",
+      "shape": "bodies/hop-002-responses-response.shape.json",
+      "source_body_sha256": "8970ff37b399a4b0f217cabfe58206a3e7b4c51eed3336494739d8b483b9387c",
+      "sanitized_source_sha256": "85d442f00ac0312f735e102d2970bc7b99adc918109d2b02646453838fd8fda8",
+      "fixture_sha256": "85d442f00ac0312f735e102d2970bc7b99adc918109d2b02646453838fd8fda8",
+      "source_shape_sha256": "00bbb88a692b632cd01d19f5c92fc140046ae3b43060cd682f89b0d5b0c87bf8"
+    }
+  ],
+  "evaluation": "evaluation.json",
+  "evaluation_sha256": "31329e13078cacd6f84658430119c45342143fbeca922f68f1406da521befe40",
+  "png_decoded_sha256": "648a0925b839950a3546fb16cae8db3819b4c5ab6288f4051b02daaa5fd9c02e",
+  "privacy_sentinels": {
+    "path_count": 3,
+    "identity_value_count": 1,
+    "opaque_id_count": 232,
+    "ciphertext_value_count": 3,
+    "cache_safety_value_count": 2
+  }
+}

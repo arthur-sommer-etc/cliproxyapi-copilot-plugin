@@ -1,0 +1,40 @@
+{
+  "method": "GET",
+  "url": "https://api.individual.githubcopilot.com/models",
+  "headers": {
+    "Accept": [
+      "application/json"
+    ],
+    "Accept-Encoding": [
+      "gzip"
+    ],
+    "Content-Type": [
+      "application/json"
+    ],
+    "Copilot-Integration-Id": [
+      "vscode-chat"
+    ],
+    "Editor-Plugin-Version": [
+      "copilot-chat/0.35.0"
+    ],
+    "Editor-Version": [
+      "vscode/1.107.0"
+    ],
+    "Openai-Intent": [
+      "conversation-edits"
+    ],
+    "User-Agent": [
+      "GitHubCopilotChat/0.35.0"
+    ],
+    "X-Github-Api-Version": [
+      "2025-04-01"
+    ],
+    "X-Initiator": [
+      "user"
+    ],
+    "X-Interaction-Type": [
+      "conversation-edits"
+    ]
+  },
+  "body": ""
+}

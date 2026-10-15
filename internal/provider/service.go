@@ -13,8 +13,9 @@ type Service struct {
 	host transport.Host
 	now  func() time.Time
 
-	configMu sync.RWMutex
-	config   Config
+	configMu         sync.RWMutex
+	config           Config
+	configGeneration uint64
 
 	oauthMu      sync.Mutex
 	oauthSession map[string]*deviceSession
@@ -25,6 +26,10 @@ type Service struct {
 
 	modelMu      sync.Mutex
 	modelEntries map[string]modelCacheEntry
+
+	replayMu      sync.Mutex
+	replayEntries map[string]reasoningReplayEntry
+	replayBytes   int
 }
 
 func New(host transport.Host) *Service {
@@ -36,6 +41,7 @@ func New(host transport.Host) *Service {
 		tokenEntries:  make(map[string]copilotTokenEntry),
 		tokenInflight: make(map[string]*tokenFlight),
 		modelEntries:  make(map[string]modelCacheEntry),
+		replayEntries: make(map[string]reasoningReplayEntry),
 	}
 }
 
@@ -46,10 +52,15 @@ func (s *Service) Configure(raw []byte) error {
 	}
 	s.configMu.Lock()
 	s.config = cfg
+	s.configGeneration++
+	s.tokenMu.Lock()
+	clearTokenCache(s.tokenEntries)
+	s.tokenMu.Unlock()
 	s.configMu.Unlock()
 	s.modelMu.Lock()
-	clear(s.modelEntries)
+	clearModelCache(s.modelEntries)
 	s.modelMu.Unlock()
+	s.clearReasoningReplay()
 	return nil
 }
 
@@ -59,14 +70,21 @@ func (s *Service) Config() Config {
 	return s.config
 }
 
+func (s *Service) configSnapshot() (Config, uint64) {
+	s.configMu.RLock()
+	defer s.configMu.RUnlock()
+	return s.config, s.configGeneration
+}
+
 func (s *Service) Shutdown() {
 	s.oauthMu.Lock()
 	clear(s.oauthSession)
 	s.oauthMu.Unlock()
 	s.tokenMu.Lock()
-	clear(s.tokenEntries)
+	clearTokenCache(s.tokenEntries)
 	s.tokenMu.Unlock()
 	s.modelMu.Lock()
-	clear(s.modelEntries)
+	clearModelCache(s.modelEntries)
 	s.modelMu.Unlock()
+	s.clearReasoningReplay()
 }

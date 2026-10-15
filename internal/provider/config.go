@@ -10,6 +10,9 @@ import (
 )
 
 const (
+	authModeTokenExchange = "token_exchange"
+	authModeDirectOAuth   = "direct_oauth"
+
 	DefaultGitHubClientID = "Iv1.b507a08c87ecfe98"
 	defaultGitHubBaseURL  = "https://github.com"
 	defaultGitHubAPIURL   = "https://api.github.com"
@@ -17,22 +20,27 @@ const (
 )
 
 type Config struct {
-	Enabled                  bool     `yaml:"enabled"`
-	GitHubClientID           string   `yaml:"github_client_id"`
-	GitHubScope              string   `yaml:"github_scope"`
-	GitHubBaseURL            string   `yaml:"github_base_url"`
-	GitHubAPIURL             string   `yaml:"github_api_url"`
-	CopilotAPIURL            string   `yaml:"copilot_api_url"`
-	AllowInsecureBaseURLs    bool     `yaml:"allow_insecure_base_urls"`
-	OAuthTimeoutSeconds      int      `yaml:"oauth_timeout_seconds"`
-	ModelCacheTTLSeconds     int      `yaml:"model_cache_ttl_seconds"`
-	TokenExpiryBufferSeconds int      `yaml:"token_expiry_buffer_seconds"`
-	ExcludedModelPrefixes    []string `yaml:"excluded_model_prefixes"`
+	Enabled                  bool              `yaml:"enabled"`
+	AuthMode                 string            `yaml:"auth_mode"`
+	GitHubClientID           string            `yaml:"github_client_id"`
+	GitHubScope              string            `yaml:"github_scope"`
+	GitHubBaseURL            string            `yaml:"github_base_url"`
+	GitHubAPIURL             string            `yaml:"github_api_url"`
+	CopilotAPIURL            string            `yaml:"copilot_api_url"`
+	AllowInsecureBaseURLs    bool              `yaml:"allow_insecure_base_urls"`
+	OAuthTimeoutSeconds      int               `yaml:"oauth_timeout_seconds"`
+	ModelCacheTTLSeconds     int               `yaml:"model_cache_ttl_seconds"`
+	TokenExpiryBufferSeconds int               `yaml:"token_expiry_buffer_seconds"`
+	ModelEndpointOverrides   map[string]string `yaml:"model_endpoint_overrides"`
+	CompactionModels         []string          `yaml:"compaction_models"`
+	PromptCacheKey           bool              `yaml:"support-prompt-cache-key"`
+	ReasoningReplay          bool              `yaml:"reasoning_replay"`
 }
 
 func DefaultConfig() Config {
 	return Config{
 		Enabled:                  true,
+		AuthMode:                 authModeTokenExchange,
 		GitHubClientID:           DefaultGitHubClientID,
 		GitHubScope:              "read:user",
 		GitHubBaseURL:            defaultGitHubBaseURL,
@@ -41,6 +49,9 @@ func DefaultConfig() Config {
 		OAuthTimeoutSeconds:      900,
 		ModelCacheTTLSeconds:     600,
 		TokenExpiryBufferSeconds: 300,
+		ModelEndpointOverrides:   map[string]string{},
+		PromptCacheKey:           true,
+		ReasoningReplay:          true,
 	}
 }
 
@@ -52,15 +63,26 @@ func ParseConfig(raw []byte) (Config, error) {
 		}
 	}
 	cfg.GitHubClientID = strings.TrimSpace(cfg.GitHubClientID)
+	cfg.AuthMode = strings.ToLower(strings.TrimSpace(cfg.AuthMode))
+	if cfg.AuthMode == "" {
+		cfg.AuthMode = authModeTokenExchange
+	}
 	cfg.GitHubScope = strings.TrimSpace(cfg.GitHubScope)
 	cfg.GitHubBaseURL = strings.TrimRight(strings.TrimSpace(cfg.GitHubBaseURL), "/")
 	cfg.GitHubAPIURL = strings.TrimRight(strings.TrimSpace(cfg.GitHubAPIURL), "/")
 	cfg.CopilotAPIURL = strings.TrimRight(strings.TrimSpace(cfg.CopilotAPIURL), "/")
-	cfg.ExcludedModelPrefixes = normalizeModelPrefixes(cfg.ExcludedModelPrefixes)
+	cfg.CompactionModels = normalizeModelIDs(cfg.CompactionModels)
+	var errOverrides error
+	cfg.ModelEndpointOverrides, errOverrides = normalizeEndpointOverrides(cfg.ModelEndpointOverrides)
+	if errOverrides != nil {
+		return Config{}, errOverrides
+	}
 	if cfg.GitHubClientID == "" {
 		return Config{}, fmt.Errorf("github_client_id is required")
 	}
-
+	if cfg.AuthMode != authModeTokenExchange && cfg.AuthMode != authModeDirectOAuth {
+		return Config{}, fmt.Errorf("auth_mode must be %q or %q", authModeTokenExchange, authModeDirectOAuth)
+	}
 	for name, value := range map[string]string{
 		"github_base_url": cfg.GitHubBaseURL,
 		"github_api_url":  cfg.GitHubAPIURL,
@@ -82,26 +104,51 @@ func ParseConfig(raw []byte) (Config, error) {
 	return cfg, nil
 }
 
-func normalizeModelPrefixes(prefixes []string) []string {
-	seen := make(map[string]struct{}, len(prefixes))
-	out := make([]string, 0, len(prefixes))
-	for _, prefix := range prefixes {
-		prefix = strings.ToLower(strings.TrimSpace(prefix))
-		if prefix == "" {
+func normalizeModelIDs(modelIDs []string) []string {
+	seen := make(map[string]struct{}, len(modelIDs))
+	out := make([]string, 0, len(modelIDs))
+	for _, modelID := range modelIDs {
+		modelID = strings.ToLower(strings.TrimSpace(modelID))
+		if modelID == "" {
 			continue
 		}
-		if _, exists := seen[prefix]; exists {
+		if _, exists := seen[modelID]; exists {
 			continue
 		}
-		seen[prefix] = struct{}{}
-		out = append(out, prefix)
+		seen[modelID] = struct{}{}
+		out = append(out, modelID)
 	}
 	return out
 }
 
+func normalizeEndpointOverrides(overrides map[string]string) (map[string]string, error) {
+	normalized := make(map[string]string, len(overrides))
+	for modelID, endpoint := range overrides {
+		modelID = strings.ToLower(strings.TrimSpace(modelID))
+		if modelID == "" {
+			return nil, fmt.Errorf("model_endpoint_overrides contains an empty model ID")
+		}
+		switch strings.ToLower(strings.TrimSpace(endpoint)) {
+		case "/responses", "responses", "openai-responses":
+			endpoint = "/responses"
+		case "/chat/completions", "chat", "chat-completions", "openai":
+			endpoint = "/chat/completions"
+		case "/v1/messages", "messages", "anthropic":
+			endpoint = "/v1/messages"
+		default:
+			return nil, fmt.Errorf("model_endpoint_overrides[%q] must select /responses, /chat/completions, or /v1/messages", modelID)
+		}
+		if prior, exists := normalized[modelID]; exists && prior != endpoint {
+			return nil, fmt.Errorf("model_endpoint_overrides has conflicting entries for %q", modelID)
+		}
+		normalized[modelID] = endpoint
+	}
+	return normalized, nil
+}
+
 func validateBaseURL(raw string, allowInsecure bool) error {
 	parsed, errParse := url.Parse(raw)
-	if errParse != nil || parsed.Hostname() == "" {
+	if errParse != nil || parsed.Hostname() == "" || parsed.User != nil {
 		return fmt.Errorf("invalid absolute URL")
 	}
 	if parsed.Scheme != "https" && !(allowInsecure && parsed.Scheme == "http") {

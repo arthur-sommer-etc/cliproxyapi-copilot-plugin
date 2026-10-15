@@ -1,0 +1,256 @@
+{
+  "type": "object",
+  "fields": {
+    "container": {
+      "type": "object",
+      "fields": {
+        "expires_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "content": {
+      "type": "array",
+      "length": 3,
+      "items": [
+        {
+          "type": "object",
+          "fields": {
+            "id": {
+              "type": "string"
+            },
+            "input": {
+              "type": "object",
+              "fields": {
+                "command": {
+                  "type": "string"
+                }
+              }
+            },
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "fields": {
+            "content": {
+              "type": "object",
+              "fields": {
+                "content": {
+                  "type": "array",
+                  "length": 0,
+                  "items": []
+                },
+                "return_code": {
+                  "type": "number"
+                },
+                "stderr": {
+                  "type": "string"
+                },
+                "stdout": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                }
+              }
+            },
+            "tool_use_id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "fields": {
+            "text": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "copilot_usage": {
+      "type": "object",
+      "fields": {
+        "token_details": {
+          "type": "array",
+          "length": 4,
+          "items": [
+            {
+              "type": "object",
+              "fields": {
+                "batch_size": {
+                  "type": "number"
+                },
+                "cost_per_batch": {
+                  "type": "number"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "token_count": {
+                  "type": "number"
+                },
+                "token_type": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "fields": {
+                "batch_size": {
+                  "type": "number"
+                },
+                "cost_per_batch": {
+                  "type": "number"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "token_count": {
+                  "type": "number"
+                },
+                "token_type": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "fields": {
+                "batch_size": {
+                  "type": "number"
+                },
+                "cost_per_batch": {
+                  "type": "number"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "token_count": {
+                  "type": "number"
+                },
+                "token_type": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "fields": {
+                "batch_size": {
+                  "type": "number"
+                },
+                "cost_per_batch": {
+                  "type": "number"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "token_count": {
+                  "type": "number"
+                },
+                "token_type": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        },
+        "total_nano_aiu": {
+          "type": "number"
+        }
+      }
+    },
+    "diagnostics": {
+      "type": "null"
+    },
+    "id": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "stop_details": {
+      "type": "null"
+    },
+    "stop_reason": {
+      "type": "string"
+    },
+    "stop_sequence": {
+      "type": "null"
+    },
+    "type": {
+      "type": "string"
+    },
+    "usage": {
+      "type": "object",
+      "fields": {
+        "cache_creation": {
+          "type": "object",
+          "fields": {
+            "ephemeral_1h_input_tokens": {
+              "type": "number"
+            },
+            "ephemeral_5m_input_tokens": {
+              "type": "number"
+            }
+          }
+        },
+        "cache_creation_input_tokens": {
+          "type": "number"
+        },
+        "cache_read_input_tokens": {
+          "type": "number"
+        },
+        "inference_geo": {
+          "type": "string"
+        },
+        "input_tokens": {
+          "type": "number"
+        },
+        "output_tokens": {
+          "type": "number"
+        },
+        "output_tokens_details": {
+          "type": "object",
+          "fields": {
+            "thinking_tokens": {
+              "type": "number"
+            }
+          }
+        },
+        "server_tool_use": {
+          "type": "object",
+          "fields": {
+            "web_fetch_requests": {
+              "type": "number"
+            },
+            "web_search_requests": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  }
+}

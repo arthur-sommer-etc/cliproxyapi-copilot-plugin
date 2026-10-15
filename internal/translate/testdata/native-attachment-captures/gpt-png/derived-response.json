@@ -1,0 +1,807 @@
+{
+  "access_programs": null,
+  "background": false,
+  "completed_at": 1791559625,
+  "created_at": 1791559622,
+  "error": null,
+  "frequency_penalty": 0,
+  "id": "SANITIZED_ID_193",
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": null,
+  "max_tool_calls": null,
+  "metadata": {},
+  "model": "gpt-6-luna",
+  "moderation": null,
+  "object": "response",
+  "output": [
+    {
+      "content": [],
+      "encrypted_content": "SANITIZED_OPAQUE_003",
+      "id": "SANITIZED_ID_194",
+      "summary": [
+        {
+          "text": "[SANITIZED_REASONING_TEXT_GPT_PNG]",
+          "type": "summary_text"
+        }
+      ],
+      "type": "reasoning"
+    },
+    {
+      "content": [
+        {
+          "annotations": [],
+          "logprobs": [],
+          "text": "The top half and bottom half are both blue.",
+          "type": "output_text"
+        }
+      ],
+      "id": "SANITIZED_ID_195",
+      "phase": "final_answer",
+      "role": "assistant",
+      "status": "completed",
+      "type": "message"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0,
+  "previous_response_id": null,
+  "prompt_cache_options": {
+    "mode": "implicit",
+    "ttl": "30m"
+  },
+  "prompt_cache_retention": "24h",
+  "reasoning": {
+    "context": "all_turns",
+    "effort": "medium",
+    "mode": "standard",
+    "summary": "detailed"
+  },
+  "safety_identifier": "SANITIZED_SAFETY_IDENTIFIER_001",
+  "service_tier": "default",
+  "status": "completed",
+  "store": false,
+  "temperature": 1,
+  "text": {
+    "format": {
+      "type": "text"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tool_usage": {
+    "image_gen": {
+      "input_tokens": 0,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 0
+      },
+      "output_tokens": 0,
+      "output_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 0
+      },
+      "total_tokens": 0
+    },
+    "web_search": {
+      "num_requests": 0
+    }
+  },
+  "tools": [
+    {
+      "description": "Runs a Bash command.\n* The \"command\" parameter does NOT need to be XML-escaped.\n* You can run Python, Node.js and Go code with `python`, `node` and `go`.\n* Sync sessions are discarded after the command completes. Use async mode for sessions that need follow-up interaction.\n* `initial_wait` must be 30-600 seconds. Use short waits for commands that you can leave running in the background — you'll be notified when commands complete. Use longer waits (120+ seconds) for commands that you need to wait for.\n* If a command hasn't completed within initial_wait, it returns partial output and continues running. Use `read_bash` for more output or `stop_bash` to stop it.\n* You can install Python, JavaScript and Go packages with the `pip`, `npm` and `go` commands.",
+      "name": "bash",
+      "output_schema": null,
+      "parameters": {
+        "properties": {
+          "command": {
+            "description": "The Bash command and arguments to run.",
+            "type": "string"
+          },
+          "description": {
+            "description": "A short human-readable description of what the command does, limited to 100 characters, for example \"List files in the current directory\", \"Install dependencies with npm\" or \"Run RSpec tests\".",
+            "type": "string"
+          },
+          "detach": {
+            "description": "(Optional) Only valid when mode=\"async\". If true, the process runs as a fully independent background process. Only set this when the user explicitly requires the process to survive after the CLI session exits; a request to run or leave a command in the background is not by itself a reason to detach. If false or omitted, the async process is attached to the session: it keeps running across later turns and is terminated at session shutdown.",
+            "type": "boolean"
+          },
+          "initial_wait": {
+            "description": "(Optional) Time in seconds to wait for initial output when mode is \"sync\". The command continues running in the background after this time. Default is 30 seconds if not provided. Increase to 120+ seconds for any command you're not confident should finish quickly.",
+            "type": "number"
+          },
+          "mode": {
+            "description": "Execution mode: \"sync\" runs synchronously and waits for completion (default), \"async\" runs in the background. You can read output from \"async\" commands using the `read_bash` tool.",
+            "enum": [
+              "sync",
+              "async"
+            ],
+            "type": "string"
+          },
+          "shellId": {
+            "description": "(Optional) Identifier for this command execution. Use to track the command with read_bash and stop_bash. Each command runs in a fresh process that starts in the session working directory (a reused shellId keeps the directory its shell was created in) — environment variables and any cd do not persist across calls. For independent probes, use separate calls or ;. Prefer short inspect-then-act-then-verify loops over dense one-liner chains.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "command",
+          "description"
+        ],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Reads output from a Bash command.\n* Reads output from the Bash session identified by shellId.\n* The shellId MUST be the same one used to invoke the bash command.\n* You will be automatically notified when background commands complete - use this tool to retrieve the full output after notification.\n* Use a long delay (120+ seconds) if you're actively waiting for the command to finish, but use a short delay (5-10s) if you're doing a one-off check of the status since you'll be notified on completion.\n* You can call this tool multiple times while a command is still running; repeated reads may return the accumulated output so far.",
+      "name": "read_bash",
+      "output_schema": null,
+      "parameters": {
+        "properties": {
+          "delay": {
+            "description": "The amount of time in seconds to wait before reading the output.",
+            "type": "number"
+          },
+          "shellId": {
+            "description": "The ID of the shell session used to invoke the Bash command. Look back to the bash call to find the shellId.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shellId",
+          "delay"
+        ],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Stops a running Bash command by terminating its process tree.\n* For detached commands, use the same shellId returned by bash. After stopping any command, redefine environment variables if its ID is reused with bash for a new command.",
+      "name": "stop_bash",
+      "output_schema": null,
+      "parameters": {
+        "properties": {
+          "shellId": {
+            "description": "The ID of the Bash session used to invoke the bash command.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shellId"
+        ],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Lists all active Bash sessions.\n* Returns information about all currently running Bash sessions.\n* Useful for discovering shellIds to use with read_bash, or stop_bash.\n* Shows shellId, command, mode, PID, status, and whether there is unread output.",
+      "name": "list_bash",
+      "output_schema": null,
+      "parameters": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "View files, images, or directories.\n* Images return base64 data and MIME type.\n* Text files return their content.\n* Directories list non-hidden entries up to 2 levels deep.\n* `path` must be absolute.\n* Files over 20KB are truncated; use `view_range` for sections.",
+      "name": "view",
+      "output_schema": null,
+      "parameters": {
+        "properties": {
+          "forceReadLargeFiles": {
+            "description": "Read an entire large file despite the size limit; default false. Use only when full content justifies the context cost.",
+            "type": "boolean"
+          },
+          "path": {
+            "description": "Existing file or directory's absolute path.",
+            "type": "string"
+          },
+          "view_range": {
+            "description": "Optional 1-based inclusive line range. [start,-1] reads through EOF. Prefer for files over 20KB, which are otherwise truncated.",
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Fetches a URL from the internet and returns the page as either markdown or raw HTML. Use this to safely retrieve up-to-date information from HTML web pages.",
+      "name": "web_fetch",
+      "output_schema": null,
+      "parameters": {
+        "properties": {
+          "max_length": {
+            "description": "Maximum number of characters to return (default: 5000, maximum: 20000)",
+            "type": "number"
+          },
+          "raw": {
+            "description": "If true, returns raw HTML. If false, converts to simplified markdown (default: false)",
+            "type": "boolean"
+          },
+          "start_index": {
+            "description": "Start index for pagination. Use this to continue reading if content was truncated (default: 0)",
+            "type": "number"
+          },
+          "url": {
+            "description": "The URL to fetch",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Searches the codebase with a constrained search-only subagent and returns relevant file paths and line ranges with hydrated code snippets.",
+      "name": "search_code_subagent",
+      "output_schema": null,
+      "parameters": {
+        "properties": {
+          "details": {
+            "description": "Detailed instructions regarding the search subagent's objective – supplementary context, constraints, or focus areas beyond the query.",
+            "type": "string"
+          },
+          "query": {
+            "description": "Natural language query describing what to search for",
+            "type": "string"
+          },
+          "thoroughness": {
+            "description": "Search thoroughness. 'deep' doubles the search budget for broader, more exhaustive results. Defaults to 'normal'.",
+            "enum": [
+              "normal",
+              "deep"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Starts a registered workflow by name, or resumes a prior run by ID, and returns immediately with a run ID while execution continues in the background. Use only when the user explicitly requests a workflow at this scale, or when a skill or slash command specifically instructs you to use one. Do not infer workflow use merely because a task could benefit from parallelism: a workflow may spawn dozens of agents and consume substantial credits. The limits are optional overrides: on a new run, omit them unless the user specified a ceiling.",
+      "name": "run_dynamic_workflow",
+      "output_schema": null,
+      "parameters": {
+        "properties": {
+          "args": {
+            "description": "Arguments supplied to the workflow as ctx.args. Send a JSON object, or null when the workflow takes no arguments, and never JSON-encoded text. A workflow may declare an argument shape; when present, arguments are validated against its structure -- types, required properties, and enum or const values -- and a mismatch fails the call. Finer constraints such as minLength, pattern, or additionalProperties are recorded in the declaration but not enforced. Use dynamic_workflows_manage inspect to read the declared shape when one is available.",
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "limits": {
+            "additionalProperties": false,
+            "description": "Optional per-invocation overrides of the workflow's declared limits. Omit them on a new run unless the user specified a ceiling: you have no reliable basis to estimate one, and a guessed value imposes unwanted backpressure or ends a valid run. The user approves every run and sees its effective limits first. After a workflow_limit_reached failure, raise only the limit that was reached when resuming.",
+            "properties": {
+              "maxAiCredits": {
+                "description": "Maximum AI credits consumed by subagents and descendants. This is a post-paid soft ceiling.\n\n{exclusiveMinimum: 0}",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "maxConcurrentSubagents": {
+                "description": "{minimum: 1}",
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "maxTotalSubagents": {
+                "description": "{minimum: 1}",
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "timeoutSeconds": {
+                "description": "Maximum accumulated active-execution time in seconds.\n\n{maximum: 2147483.647, exclusiveMinimum: 0}",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "type": "object"
+          },
+          "name": {
+            "description": "The name of the registered workflow to run.\n\n{minLength: 1}",
+            "type": "string"
+          },
+          "resumeFromRunId": {
+            "description": "Prior run to resume using its persisted workflow name, arguments, journal, and accounting.\n\n{minLength: 1}",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Manage registered agent workflows. A workflow is a reusable JavaScript orchestration that coordinates multiple subagents; it may spawn dozens of agents and consume substantial credits. Use one only when the user explicitly requests a workflow, or when a skill or slash command instructs you to. Do not infer workflow use merely because a task could benefit from parallelism. Use \"guide\" to find the workflow documentation, \"list\" to discover registered workflows, \"inspect\" to review one, \"runs\" to find prior runs and resumable work, \"inspect-run\" to read the durable result of a single run by ID without waiting for it to finish, or \"author\" to create or revise a session-scoped workflow, again only when the user or a skill has asked for one. An authored run function must be self-contained: define every schema, constant, and helper inside the function, and load modules with dynamic await import() rather than static imports. Declare meta.limits only with ceilings the user specified. Always call with operation \"guide\" before authoring any workflow code.",
+      "name": "dynamic_workflows_manage",
+      "output_schema": null,
+      "parameters": {
+        "additionalProperties": false,
+        "properties": {
+          "beforeSeq": {
+            "description": "Exclusive backward cursor for runs.",
+            "type": "integer"
+          },
+          "meta": {
+            "additionalProperties": false,
+            "description": "Workflow metadata passed to defineWorkflow. Required for author.",
+            "properties": {
+              "argsSchema": {
+                "description": "JSON Schema describing the value available to the workflow as ctx.args.",
+                "type": "object"
+              },
+              "description": {
+                "description": "Human-readable workflow description.\n\n{minLength: 1}",
+                "type": "string"
+              },
+              "limits": {
+                "additionalProperties": false,
+                "description": "Optional workflow ceilings, overridable per invocation. Declare only the ceilings the user specified: you have no reliable basis to estimate one, and a guessed value imposes unwanted backpressure or ends a valid run. The user sees the effective limits when approving a run.",
+                "properties": {
+                  "maxAiCredits": {
+                    "description": "Maximum AI credits consumed by subagents and descendants. This is a post-paid soft ceiling.\n\n{exclusiveMinimum: 0}",
+                    "type": "number"
+                  },
+                  "maxConcurrentSubagents": {
+                    "description": "{minimum: 1}",
+                    "type": "integer"
+                  },
+                  "maxTotalSubagents": {
+                    "description": "{minimum: 1}",
+                    "type": "integer"
+                  },
+                  "timeoutSeconds": {
+                    "description": "Maximum accumulated active-execution time in seconds.\n\n{maximum: 2147483.647, exclusiveMinimum: 0}",
+                    "type": "number"
+                  }
+                },
+                "type": "object"
+              },
+              "name": {
+                "description": "Stable workflow name. Use only alphanumerics, hyphens, and underscores.\n\n{minLength: 1}",
+                "type": "string"
+              },
+              "phases": {
+                "description": "Display metadata for progress phases the workflow may report.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "detail": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "description": "{minLength: 1}",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "name",
+              "description",
+              "phases"
+            ],
+            "type": "object"
+          },
+          "name": {
+            "description": "Workflow name. Required for inspect.\n\n{minLength: 1}",
+            "type": "string"
+          },
+          "operation": {
+            "description": "The management operation to perform.",
+            "enum": [
+              "guide",
+              "list",
+              "inspect",
+              "runs",
+              "inspect-run",
+              "author"
+            ],
+            "type": "string"
+          },
+          "run": {
+            "description": "Complete JavaScript function expression for the workflow run body, such as async ({ args, log }) => { log(\"start\"); return args; }. Required for author.\n\n{minLength: 1}",
+            "type": "string"
+          },
+          "runId": {
+            "description": "Workflow run identifier. Required for inspect-run.\n\n{minLength: 1}",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Query SQLite databases for structured workflows and history. `session` (default) is writable per-session storage with existing `todos` and `todo_deps`; `session_store` is read-only history across sessions. Supports SQLite queries and FTS5 MATCH search.",
+      "name": "sql",
+      "output_schema": null,
+      "parameters": {
+        "properties": {
+          "database": {
+            "default": "session",
+            "description": "Which database to query. \"session\" (default) is the per-session database for task tracking. \"session_store\" is the global read-only database containing cross-session history, files, refs, and FTS5 search.",
+            "enum": [
+              "session",
+              "session_store"
+            ],
+            "type": "string"
+          },
+          "description": {
+            "description": "A 2-5 word summary of what this query does (e.g., 'Insert auth todos', 'Query ready todos').",
+            "type": "string"
+          },
+          "query": {
+            "description": "The SQL query to execute. Supports SELECT, INSERT, UPDATE, DELETE, CREATE TABLE, ALTER TABLE, DROP TABLE, and other SQLite-compatible SQL.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "description",
+          "query"
+        ],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Reads a background agent's status and results by agent_id.\n* Call directly with each known ID from task results or notifications. Statuses: running, idle, completed, failed, cancelled.\n* If a known agent is still running or output is incomplete, keep using that ID or wait; never call list_agents to rediscover it.\n* Agent-turn completion notifications are automatic; wait for one before reading. Then use read_agent once with wait: true for the full output; if still running, stop for this response.\n* Multi-turn reads return full history; since_turn sets an inclusive 0-based start.\n* wait: true blocks (optional timeout). Idle (waiting for messages) returns full history and its latest response; running with wait: false returns current status.",
+      "name": "read_agent",
+      "output_schema": null,
+      "parameters": {
+        "properties": {
+          "agent_id": {
+            "description": "Background agent ID from a task result or notification.",
+            "type": "string"
+          },
+          "since_turn": {
+            "description": "Inclusive 0-based start index. For example, since_turn: 0 returns turns 0, 1, ...\n\n{minimum: 0}",
+            "type": "integer"
+          },
+          "timeout": {
+            "description": "Wait timeout in seconds (default 30, max 180).",
+            "type": "number"
+          },
+          "wait": {
+            "description": "Wait for completion; default false returns current status.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "agent_id"
+        ],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Lists visible background agents by status: running, idle, completed, failed, or cancelled.\n* Use only for requested overviews or when no usable agent_id is in recent context. For status or a same-task follow-up, use IDs from task, read_agent, or notifications directly with read_agent/write_agent, even while running or incomplete, or wait for notifications; do not call list_agents merely to rediscover IDs. For unrelated work or the next independent batch item, use a fresh task when available rather than repurposing an existing agent.\n* Idle agents accept write_agent only for same-task follow-ups. '(one-shot)' MCP tasks support read_agent only; start a new task to send more input.\n* Set include_completed: false for running/idle only. Omit scope for nearby agents; set it to siblings, children, or all for read-only inspection of the visible tree.",
+      "name": "list_agents",
+      "output_schema": null,
+      "parameters": {
+        "properties": {
+          "include_completed": {
+            "description": "Include completed/failed agents (default true); false returns only running/idle.",
+            "type": "boolean"
+          },
+          "scope": {
+            "description": "Visibility: omit for nearby; siblings=peers, children=descendants, all=read-only visible-tree inspection.",
+            "enum": [
+              "siblings",
+              "children",
+              "all"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Sends a message to one or more running or idle background agents, delivered as a new user turn in each agent's conversation.\n* Use write_agent only for same-task follow-ups where retained context is useful. For unrelated work or the next independent batch item, use a fresh task when available rather than repurposing an existing agent.\n* Messages are delivered directly into the agent's conversation.\n* If the agent is idle (finished its last turn), it will wake up and process the message as its next turn.\n* If the agent is running, the message steers its current turn at the next processing opportunity.\n* Use agent_id for one recipient; use agent_ids for a small explicit set of known recipients; use scope only when the same message applies to every currently visible sibling or child agent.\n* For peer-to-peer conversations: send your message with write_agent, then end your turn. The other agent's reply will arrive as your next turn automatically.",
+      "name": "write_agent",
+      "output_schema": null,
+      "parameters": {
+        "properties": {
+          "agent_id": {
+            "description": "The ID of one background agent to send a message to.",
+            "type": "string"
+          },
+          "agent_ids": {
+            "description": "A small explicit set of background agent IDs to send the same message to.\n\n{minItems: 1, maxItems: 16, uniqueItems: true}",
+            "items": {
+              "description": "{minLength: 1}",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "message": {
+            "description": "The message to send to the selected agent or agents. Steers a running turn or starts the idle agent's next turn.",
+            "type": "string"
+          },
+          "scope": {
+            "description": "Visible agent group to send the same message to. Use only for same-message coordination with all current sibling agents or child/descendant agents.",
+            "enum": [
+              "siblings",
+              "children"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Search file contents quickly and precisely with ripgrep.",
+      "name": "rg",
+      "output_schema": null,
+      "parameters": {
+        "properties": {
+          "-A": {
+            "description": "Context lines after matches; requires content mode.",
+            "type": "number"
+          },
+          "-B": {
+            "description": "Context lines before matches; requires content mode.",
+            "type": "number"
+          },
+          "-C": {
+            "description": "Context lines around matches; requires content mode.",
+            "type": "number"
+          },
+          "-i": {
+            "description": "Case-insensitive search.",
+            "type": "boolean"
+          },
+          "-n": {
+            "description": "\"-n\": true adds line numbers; requires content mode.",
+            "type": "boolean"
+          },
+          "glob": {
+            "description": "File glob filter, e.g. \"*.js\" or \"*.{ts,tsx}\".",
+            "type": "string"
+          },
+          "head_limit": {
+            "description": "Return first N results.",
+            "type": "number"
+          },
+          "multiline": {
+            "description": "Allow cross-line patterns; default false.",
+            "type": "boolean"
+          },
+          "output_mode": {
+            "description": "Output: matching lines (content, with context/line-number options), matching file paths (files_with_matches, default), or per-file counts (count).",
+            "enum": [
+              "content",
+              "files_with_matches",
+              "count"
+            ],
+            "type": "string"
+          },
+          "paths": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            ],
+            "description": "One directory or an array of directories; defaults to cwd. Omit for the default—never pass null/undefined or join paths into one string."
+          },
+          "pattern": {
+            "description": "Regex to search for in file contents.",
+            "type": "string"
+          },
+          "type": {
+            "description": "File type filter, e.g. js, py, rust, go, or java; tsx/jsx normalize to ts/js.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pattern"
+        ],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Find files quickly by glob pattern.",
+      "name": "glob",
+      "output_schema": null,
+      "parameters": {
+        "properties": {
+          "paths": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            ],
+            "description": "One directory or an array of directories; defaults to cwd. Omit for the default—never pass null/undefined or join paths into one string."
+          },
+          "pattern": {
+            "description": "Glob to match, e.g. \"**/*.js\", \"src/**/*.ts\", or \"*.{ts,tsx}\".",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pattern"
+        ],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Custom agent: Launch specialized agents in separate context windows for specific tasks.\n\nAvailable agent types:\n- **explore**: Read-only exploration for multiple independent research threads needing separate context. For autonomous routing, never use it for a single continuous trace; use direct search/view. (Read-only tools, fast, lightweight model)\n\n- **task**: Runs verbose commands such as tests, builds, lints, and installs; returns concise success or full failure output. (All CLI tools, fast, lightweight model)\n\n- **general-purpose**: Full-capability agent for self-contained implementation/debugging needing broad tools/reasoning. (All CLI tools, high-capability model)\n\n- **code-review**: Read-only review of staged/unstaged changes and branch diffs for high-confidence bugs and logic errors.\n\n- **research**: Thorough GitHub and web research with source verification and citations.\n\n- **security-review**: /security-review or vulnerability request: invoke first, even without a diff. (Read-only)",
+      "name": "task",
+      "output_schema": null,
+      "parameters": {
+        "properties": {
+          "agent_type": {
+            "description": "Agent type.",
+            "enum": [
+              "explore",
+              "task",
+              "general-purpose",
+              "code-review",
+              "research",
+              "security-review"
+            ],
+            "type": "string"
+          },
+          "context_tier": {
+            "description": "Optional context tier override. Specify a value only when the user's current request or applicable persistent custom instructions (including global instructions) explicitly require that value for the subagent. Do not reuse values from earlier requests or infer unspecified values from the parent configuration. The runtime resolves `/subagents` preferences when these fields are omitted; do not copy them merely because they appear in `<subagent_model_preferences>`.",
+            "enum": [
+              "default",
+              "long_context"
+            ],
+            "type": "string"
+          },
+          "description": {
+            "description": "3-5 word UI intent.",
+            "type": "string"
+          },
+          "mode": {
+            "description": "sync waits; background returns immediately. Await results before use.",
+            "enum": [
+              "sync",
+              "background"
+            ],
+            "type": "string"
+          },
+          "model": {
+            "description": "Optional model override. Specify a value only when the user's current request or applicable persistent custom instructions (including global instructions) explicitly require that value for the subagent. Do not reuse values from earlier requests or infer unspecified values from the parent configuration. The runtime resolves `/subagents` preferences when these fields are omitted; do not copy them merely because they appear in `<subagent_model_preferences>`.\n\nreasoning_effort extras: xhigh='claude-haiku-5.5','claude-sonnet-5','claude-sonnet-5.5','gpt-5.3-codex','gpt-5.4','gpt-5.4-mini','gpt-5.6-luna','gpt-5.6-terra','gpt-6-luna','grok-4.6','grok-4.7'; max='claude-haiku-5.5','claude-sonnet-5','claude-sonnet-5.5','gpt-5.6-luna','gpt-5.6-terra','gpt-6-luna','kimi-k3'\n\nlong_context='claude-haiku-5.5','claude-sonnet-5','claude-sonnet-5.5','gemini-3.7-flash','gemini-3.8-flash','gpt-5.4','gpt-5.6-luna','gpt-5.6-terra','gpt-6-luna','grok-4.5','grok-4.6','grok-4.7'",
+            "enum": [
+              "claude-haiku-4.5",
+              "claude-haiku-5.5",
+              "claude-sonnet-5",
+              "claude-sonnet-5.5",
+              "gemini-3.7-flash",
+              "gemini-3.8-flash",
+              "gpt-5-mini",
+              "gpt-5.3-codex",
+              "gpt-5.4",
+              "gpt-5.4-mini",
+              "gpt-5.6-luna",
+              "gpt-5.6-terra",
+              "gpt-6-luna",
+              "grok-4.5",
+              "grok-4.6",
+              "grok-4.7",
+              "kimi-k3",
+              "mai-code-1.1-flash"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "description": "Short agent name.",
+            "type": "string"
+          },
+          "prompt": {
+            "description": "Task; include complete context.",
+            "type": "string"
+          },
+          "reasoning_effort": {
+            "description": "Optional reasoning effort override. Specify a value only when the user's current request or applicable persistent custom instructions (including global instructions) explicitly require that value for the subagent. Do not reuse values from earlier requests or infer unspecified values from the parent configuration. The runtime resolves `/subagents` preferences when these fields are omitted; do not copy them merely because they appear in `<subagent_model_preferences>`.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "prompt",
+          "agent_type",
+          "description"
+        ],
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "description": "Use the `apply_patch` tool to edit files. This is a FREEFORM tool, so do not wrap the patch in JSON.",
+      "format": {
+        "definition": "start: begin_patch hunk+ end_patch\nbegin_patch: \"*** Begin Patch\" LF\nend_patch: \"*** End Patch\" LF?\n\nhunk: add_hunk | delete_hunk | update_hunk\nadd_hunk: \"*** Add File: \" filename LF add_line+\ndelete_hunk: \"*** Delete File: \" filename LF\nupdate_hunk: \"*** Update File: \" filename LF change_move? change?\n\nfilename: /(.+)/\nadd_line: \"+\" /(.*)/ LF -> line\n\nchange_move: \"*** Move to: \" filename LF\nchange: (change_context | change_line)+ eof_line?\nchange_context: (\"@@\" | \"@@ \" /(.+)/) LF\nchange_line: (\"+\" | \"-\" | \" \") /(.*)/ LF\neof_line: \"*** End of File\" LF\n\n%import common.LF",
+        "syntax": "lark",
+        "type": "grammar"
+      },
+      "name": "apply_patch",
+      "type": "custom"
+    }
+  ],
+  "top_logprobs": 0,
+  "top_p": 0.98,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 11563,
+    "input_tokens_details": {
+      "cache_write_tokens": 11560,
+      "cached_tokens": 0
+    },
+    "output_tokens": 58,
+    "output_tokens_details": {
+      "reasoning_tokens": 42
+    },
+    "total_tokens": 11621
+  },
+  "user": null
+}

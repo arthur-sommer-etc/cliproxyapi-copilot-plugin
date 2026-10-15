@@ -1,0 +1,24 @@
+{
+  "capture": "gate-005",
+  "incoming_api": "claude",
+  "endpoint_path": "/v1/messages",
+  "requested_model": "claude-haiku-5.5",
+  "http_status": 400,
+  "provider_outcome": "HTTP 400; provider rejected native WebFetch tool",
+  "source_body_sha256": {
+    "request": "53f43b2d6472ae454481bbc11bd1749e7c69523f00ef824114479a723fd1cef4",
+    "response": "4e8993ca76a93f4cc4f747df2e5952efed6096808d74e24c4b4d9f0a9ac042a5"
+  },
+  "sanitized_source_sha256": {
+    "request": "8365904042a5643f9d3e803a0956822b7b5c19f92542734d1fdcfec6a645a29c",
+    "response": "3028ab77bc816e4c187a1c31cf4f85c9ac6ba91d22f0077f2f197cf749bd45b3"
+  },
+  "fixture_sha256": {
+    "request": "8365904042a5643f9d3e803a0956822b7b5c19f92542734d1fdcfec6a645a29c",
+    "response": "3028ab77bc816e4c187a1c31cf4f85c9ac6ba91d22f0077f2f197cf749bd45b3"
+  },
+  "original_shape_sha256": {
+    "request": "6fc306d46400807d79903ff5e366392cf241d08ec977dbd0114c9ce5944933e9",
+    "response": "8e03db631aeddc29cfc646726a1886ad5c2135c0ff349d10518c710bcdcaa24d"
+  }
+}

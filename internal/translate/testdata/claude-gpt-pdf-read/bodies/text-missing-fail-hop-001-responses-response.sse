@@ -1,0 +1,129 @@
+event: response.created
+data: {"response":{"access_programs":null,"background":false,"completed_at":null,"created_at":1791592872,"error":null,"frequency_penalty":0,"id":"fixture_opaque_id_001","incomplete_details":null,"instructions":null,"max_output_tokens":32000,"max_tool_calls":null,"metadata":{},"model":"gpt-6-luna","moderation":null,"object":"response","output":[],"parallel_tool_calls":true,"presence_penalty":0,"previous_response_id":null,"prompt_cache_retention":"24h","reasoning":{"context":"all_turns","effort":"medium","mode":"standard","summary":"detailed"},"safety_identifier":"fixture_safety_identifier_002","service_tier":"default","status":"in_progress","store":false,"temperature":1,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"description":"Reads a file from the local filesystem.\n\n- `file_path` must be an absolute path.\n- Reads up to 2000 lines by default.\n- When you already know which part of the file you need, only read that part. This can be important for larger files.\n- Results are returned using cat -n format, with line numbers starting at 1\n- Reads images (PNG, JPG, …) and presents them visually. Reads PDFs via the `pages` parameter (e.g. \"1-5\", max 20 pages/request; required for PDFs over 10 pages). Reads Jupyter notebooks (.ipynb) as cells with outputs.\n- Reading a directory, a missing file, or an empty file returns an error or system reminder rather than content.\n- Do NOT re-read a file you just edited to verify — Edit/Write would have errored if the change failed, and the harness tracks file state for you.","name":"Read","output_schema":null,"parameters":{"$schema":"https://json-schema.org/draft/2020-12/schema","additionalProperties":false,"properties":{"allow_large":{"description":"Set to true to read a text file, or a line range of one, that is over the usual size limits, up to what still fits in your context. Only use this when you genuinely need all of it or the user asked for the whole file; otherwise read it in parts with offset and limit, or search it.","type":"boolean"},"file_path":{"description":"The absolute path to the file to read","type":"string"},"limit":{"description":"The number of lines to read. Only provide if the file is too large to read at once.","exclusiveMinimum":0,"maximum":9007199254740991,"type":"integer"},"offset":{"description":"The line number to start reading from. Only provide if the file is too large to read at once","maximum":9007199254740991,"minimum":0,"type":"integer"},"pages":{"description":"Page range for PDF files (e.g., \"1-5\", \"3\", \"10-20\"). Only applicable to PDF files. Maximum 20 pages per request.","type":"string"}},"required":["allow_large","file_path","limit","offset","pages"],"type":"object"},"strict":true,"type":"function"}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null},"sequence_number":0,"type":"response.created"}
+
+event: response.in_progress
+data: {"response":{"access_programs":null,"background":false,"completed_at":null,"created_at":1791592872,"error":null,"frequency_penalty":0,"id":"fixture_opaque_id_004","incomplete_details":null,"instructions":null,"max_output_tokens":32000,"max_tool_calls":null,"metadata":{},"model":"gpt-6-luna","moderation":null,"object":"response","output":[],"parallel_tool_calls":true,"presence_penalty":0,"previous_response_id":null,"prompt_cache_retention":"24h","reasoning":{"context":"all_turns","effort":"medium","mode":"standard","summary":"detailed"},"safety_identifier":"fixture_safety_identifier_002","service_tier":"default","status":"in_progress","store":false,"temperature":1,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"description":"Reads a file from the local filesystem.\n\n- `file_path` must be an absolute path.\n- Reads up to 2000 lines by default.\n- When you already know which part of the file you need, only read that part. This can be important for larger files.\n- Results are returned using cat -n format, with line numbers starting at 1\n- Reads images (PNG, JPG, …) and presents them visually. Reads PDFs via the `pages` parameter (e.g. \"1-5\", max 20 pages/request; required for PDFs over 10 pages). Reads Jupyter notebooks (.ipynb) as cells with outputs.\n- Reading a directory, a missing file, or an empty file returns an error or system reminder rather than content.\n- Do NOT re-read a file you just edited to verify — Edit/Write would have errored if the change failed, and the harness tracks file state for you.","name":"Read","output_schema":null,"parameters":{"$schema":"https://json-schema.org/draft/2020-12/schema","additionalProperties":false,"properties":{"allow_large":{"description":"Set to true to read a text file, or a line range of one, that is over the usual size limits, up to what still fits in your context. Only use this when you genuinely need all of it or the user asked for the whole file; otherwise read it in parts with offset and limit, or search it.","type":"boolean"},"file_path":{"description":"The absolute path to the file to read","type":"string"},"limit":{"description":"The number of lines to read. Only provide if the file is too large to read at once.","exclusiveMinimum":0,"maximum":9007199254740991,"type":"integer"},"offset":{"description":"The line number to start reading from. Only provide if the file is too large to read at once","maximum":9007199254740991,"minimum":0,"type":"integer"},"pages":{"description":"Page range for PDF files (e.g., \"1-5\", \"3\", \"10-20\"). Only applicable to PDF files. Maximum 20 pages per request.","type":"string"}},"required":["allow_large","file_path","limit","offset","pages"],"type":"object"},"strict":true,"type":"function"}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null},"sequence_number":1,"type":"response.in_progress"}
+
+event: response.output_item.added
+data: {"item":{"arguments":"","call_id":"fixture_opaque_id_003","id":"fixture_opaque_id_005","name":"Read","status":"in_progress","type":"function_call"},"output_index":0,"sequence_number":2,"type":"response.output_item.added"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"{\"","item_id":"fixture_opaque_id_006","obfuscation":"RQCxNAW95jfUvy","output_index":0,"sequence_number":3,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"allow","item_id":"fixture_opaque_id_007","obfuscation":"9OBcy0ieZQ1","output_index":0,"sequence_number":4,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"_large","item_id":"fixture_opaque_id_008","obfuscation":"s1JYb22toS","output_index":0,"sequence_number":5,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"\":","item_id":"fixture_opaque_id_009","obfuscation":"kBum07rcgOOF95","output_index":0,"sequence_number":6,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"false","item_id":"fixture_opaque_id_010","obfuscation":"8SXJ1IEf6d7","output_index":0,"sequence_number":7,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":",\"","item_id":"fixture_opaque_id_011","obfuscation":"wghFAwpMrLVj2Q","output_index":0,"sequence_number":8,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"file","item_id":"fixture_opaque_id_012","obfuscation":"uQ9uwvzqh4VE","output_index":0,"sequence_number":9,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"_path","item_id":"fixture_opaque_id_013","obfuscation":"Oqqm7kdPlDY","output_index":0,"sequence_number":10,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"\":","item_id":"fixture_opaque_id_014","obfuscation":"rlL91NNx3aq6wB","output_index":0,"sequence_number":11,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"\"/","item_id":"fixture_opaque_id_015","obfuscation":"bepyWj2oX5iwxC","output_index":0,"sequence_number":12,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"tmp","item_id":"fixture_opaque_id_016","obfuscation":"2xRq0QRJUVMAh","output_index":0,"sequence_number":13,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"/c","item_id":"fixture_opaque_id_017","obfuscation":"eufFTQqwlg6U31","output_index":0,"sequence_number":14,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"pa","item_id":"fixture_opaque_id_018","obfuscation":"rNwmkL9XNdC8JP","output_index":0,"sequence_number":15,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"-server","item_id":"fixture_opaque_id_019","obfuscation":"N4NCh5P1W","output_index":0,"sequence_number":16,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"-tools","item_id":"fixture_opaque_id_020","obfuscation":"r6gWp0ga4o","output_index":0,"sequence_number":17,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":".us","item_id":"fixture_opaque_id_021","obfuscation":"mDdMljbksIhu6","output_index":0,"sequence_number":18,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"UL","item_id":"fixture_opaque_id_022","obfuscation":"EmSxLmtfTs7vvX","output_index":0,"sequence_number":19,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"b","item_id":"fixture_opaque_id_023","obfuscation":"QGlOc2TCxvuFMQb","output_index":0,"sequence_number":20,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"6","item_id":"fixture_opaque_id_024","obfuscation":"N6xNIm9tPmcM0pP","output_index":0,"sequence_number":21,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"/","item_id":"fixture_opaque_id_025","obfuscation":"p13VXj8N9WxMRs3","output_index":0,"sequence_number":22,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"fixtures","item_id":"fixture_opaque_id_026","obfuscation":"cKnPZrvD","output_index":0,"sequence_number":23,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"/document","item_id":"fixture_opaque_id_027","obfuscation":"Fv4J6Cf","output_index":0,"sequence_number":24,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":".pdf","item_id":"fixture_opaque_id_028","obfuscation":"RRMFoBl1MI80","output_index":0,"sequence_number":25,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"\",\"","item_id":"fixture_opaque_id_029","obfuscation":"Val6ER59Vjzsd","output_index":0,"sequence_number":26,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"limit","item_id":"fixture_opaque_id_030","obfuscation":"yWJBPW1k3ft","output_index":0,"sequence_number":27,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"\":","item_id":"fixture_opaque_id_031","obfuscation":"3OPTMZy7gmra5h","output_index":0,"sequence_number":28,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"200","item_id":"fixture_opaque_id_032","obfuscation":"kor7v3qNRLhPz","output_index":0,"sequence_number":29,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"0","item_id":"fixture_opaque_id_033","obfuscation":"D4HQPS9MtSpFYdA","output_index":0,"sequence_number":30,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":",\"","item_id":"fixture_opaque_id_034","obfuscation":"byPPWpHjDktCZT","output_index":0,"sequence_number":31,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"offset","item_id":"fixture_opaque_id_035","obfuscation":"d7YL29Vg3Y","output_index":0,"sequence_number":32,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"\":","item_id":"fixture_opaque_id_036","obfuscation":"pHF96WsPPT5q5w","output_index":0,"sequence_number":33,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"0","item_id":"fixture_opaque_id_037","obfuscation":"16IfYzdkPmeKkBg","output_index":0,"sequence_number":34,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":",\"","item_id":"fixture_opaque_id_038","obfuscation":"Iv1mzBAguS1wID","output_index":0,"sequence_number":35,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"pages","item_id":"fixture_opaque_id_039","obfuscation":"g9eXnuTQbW9","output_index":0,"sequence_number":36,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"\":\"","item_id":"fixture_opaque_id_040","obfuscation":"CO5Uz6M9ot3Ki","output_index":0,"sequence_number":37,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"1","item_id":"fixture_opaque_id_041","obfuscation":"wwilfph5LkvFLCk","output_index":0,"sequence_number":38,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.delta
+data: {"delta":"\"}","item_id":"fixture_opaque_id_042","obfuscation":"kNC9rQajrLoUgZ","output_index":0,"sequence_number":39,"type":"response.function_call_arguments.delta"}
+
+event: response.function_call_arguments.done
+data: {"arguments":"{\"allow_large\":false,\"file_path\":\"/fixture/private-path-002.pdf\",\"limit\":2000,\"offset\":0,\"pages\":\"1\"}","item_id":"fixture_opaque_id_043","output_index":0,"sequence_number":40,"type":"response.function_call_arguments.done"}
+
+event: response.output_item.done
+data: {"item":{"arguments":"{\"allow_large\":false,\"file_path\":\"/fixture/private-path-002.pdf\",\"limit\":2000,\"offset\":0,\"pages\":\"1\"}","call_id":"fixture_opaque_id_003","id":"fixture_opaque_id_044","name":"Read","status":"completed","type":"function_call"},"output_index":0,"sequence_number":41,"type":"response.output_item.done"}
+
+event: response.completed
+data: {"copilot_usage":{"token_details":[{"batch_size":1000000,"cost_per_batch":10000000000,"model":"gpt-6-luna","token_count":209,"token_type":"input"},{"batch_size":1000000,"cost_per_batch":1000000000,"model":"gpt-6-luna","token_count":0,"token_type":"cache_read"},{"batch_size":1000000,"cost_per_batch":12500000000,"model":"gpt-6-luna","token_count":1248,"token_type":"cache_write"},{"batch_size":1000000,"cost_per_batch":50000000000,"model":"gpt-6-luna","token_count":49,"token_type":"output"}],"total_nano_aiu":20140000},"response":{"access_programs":null,"background":false,"completed_at":1791592873,"created_at":1791592872,"error":null,"frequency_penalty":0,"id":"fixture_opaque_id_045","incomplete_details":null,"instructions":null,"max_output_tokens":32000,"max_tool_calls":null,"metadata":{},"model":"gpt-6-luna","moderation":null,"object":"response","output":[{"arguments":"{\"allow_large\":false,\"file_path\":\"/fixture/private-path-002.pdf\",\"limit\":2000,\"offset\":0,\"pages\":\"1\"}","call_id":"fixture_opaque_id_003","id":"fixture_opaque_id_002","name":"Read","status":"completed","type":"function_call"}],"parallel_tool_calls":true,"presence_penalty":0,"previous_response_id":null,"prompt_cache_retention":"24h","reasoning":{"context":"all_turns","effort":"medium","mode":"standard","summary":"detailed"},"safety_identifier":"fixture_safety_identifier_002","service_tier":"default","status":"completed","store":false,"temperature":1,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"description":"Reads a file from the local filesystem.\n\n- `file_path` must be an absolute path.\n- Reads up to 2000 lines by default.\n- When you already know which part of the file you need, only read that part. This can be important for larger files.\n- Results are returned using cat -n format, with line numbers starting at 1\n- Reads images (PNG, JPG, …) and presents them visually. Reads PDFs via the `pages` parameter (e.g. \"1-5\", max 20 pages/request; required for PDFs over 10 pages). Reads Jupyter notebooks (.ipynb) as cells with outputs.\n- Reading a directory, a missing file, or an empty file returns an error or system reminder rather than content.\n- Do NOT re-read a file you just edited to verify — Edit/Write would have errored if the change failed, and the harness tracks file state for you.","name":"Read","output_schema":null,"parameters":{"$schema":"https://json-schema.org/draft/2020-12/schema","additionalProperties":false,"properties":{"allow_large":{"description":"Set to true to read a text file, or a line range of one, that is over the usual size limits, up to what still fits in your context. Only use this when you genuinely need all of it or the user asked for the whole file; otherwise read it in parts with offset and limit, or search it.","type":"boolean"},"file_path":{"description":"The absolute path to the file to read","type":"string"},"limit":{"description":"The number of lines to read. Only provide if the file is too large to read at once.","exclusiveMinimum":0,"maximum":9007199254740991,"type":"integer"},"offset":{"description":"The line number to start reading from. Only provide if the file is too large to read at once","maximum":9007199254740991,"minimum":0,"type":"integer"},"pages":{"description":"Page range for PDF files (e.g., \"1-5\", \"3\", \"10-20\"). Only applicable to PDF files. Maximum 20 pages per request.","type":"string"}},"required":["allow_large","file_path","limit","offset","pages"],"type":"object"},"strict":true,"type":"function"}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":{"input_tokens":1457,"input_tokens_details":{"cache_write_tokens":1248,"cached_tokens":0},"output_tokens":49,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":1506},"user":null},"sequence_number":42,"type":"response.completed"}
+

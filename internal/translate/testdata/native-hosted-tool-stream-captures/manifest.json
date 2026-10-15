@@ -1,0 +1,12 @@
+{
+  "body_fields": "complete",
+  "captures": [
+    "gpt-search-captured-history-continuation",
+    "gpt-search-stream-after-identity-repair",
+    "gpt-search-stream-before-repair",
+    "claude-execution-stream",
+    "claude-execution-continuation"
+  ],
+  "privacy_replacements": "opaque string values only",
+  "synthetic_provider_evidence": false
+}

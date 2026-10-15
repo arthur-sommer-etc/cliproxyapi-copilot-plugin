@@ -1,0 +1,71 @@
+{
+  "format": "complete provider-native request/response bodies with deterministic privacy sentinels",
+  "sanitizer": {
+    "source": "Only gate public_request.body and public_response.body are copied; headers, authorization, host, and test-hop wrappers are excluded.",
+    "preserved": "Every original body field, array position, null/empty value, number, timestamp, usage value, stop/context value, instruction, diagnostic, provider result, and error remains present and unchanged unless named below.",
+    "replacements": {
+      "id_fields": [
+        "id",
+        "tool_use_id",
+        "call_id",
+        "response_id",
+        "previous_response_id",
+        "container.id"
+      ],
+      "persistent_identity_fields": [
+        "prompt_cache_key",
+        "safety_identifier"
+      ],
+      "opaque_ciphertext_fields": [
+        "encrypted_content",
+        "encrypted_index"
+      ]
+    },
+    "replacement_rule": "Replacements retain the original JSON type and field name. Repeated original values reuse the same deterministic sentinel within a capture; correlated Claude server-tool IDs therefore remain equal.",
+    "ciphertext_note": "Encrypted sentinels are fixture-only shape placeholders, not provider replay tokens or continuation credentials.",
+    "public_content_note": "Public NASA result URLs, snippets, titles, and citation annotations are kept byte-for-value unchanged, including public source contact details.",
+    "parity_note": "Each request.shape.json and response.shape.json records the complete original JSON field/type/array shape. Metadata hashes bind raw captured bodies, sanitized-source values, and fixture bytes."
+  },
+  "captures": [
+    {
+      "name": "gemini-chat-search",
+      "metadata": "gemini-chat-search/metadata.json",
+      "request": "gemini-chat-search/request.json",
+      "response": "gemini-chat-search/response.json",
+      "request_shape": "gemini-chat-search/request.shape.json",
+      "response_shape": "gemini-chat-search/response.shape.json"
+    },
+    {
+      "name": "gpt-responses-search",
+      "metadata": "gpt-responses-search/metadata.json",
+      "request": "gpt-responses-search/request.json",
+      "response": "gpt-responses-search/response.json",
+      "request_shape": "gpt-responses-search/request.shape.json",
+      "response_shape": "gpt-responses-search/response.shape.json"
+    },
+    {
+      "name": "claude-messages-web-fetch",
+      "metadata": "claude-messages-web-fetch/metadata.json",
+      "request": "claude-messages-web-fetch/request.json",
+      "response": "claude-messages-web-fetch/response.json",
+      "request_shape": "claude-messages-web-fetch/request.shape.json",
+      "response_shape": "claude-messages-web-fetch/response.shape.json"
+    },
+    {
+      "name": "claude-messages-code-execution",
+      "metadata": "claude-messages-code-execution/metadata.json",
+      "request": "claude-messages-code-execution/request.json",
+      "response": "claude-messages-code-execution/response.json",
+      "request_shape": "claude-messages-code-execution/request.shape.json",
+      "response_shape": "claude-messages-code-execution/response.shape.json"
+    },
+    {
+      "name": "gpt-responses-code-interpreter",
+      "metadata": "gpt-responses-code-interpreter/metadata.json",
+      "request": "gpt-responses-code-interpreter/request.json",
+      "response": "gpt-responses-code-interpreter/response.json",
+      "request_shape": "gpt-responses-code-interpreter/request.shape.json",
+      "response_shape": "gpt-responses-code-interpreter/response.shape.json"
+    }
+  ]
+}

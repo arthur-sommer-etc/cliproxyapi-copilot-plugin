@@ -1,0 +1,10 @@
+{
+  "type": "copilot",
+  "github_access_token": "fixture-old-github-token",
+  "github_refresh_token": "fixture-refresh-token",
+  "github_login": "fixture",
+  "github_user_id": 4242,
+  "oauth_client_id": "fixture-oauth-client-id",
+  "expires_at": 946684800,
+  "refresh_token_expires_at": 4102444800
+}

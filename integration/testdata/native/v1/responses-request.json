@@ -1,0 +1,10 @@
+{
+  "model": "fixture-model",
+  "input": [
+    {"type":"message","role":"user","content":[{"type":"input_text","text":"synthetic native routing request"}]},
+    {"type":"function_call","id":"fixture-function-item/+","call_id":"fixture-call/+","name":"inspect","arguments":"{}"},
+    {"type":"function_call_output","call_id":"fixture-call/+","output":"fixture result"}
+  ],
+  "store": false,
+  "prompt_cache_key": "fixture-cache-key"
+}

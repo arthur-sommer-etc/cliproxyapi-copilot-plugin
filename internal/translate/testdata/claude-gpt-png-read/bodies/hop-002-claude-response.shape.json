@@ -1,0 +1,4893 @@
+{
+  "type": "sse",
+  "frame_count": 181,
+  "frames": [
+    {
+      "index": 0,
+      "event": "message_start",
+      "data_type": "message_start",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "message": {
+            "type": "object",
+            "fields": {
+              "content": {
+                "type": "array",
+                "length": 0,
+                "items": []
+              },
+              "id": {
+                "type": "string"
+              },
+              "model": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              },
+              "stop_reason": {
+                "type": "null"
+              },
+              "stop_sequence": {
+                "type": "null"
+              },
+              "type": {
+                "type": "string"
+              },
+              "usage": {
+                "type": "object",
+                "fields": {
+                  "input_tokens": {
+                    "type": "number"
+                  },
+                  "output_tokens": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 1,
+      "event": "content_block_start",
+      "data_type": "content_block_start",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_block": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 2,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 3,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 4,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 5,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 6,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 7,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 8,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 9,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 10,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 11,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 12,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 13,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 14,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 15,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 16,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 17,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 18,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 19,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 20,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 21,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 22,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 23,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 24,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 25,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 26,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 27,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 28,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 29,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 30,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 31,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 32,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 33,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 34,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 35,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 36,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 37,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 38,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 39,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 40,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 41,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 42,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 43,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 44,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 45,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 46,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 47,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 48,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 49,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 50,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 51,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 52,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 53,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 54,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 55,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 56,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 57,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 58,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 59,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 60,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 61,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 62,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 63,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 64,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 65,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 66,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 67,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 68,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 69,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 70,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 71,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 72,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 73,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 74,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 75,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 76,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 77,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 78,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 79,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 80,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 81,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 82,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 83,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 84,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 85,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 86,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 87,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 88,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 89,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 90,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 91,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 92,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 93,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 94,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 95,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 96,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 97,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 98,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 99,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 100,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 101,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 102,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 103,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 104,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 105,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 106,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 107,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 108,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 109,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 110,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 111,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 112,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 113,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 114,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 115,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 116,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 117,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 118,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 119,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 120,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 121,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 122,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 123,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 124,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 125,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 126,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 127,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 128,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 129,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 130,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 131,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 132,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 133,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 134,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 135,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 136,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 137,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 138,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 139,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 140,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 141,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 142,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 143,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 144,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 145,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 146,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 147,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 148,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 149,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 150,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 151,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 152,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 153,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 154,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 155,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 156,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 157,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 158,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 159,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 160,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 161,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 162,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 163,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 164,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 165,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 166,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "thinking": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 167,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "signature": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 168,
+      "event": "content_block_stop",
+      "data_type": "content_block_stop",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 169,
+      "event": "content_block_start",
+      "data_type": "content_block_start",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_block": {
+            "type": "object",
+            "fields": {
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 170,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 171,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 172,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 173,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 174,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 175,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 176,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 177,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 178,
+      "event": "content_block_stop",
+      "data_type": "content_block_stop",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 179,
+      "event": "message_delta",
+      "data_type": "message_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "stop_reason": {
+                "type": "string"
+              },
+              "stop_sequence": {
+                "type": "null"
+              }
+            }
+          },
+          "type": {
+            "type": "string"
+          },
+          "usage": {
+            "type": "object",
+            "fields": {
+              "cache_read_input_tokens": {
+                "type": "number"
+              },
+              "input_tokens": {
+                "type": "number"
+              },
+              "output_tokens": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 180,
+      "event": "message_stop",
+      "data_type": "message_stop",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}
