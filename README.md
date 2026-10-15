@@ -68,6 +68,7 @@ The official CLIProxyAPI v8.0.30 host supports both plugin compaction routes.
 Claude token-count requests are estimated locally with the same O200k tokenizer
 approach used by CLIProxyAPI for translated Claude requests.
 The deployment lists model exclusions under CLIProxyAPI's native `oauth.excluded-models.copilot` setting.
+When migrating an older plugin configuration, move any `excluded_model_prefixes` entries to that host setting because the plugin rejects the retired key.
 CLIProxyAPI applies exact model IDs and `*` wildcard patterns to the Copilot catalog.
 The template sets `gpt-6.1-sol` and `gpt-6-luna` context limits to 272000 through `oauth.settings.copilot`.
 Native model aliases accept hyphenated Claude versions while preserving Copilot's original dotted model IDs upstream.

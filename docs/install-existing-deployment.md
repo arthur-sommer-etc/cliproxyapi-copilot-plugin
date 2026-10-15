@@ -150,6 +150,7 @@ The `oauth.auth-dir` directory must be writable and persistent.
 CLIProxyAPI stores the plugin's GitHub OAuth credential there.
 
 Review [GitHub's supported Copilot models](https://github.com/github/docs/blob/main/content/copilot/reference/ai-models/supported-models.md) when updating this filter.
+When migrating an older plugin configuration, move any `excluded_model_prefixes` entries to this host setting because the plugin rejects the retired key.
 The v8 OAuth filter excludes selected older Copilot model IDs by family and exact name.
 It affects Copilot only.
 Matching IDs from other provider catalogs remain available.

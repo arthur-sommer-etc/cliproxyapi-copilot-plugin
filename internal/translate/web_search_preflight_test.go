@@ -7,6 +7,13 @@ import (
 	"github.com/tidwall/gjson"
 )
 
+func TestClaudeHostedSearchHistoryIsRejectedWhenRoutingToChat(t *testing.T) {
+	request := []byte(claudeHostedSearchRequest)
+	if translated, err := RequestForEndpointFrom("claude", "claude-haiku-5.5", request, false, EndpointChatCompletions); err == nil || !strings.Contains(err.Error(), "web search history cannot be represented") || len(translated) != 0 {
+		t.Fatalf("Claude hosted-search history was lost during Chat translation: output=%s error=%v", translated, err)
+	}
+}
+
 func TestResponsesClaudeNormalizesLegacyWebSearchPreview(t *testing.T) {
 	request := []byte(`{"input":"Find the weather forecast.","tools":[{"type":"web_search_preview","user_location":{"type":"approximate","country":"US"}}]}`)
 	translated, err := RequestForEndpointFrom("openai-response", "gpt-test", request, false, EndpointMessages)

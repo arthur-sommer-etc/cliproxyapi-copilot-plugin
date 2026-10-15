@@ -58,8 +58,19 @@ func DefaultConfig() Config {
 func ParseConfig(raw []byte) (Config, error) {
 	cfg := DefaultConfig()
 	if len(raw) > 0 {
-		if errUnmarshal := yaml.Unmarshal(raw, &cfg); errUnmarshal != nil {
+		var document yaml.Node
+		if errUnmarshal := yaml.Unmarshal(raw, &document); errUnmarshal != nil {
 			return Config{}, fmt.Errorf("decode plugin config: %w", errUnmarshal)
+		}
+		if len(document.Content) > 0 && document.Content[0].Kind == yaml.MappingNode {
+			for index := 0; index+1 < len(document.Content[0].Content); index += 2 {
+				if document.Content[0].Content[index].Value == "excluded_model_prefixes" {
+					return Config{}, fmt.Errorf("excluded_model_prefixes is no longer supported; move exclusions to the CLIProxyAPI host setting oauth.excluded-models.copilot")
+				}
+			}
+		}
+		if errDecode := document.Decode(&cfg); errDecode != nil {
+			return Config{}, fmt.Errorf("decode plugin config: %w", errDecode)
 		}
 	}
 	cfg.GitHubClientID = strings.TrimSpace(cfg.GitHubClientID)

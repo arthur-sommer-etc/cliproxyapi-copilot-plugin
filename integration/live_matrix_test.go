@@ -346,6 +346,13 @@ func TestLiveResponsesStreamValidation(t *testing.T) {
 			wantModel:    model,
 			wantTerminal: true,
 		},
+		{
+			name:         "event after completion invalidates stream",
+			body:         completed + `data: {"type":"response.output_text.delta","delta":"late"}` + "\n\n",
+			wantText:     marker,
+			wantModel:    model,
+			wantTerminal: true,
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -386,6 +393,14 @@ func TestLiveChatAndClaudeStreamValidation(t *testing.T) {
 			name:         "Chat rejects non chunk object",
 			api:          "Chat",
 			body:         `data: {"object":"chat.completion","model":"gemini-3.8-flash","choices":[{"delta":{"content":"LIVE_MATRIX_OK"}}]}` + "\n\n" + "data: [DONE]\n\n",
+			wantModel:    "gemini-3.8-flash",
+			wantText:     "LIVE_MATRIX_OK",
+			wantTerminal: true,
+		},
+		{
+			name:         "Chat data after done marker invalidates stream",
+			api:          "Chat",
+			body:         `data: {"object":"chat.completion.chunk","model":"gemini-3.8-flash","choices":[{"index":0,"delta":{"role":"assistant","content":"LIVE_MATRIX_OK"},"finish_reason":null}]}` + "\n\n" + "data: [DONE]\n\n" + `data: {"object":"chat.completion.chunk","model":"gemini-3.8-flash","choices":[{"index":0,"delta":{"content":"late"},"finish_reason":null}]}` + "\n\n",
 			wantModel:    "gemini-3.8-flash",
 			wantText:     "LIVE_MATRIX_OK",
 			wantTerminal: true,
@@ -1177,6 +1192,7 @@ func parseLiveSSE(body []byte) ([]map[string]any, bool, bool) {
 	var events []map[string]any
 	done := false
 	valid := true
+	terminalSeen := false
 	scanner := bufio.NewScanner(bytes.NewReader(body))
 	scanner.Buffer(make([]byte, 4096), 1<<20)
 	for scanner.Scan() {
@@ -1185,8 +1201,13 @@ func parseLiveSSE(body []byte) ([]map[string]any, bool, bool) {
 			continue
 		}
 		data := strings.TrimSpace(strings.TrimPrefix(line, "data:"))
+		if terminalSeen {
+			valid = false
+			continue
+		}
 		if data == "[DONE]" {
 			done = true
+			terminalSeen = true
 			continue
 		}
 		var event map[string]any
@@ -1194,6 +1215,10 @@ func parseLiveSSE(body []byte) ([]map[string]any, bool, bool) {
 			return events, done, false
 		}
 		events = append(events, event)
+		switch event["type"] {
+		case "response.completed", "response.failed", "response.incomplete", "message_stop":
+			terminalSeen = true
+		}
 	}
 	if scanner.Err() != nil {
 		valid = false

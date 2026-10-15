@@ -88,7 +88,10 @@ func RequestForEndpointFrom(source, model string, body []byte, stream bool, endp
 		var intermediate []byte
 		intermediate, err = claudeRequestToResponses(model, chatSource, stream)
 		if err == nil {
-			out, err = requestFromResponsesToChat(model, intermediate, stream)
+			err = validateResponsesRequestForTarget(intermediate, to)
+			if err == nil {
+				out, err = requestFromResponsesToChat(model, intermediate, stream)
+			}
 			if err == nil && len(stopSequences) > 0 {
 				out, err = sjson.SetBytes(out, "stop", stopSequences)
 				if err != nil {
@@ -198,14 +201,7 @@ func StreamFromEndpoint(ctx context.Context, endpoint, destination, model string
 	to := sdktranslator.FromString(destination)
 	if from == to {
 		if from == sdktranslator.FormatOpenAIResponse {
-			wholeLifecycle := false
-			for _, tool := range gjson.GetBytes(translated, "tools").Array() {
-				switch tool.Get("type").String() {
-				case "web_search", "web_search_preview":
-					wholeLifecycle = true
-				}
-			}
-			return nativeResponsesStream(frame, state, wholeLifecycle)
+			return nativeResponsesStream(frame, state, declaresNativeResponsesWebSearch(translated))
 		}
 		if from == sdktranslator.FormatOpenAI {
 			event, data, done, err := parseSSEFrame(frame)
@@ -225,6 +221,27 @@ func StreamFromEndpoint(ctx context.Context, endpoint, destination, model string
 		return [][]byte{append([]byte(nil), frame...)}, nil
 	}
 	return stream(ctx, from, to, model, original, translated, frame, state)
+}
+
+func declaresNativeResponsesWebSearch(request []byte) bool {
+	containsSearch := func(tools gjson.Result) bool {
+		for _, tool := range tools.Array() {
+			switch tool.Get("type").String() {
+			case "web_search", "web_search_preview":
+				return true
+			}
+		}
+		return false
+	}
+	if containsSearch(gjson.GetBytes(request, "tools")) {
+		return true
+	}
+	for _, item := range gjson.GetBytes(request, "input").Array() {
+		if item.Get("type").String() == "additional_tools" && containsSearch(item.Get("tools")) {
+			return true
+		}
+	}
+	return false
 }
 
 func nativeChatResponseObject(body []byte, object string) ([]byte, error) {

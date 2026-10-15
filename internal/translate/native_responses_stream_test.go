@@ -93,6 +93,20 @@ func TestNativeResponsesWebSearchUsesTerminalSnapshotIdentity(t *testing.T) {
 	}
 }
 
+func TestNestedResponsesWebSearchBuffersFromFirstFrame(t *testing.T) {
+	request := []byte(`{"input":[{"type":"message","role":"user","content":"search"},{"type":"additional_tools","tools":[{"type":"web_search"}]}]}`)
+	frame := []byte("event: response.created\ndata: {\"type\":\"response.created\",\"response\":{\"id\":\"resp_stream\",\"status\":\"in_progress\"}}\n\n")
+	var state any
+	out, err := StreamFromEndpoint(context.Background(), EndpointResponses, "openai-response", "gpt-6-luna", request, request, frame, &state)
+	if err != nil || len(out) != 0 {
+		t.Fatalf("nested search lifecycle leaked its first frame: output=%d error=%v", len(out), err)
+	}
+	pending, ok := state.(*nativeResponsesWebSearchState)
+	if !ok || !pending.WholeLifecycle {
+		t.Fatalf("nested search state = %#v, want whole lifecycle buffering", state)
+	}
+}
+
 func TestNativeResponsesWebSearchRejectsIncompleteLifecycles(t *testing.T) {
 	t.Parallel()
 	body := readLiveBodyFixture(t, "live-codex-web-search", "upstream-response.sse")

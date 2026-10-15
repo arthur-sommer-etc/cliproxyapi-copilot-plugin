@@ -39,6 +39,8 @@ type liveCLIResult struct {
 	eventTypes           map[string]int
 	threadID             string
 	verifiedV2Delegation bool
+	finalOutput          string
+	delegatedResultText  map[string][]string
 }
 
 type liveCLIBuffer struct {
@@ -365,7 +367,7 @@ func liveCLIEnvironment(client, base, root string) []string {
 }
 
 func parseLiveCLIEvents(client string, output []byte) liveCLIResult {
-	result := liveCLIResult{toolStarted: map[string]int{}, toolCompleted: map[string]int{}, toolFailed: map[string]int{}, toolIDs: map[string]string{}, startedIDs: map[string]string{}, completedIDs: map[string]string{}, spawnedAgents: map[string]bool{}, doneAgents: map[string]bool{}, eventTypes: map[string]int{}}
+	result := liveCLIResult{toolStarted: map[string]int{}, toolCompleted: map[string]int{}, toolFailed: map[string]int{}, toolIDs: map[string]string{}, startedIDs: map[string]string{}, completedIDs: map[string]string{}, spawnedAgents: map[string]bool{}, doneAgents: map[string]bool{}, eventTypes: map[string]int{}, delegatedResultText: map[string][]string{}}
 	scanner := bufio.NewScanner(bytes.NewReader(output))
 	scanner.Buffer(make([]byte, 64*1024), 4<<20)
 	for scanner.Scan() {
@@ -390,6 +392,7 @@ func parseClaudeEvent(result *liveCLIResult, event map[string]any) {
 		isError, _ := event["is_error"].(bool)
 		text, _ := event["result"].(string)
 		result.final = !isError && strings.TrimSpace(text) != ""
+		result.finalOutput = text
 		result.sourceURL = result.sourceURL || strings.Contains(text, "https://")
 	}
 	message, _ := event["message"].(map[string]any)
@@ -406,9 +409,11 @@ func parseClaudeEvent(result *liveCLIResult, event map[string]any) {
 		}
 		if kind == "tool_result" {
 			name := "tool_result"
+			matched := false
 			if toolUseID, ok := block["tool_use_id"].(string); ok {
 				if toolName, found := result.toolIDs[toolUseID]; found {
 					name = toolName
+					matched = true
 				}
 			}
 			isError, _ := block["is_error"].(bool)
@@ -416,6 +421,9 @@ func parseClaudeEvent(result *liveCLIResult, event map[string]any) {
 				result.toolFailed[name]++
 			} else {
 				result.toolCompleted[name]++
+				if matched && (name == "Agent" || name == "Task") {
+					result.delegatedResultText[name] = append(result.delegatedResultText[name], claudeToolResultText(block["content"]))
+				}
 			}
 		}
 	}
@@ -528,10 +536,28 @@ func TestLiveCLIEventEvidence(t *testing.T) {
 		t.Fatal("completed child observed through wait was not counted")
 	}
 	claudeTool := parseLiveCLIEvents("claude", []byte(`{"type":"assistant","message":{"content":[{"type":"tool_use","id":"tool1","name":"Task"}]}}
-{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"tool1","is_error":false}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"tool1","is_error":false,"content":[{"type":"text","text":"323"}]}]}}
 {"type":"result","is_error":false,"result":"323"}`))
 	if !claudeTool.final || !liveDelegationCompleted("claude", claudeTool) || liveSearchCompleted("claude", claudeTool) {
 		t.Fatal("Claude tool use/result was not identified precisely")
+	}
+	claudeWrongChild := parseLiveCLIEvents("claude", []byte(`{"type":"assistant","message":{"content":[{"type":"tool_use","id":"tool1","name":"Agent"}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"tool1","is_error":false,"content":[{"type":"text","text":"322"}]}]}}
+{"type":"result","is_error":false,"result":"323"}`))
+	if liveDelegationCompleted("claude", claudeWrongChild) {
+		t.Fatal("Claude delegation passed with a child result that did not contain the requested answer")
+	}
+	claudeEmptyChild := parseLiveCLIEvents("claude", []byte(`{"type":"assistant","message":{"content":[{"type":"tool_use","id":"tool1","name":"Task"}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"tool1","is_error":false,"content":[]}]}}
+{"type":"result","is_error":false,"result":"323"}`))
+	if liveDelegationCompleted("claude", claudeEmptyChild) {
+		t.Fatal("Claude delegation passed with an empty child result")
+	}
+	claudeMissingHandback := parseLiveCLIEvents("claude", []byte(`{"type":"assistant","message":{"content":[{"type":"tool_use","id":"tool1","name":"Agent"}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"tool1","is_error":false,"content":[{"type":"text","text":"323"}]}]}}
+{"type":"result","is_error":false,"result":"The agent completed."}`))
+	if liveDelegationCompleted("claude", claudeMissingHandback) {
+		t.Fatal("Claude delegation passed without the parent handing back the requested answer")
 	}
 	claudeError := parseLiveCLIEvents("claude", []byte(`{"type":"assistant","message":{"content":[{"type":"tool_use","id":"tool1","name":"WebSearch"}]}}
 {"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"tool1","is_error":true}]}}
@@ -579,7 +605,17 @@ func TestLiveCLIRecordedClaudeDelegation(t *testing.T) {
 
 func liveDelegationCompleted(client string, result liveCLIResult) bool {
 	if client == "claude" {
-		return (result.toolStarted["Agent"] > 0 && result.toolCompleted["Agent"] > 0) || (result.toolStarted["Task"] > 0 && result.toolCompleted["Task"] > 0)
+		for _, name := range []string{"Agent", "Task"} {
+			if result.toolStarted[name] == 0 || result.toolCompleted[name] == 0 || !containsDelegatedAnswer(result.finalOutput) {
+				continue
+			}
+			for _, text := range result.delegatedResultText[name] {
+				if containsDelegatedAnswer(text) {
+					return true
+				}
+			}
+		}
+		return false
 	}
 	if result.verifiedV2Delegation && result.toolCompleted["collab_tool_call:wait"] > 0 {
 		return true
@@ -593,6 +629,27 @@ func liveDelegationCompleted(client string, result liveCLIResult) bool {
 		}
 	}
 	return false
+}
+
+func claudeToolResultText(content any) string {
+	if text, ok := content.(string); ok {
+		return text
+	}
+	blocks, _ := content.([]any)
+	var text strings.Builder
+	for _, raw := range blocks {
+		block, _ := raw.(map[string]any)
+		if block["type"] == "text" {
+			if part, ok := block["text"].(string); ok {
+				text.WriteString(part)
+			}
+		}
+	}
+	return text.String()
+}
+
+func containsDelegatedAnswer(text string) bool {
+	return regexp.MustCompile(`\b323\b`).MatchString(text)
 }
 
 func logLiveCLIResult(t *testing.T, client, task string, result liveCLIResult) {

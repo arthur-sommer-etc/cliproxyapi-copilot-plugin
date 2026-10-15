@@ -1,6 +1,9 @@
 package provider
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestParseConfigNormalizesProtocolOptions(t *testing.T) {
 	config, err := ParseConfig([]byte(`
@@ -45,6 +48,13 @@ func TestParseConfigCanDisablePromptCacheKey(t *testing.T) {
 func TestParseConfigRejectsInvalidEndpointOverride(t *testing.T) {
 	if _, err := ParseConfig([]byte("model_endpoint_overrides:\n  model-a: /embeddings\n")); err == nil {
 		t.Fatal("expected invalid endpoint override to be rejected")
+	}
+}
+
+func TestParseConfigRejectsRetiredModelExclusionsWithMigrationPath(t *testing.T) {
+	_, err := ParseConfig([]byte("excluded_model_prefixes: [claude-]\n"))
+	if err == nil || !strings.Contains(err.Error(), "oauth.excluded-models.copilot") {
+		t.Fatalf("retired model exclusion setting was not rejected with migration guidance: %v", err)
 	}
 }
 
