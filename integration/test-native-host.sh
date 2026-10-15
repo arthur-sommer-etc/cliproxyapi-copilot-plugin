@@ -236,7 +236,7 @@ if [ "$TARGET_GOOS" = linux ]; then
     CPA_LIVE_PLUGIN_PATH="/src/build/plugins/$TARGET_GOOS/$TARGET_GOARCH/cliproxyapi-copilot.$PLUGIN_EXT" \
     CPA_LIVE_COPILOT_DEBUG_DIR=/tmp/native-host-debug \
     "/src/.cache/native-host/$TARGET_GOOS/$TARGET_GOARCH/integration.test" \
-    -test.run "$TEST_SELECTOR" -test.count=1 -test.v
+    -test.run "$TEST_SELECTOR" -test.count=1 -test.timeout=180s -test.v
 else
   (
     cd "$SNAPSHOT/integration"
@@ -249,6 +249,6 @@ else
       CPA_LIVE_COPILOT_DEBUG_DIR="$TEMP_ROOT/debug" \
       "$SANDBOX_EXEC" -p "$SANDBOX_PROFILE" \
       "$SNAPSHOT/.cache/native-host/$TARGET_GOOS/$TARGET_GOARCH/integration.test" \
-      -test.run "$TEST_SELECTOR" -test.count=1 -test.v
+      -test.run "$TEST_SELECTOR" -test.count=1 -test.timeout=180s -test.v
   )
 fi

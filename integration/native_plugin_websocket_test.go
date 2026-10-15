@@ -135,10 +135,14 @@ func nativeWebsocketRequest(t *testing.T, model, path string) map[string]any {
 
 func readPluginResponsesWebsocket(t *testing.T, connection *websocket.Conn) []map[string]any {
 	t.Helper()
-	if deadline, ok := t.Deadline(); ok {
-		if err := connection.SetReadDeadline(deadline.Add(-time.Second)); err != nil {
-			t.Fatalf("set test-bound WebSocket read deadline: %v", err)
+	deadline := time.Now().Add(30 * time.Second)
+	if testDeadline, ok := t.Deadline(); ok {
+		if boundedDeadline := testDeadline.Add(-time.Second); boundedDeadline.Before(deadline) {
+			deadline = boundedDeadline
 		}
+	}
+	if err := connection.SetReadDeadline(deadline); err != nil {
+		t.Fatalf("set bounded WebSocket read deadline: %v", err)
 	}
 	events := make([]map[string]any, 0, 8)
 	for range 256 {

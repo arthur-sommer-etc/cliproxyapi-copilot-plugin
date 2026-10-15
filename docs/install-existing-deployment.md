@@ -16,8 +16,9 @@ make prepare-runtime-host
 
 This builds the plugin library and matching Linux `amd64` server from the
 versioned host replacement selected by `go.mod`.
-Docker Compose v2 is required because the build uses the `golang:1-bookworm`
-container.
+Docker Engine is required because the build uses the `golang:1-bookworm`
+container. Docker Compose v2 is required only when using the Compose deployment
+steps below.
 The outputs are:
 
 ```text

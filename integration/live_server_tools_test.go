@@ -1522,7 +1522,7 @@ func inspectLiveGPTCodeInterpreter(document map[string]any) liveServerToolEviden
 				if part["type"] != "output_text" {
 					continue
 				}
-				if text, ok := part["text"].(string); ok && strings.Contains(text, "385") {
+				if text, ok := part["text"].(string); ok && liveReportsExactArithmeticResult(text) {
 					messageResult = true
 				}
 			}
@@ -1530,6 +1530,16 @@ func inspectLiveGPTCodeInterpreter(document map[string]any) liveServerToolEviden
 	}
 	evidence.content = toolResult && messageResult
 	return evidence
+}
+
+func liveReportsExactArithmeticResult(text string) bool {
+	text = strings.TrimSuffix(strings.TrimSpace(text), ".")
+	switch strings.ToLower(text) {
+	case "385", "the arithmetic result is 385", "the result is 385", "the sum is 385", "the answer is 385":
+		return true
+	default:
+		return false
+	}
 }
 
 func liveAnySlice(value any) []any {
@@ -1846,6 +1856,19 @@ func TestLiveServerToolCodeInterpreterBindsSuccessfulLogs(t *testing.T) {
 			evidence := inspectLiveServerToolResponse("gpt-code-interpreter", body)
 			if evidence.content != test.want || test.want && (!evidence.call || !evidence.result) {
 				t.Errorf("code interpreter evidence = %+v, want arithmetic tool content=%t", evidence, test.want)
+			}
+		})
+	}
+	tool := `{"type":"code_interpreter_call","id":"ci_1","container_id":"cntr_1","status":"completed","outputs":[{"type":"logs","logs":"385"}]}`
+	for _, answer := range []string{"1385", "The arithmetic result is not 385."} {
+		t.Run(answer, func(t *testing.T) {
+			encodedAnswer, err := json.Marshal(answer)
+			if err != nil {
+				t.Fatal(err)
+			}
+			body := []byte(`{"object":"response","model":"gpt-6-luna","output":[` + tool + `,{"type":"message","role":"assistant","content":[{"type":"output_text","text":` + string(encodedAnswer) + `}]}]}`)
+			if evidence := inspectLiveServerToolResponse("gpt-code-interpreter", body); evidence.content {
+				t.Fatalf("incorrect assistant answer %q was accepted with matching tool logs", answer)
 			}
 		})
 	}

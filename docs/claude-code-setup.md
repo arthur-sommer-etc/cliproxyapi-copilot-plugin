@@ -430,7 +430,7 @@ rm -rf .runtime build .cache logs
 
 ```bash
 sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/secrets.env
-sed -n '/^api-keys:/,/^[^ ]/s/^    - "\([^"]*\)"/\1/p' .runtime/config.yaml
+sed -n '/^  api-keys:/,/^[^ ]/s/^    - "\([^"]*\)"/\1/p' .runtime/config.yaml
 ```
 
 Do not paste either value into an issue.
@@ -467,9 +467,11 @@ prompts. For temporary troubleshooting, set these values in
 `.runtime/config.yaml`:
 
 ```yaml
-debug: true
-logging-to-file: true
-logs-max-total-size-mb: 100
+observability:
+  logs:
+    debug: true
+    logging-to-file: true
+    logs-max-total-size-mb: 100
 ```
 
 Restart the isolated container and inspect `logs/`. Return the settings to

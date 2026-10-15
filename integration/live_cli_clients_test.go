@@ -393,7 +393,7 @@ func parseClaudeEvent(result *liveCLIResult, event map[string]any) {
 		text, _ := event["result"].(string)
 		result.final = !isError && strings.TrimSpace(text) != ""
 		result.finalOutput = text
-		result.sourceURL = result.sourceURL || strings.Contains(text, "https://")
+		result.sourceURL = result.sourceURL || strings.Contains(text, "https://science.nasa.gov/moon/facts/")
 	}
 	message, _ := event["message"].(map[string]any)
 	content, _ := message["content"].([]any)
@@ -446,7 +446,8 @@ func parseCodexEvent(result *liveCLIResult, event map[string]any) {
 	if name == "agent_message" && typeName == "item.completed" {
 		text, _ := item["text"].(string)
 		result.finalText = result.finalText || strings.TrimSpace(text) != ""
-		result.sourceURL = result.sourceURL || strings.Contains(text, "https://")
+		result.finalOutput = text
+		result.sourceURL = result.sourceURL || strings.Contains(text, "https://science.nasa.gov/moon/facts/")
 	}
 	if name == "collab_tool_call" {
 		tool, _ := item["tool"].(string)
@@ -514,10 +515,17 @@ func TestLiveCLIEventEvidence(t *testing.T) {
 	}
 	webCompleted := parseLiveCLIEvents("codex", []byte(`{"type":"item.started","item":{"id":"w1","type":"web_search"}}
 {"type":"item.completed","item":{"id":"w1","type":"web_search","query":"moon","action":{"type":"search","query":"moon"}}}
-{"type":"item.completed","item":{"id":"m1","type":"agent_message","text":"https://example.com"}}
+{"type":"item.completed","item":{"id":"m1","type":"agent_message","text":"https://science.nasa.gov/moon/facts/"}}
 {"type":"turn.completed"}`))
 	if !liveSearchCompleted("codex", webCompleted) {
 		t.Fatal("completed web search with a source URL was not counted")
+	}
+	unrelatedSource := parseLiveCLIEvents("codex", []byte(`{"type":"item.started","item":{"id":"w1","type":"web_search"}}
+{"type":"item.completed","item":{"id":"w1","type":"web_search","query":"moon","action":{"type":"search","query":"moon"}}}
+{"type":"item.completed","item":{"id":"m1","type":"agent_message","text":"https://example.com"}}
+{"type":"turn.completed"}`))
+	if liveSearchCompleted("codex", unrelatedSource) {
+		t.Fatal("unrelated URL was counted as the requested NASA source")
 	}
 	spawnOnly := parseLiveCLIEvents("codex", []byte(`{"type":"item.started","item":{"id":"s1","type":"collab_tool_call","tool":"spawn_agent","status":"in_progress"}}
 {"type":"item.completed","item":{"id":"s1","type":"collab_tool_call","tool":"spawn_agent","status":"completed","receiver_thread_ids":["child"]}}
@@ -534,6 +542,15 @@ func TestLiveCLIEventEvidence(t *testing.T) {
 {"type":"turn.completed"}`))
 	if !liveDelegationCompleted("codex", withWait) {
 		t.Fatal("completed child observed through wait was not counted")
+	}
+	wrongParentAnswer := parseLiveCLIEvents("codex", []byte(`{"type":"item.started","item":{"id":"s1","type":"collab_tool_call","tool":"spawn_agent","status":"in_progress"}}
+{"type":"item.completed","item":{"id":"s1","type":"collab_tool_call","tool":"spawn_agent","status":"completed","receiver_thread_ids":["child"]}}
+{"type":"item.started","item":{"id":"wait1","type":"collab_tool_call","tool":"wait","status":"in_progress"}}
+{"type":"item.completed","item":{"id":"wait1","type":"collab_tool_call","tool":"wait","status":"completed","agents_states":{"child":{"status":"completed"}}}}
+{"type":"item.completed","item":{"id":"m1","type":"agent_message","text":"The agent completed."}}
+{"type":"turn.completed"}`))
+	if liveDelegationCompleted("codex", wrongParentAnswer) {
+		t.Fatal("Codex delegation passed without the parent reporting the delegated result")
 	}
 	claudeTool := parseLiveCLIEvents("claude", []byte(`{"type":"assistant","message":{"content":[{"type":"tool_use","id":"tool1","name":"Task"}]}}
 {"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"tool1","is_error":false,"content":[{"type":"text","text":"323"}]}]}}
@@ -615,6 +632,9 @@ func liveDelegationCompleted(client string, result liveCLIResult) bool {
 				}
 			}
 		}
+		return false
+	}
+	if !containsDelegatedAnswer(result.finalOutput) {
 		return false
 	}
 	if result.verifiedV2Delegation && result.toolCompleted["collab_tool_call:wait"] > 0 {
