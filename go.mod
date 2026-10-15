@@ -1,13 +1,11 @@
 module github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin
 
-go 1.27.0
-
-toolchain go1.27.2
+go 1.27.2
 
 require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/pelletier/go-toml/v2 v2.4.3
-	github.com/router-for-me/CLIProxyAPI/v8 v8.0.23
+	github.com/router-for-me/CLIProxyAPI/v8 v8.0.30
 	github.com/tidwall/gjson v1.20.0
 	github.com/tidwall/sjson v1.2.5
 	github.com/tiktoken-go/tokenizer v0.8.1
@@ -33,6 +31,7 @@ require (
 	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/klauspost/compress v1.20.3 // indirect
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/leodido/go-urn v1.5.0 // indirect

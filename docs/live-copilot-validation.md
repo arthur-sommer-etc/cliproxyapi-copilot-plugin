@@ -2,7 +2,7 @@
 
 ## Current validation (2026-10-11)
 
-The latest dependency and original-client checks use CLIProxyAPI SDK v8.0.23.
+The latest dependency and original-client checks use CLIProxyAPI SDK v8.0.30.
 The matched host used `replace github.com/router-for-me/CLIProxyAPI/v8 => github.com/ririnto/CLIProxyAPI/v8 v8.0.0-20261010040012-c48c64443575` from `go.mod` and Go 1.27.2.
 Claude Code 2.1.296 and Codex CLI 0.162.1 ran against that matched host.
 The original Codex cases were revalidated after the declared-search stream identity barrier changed their Responses lifecycle.

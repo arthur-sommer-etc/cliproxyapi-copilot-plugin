@@ -1,4 +1,4 @@
-GO_IMAGE ?= golang:1.27-bookworm
+GO_IMAGE ?= golang:1-bookworm
 export GO_IMAGE NATIVE_HOST_SOURCE
 VERSION ?= 0.3.3
 PLUGIN_DIR := build/plugins/linux/amd64
@@ -38,7 +38,7 @@ define PREPARE_NATIVE_HOST_CONTAINER
 		-e HOME=/src/.cache/home \
 		-e GOENV=off \
 		-e GOWORK=off \
-		-e GOTOOLCHAIN=local \
+		-e GOTOOLCHAIN=auto \
 		-e GOCACHE=/src/.cache/go-build \
 		-e GOMODCACHE=/src/.cache/go-mod \
 		-e NATIVE_HOST_GOOS=linux \

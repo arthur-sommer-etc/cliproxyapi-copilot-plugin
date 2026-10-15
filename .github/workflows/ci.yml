@@ -8,6 +8,33 @@ permissions:
   contents: read
 
 jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node LTS
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
+          cache: pnpm
+
+      - name: Install contributor tooling
+        run: pnpm install --frozen-lockfile
+
+      - name: Run checks
+        run: pnpm run check
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -42,7 +69,7 @@ jobs:
         run: make test-native
 
       - name: Upload package
-        uses: actions/upload-artifact@v7.0.2
+        uses: actions/upload-artifact@v7
         with:
           name: cliproxyapi-copilot-linux-amd64
           path: |

@@ -5,7 +5,7 @@ SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 REPO_DIR=$(CDPATH='' cd -- "$SCRIPT_DIR/.." && pwd)
 TARGET_GOOS=${NATIVE_HOST_GOOS:-}
 TARGET_GOARCH=${NATIVE_HOST_GOARCH:-}
-NATIVE_HOST_IMAGE=${NATIVE_HOST_IMAGE:-golang:1.27-bookworm}
+NATIVE_HOST_IMAGE=${NATIVE_HOST_IMAGE:-golang:1-bookworm}
 NATIVE_HOST_KEEP_ARTIFACTS=${NATIVE_HOST_KEEP_ARTIFACTS:-0}
 TEST_SELECTOR='^(TestNativeHostProtocolRoundTrips|TestNativeHostOAuth.*|TestFilteredChildEnvironment|TestNativeHostCanonicalResponsesRouting|TestNativeHostConfiguredCanonicalResponsesCompaction|TestNativeHostPluginResponsesWebsocket|TestNativeHostToolAndSystemCompatibility|TestNativeHostClaudeUnsupportedServerToolGuards|TestNativeHostPreservesIncompleteResponsesTerminal|TestNativeHostResponseInterrupt|TestNativeHostPayloadFinalization|TestNativeHostPayloadFinalizationPreservesCodexReservedSchemas)$'
 TEST_LIST_PATTERN='^(TestNativeHost|TestFilteredChildEnvironment)'

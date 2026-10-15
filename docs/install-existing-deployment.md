@@ -2,9 +2,9 @@
 
 This guide adds the GitHub Copilot plugin to an existing CLIProxyAPI deployment.
 It keeps the existing configuration, API keys, and providers.
-The plugin uses the official CLIProxyAPI `v8.0.23` SDK and ABI version 1 on Linux `amd64`.
+The plugin uses the official CLIProxyAPI `v8.0.30` SDK and ABI version 1 on Linux `amd64`.
 Runtime requests also require the paired maintained host module selected by this repository's `go.mod`.
-The official v8.0.23 server lacks the required `host.payload.finalize` callback.
+The official v8.0.30 server lacks the required `host.payload.finalize` callback.
 
 ## 1. Build the plugin and paired host
 
@@ -16,7 +16,7 @@ make prepare-runtime-host
 
 This builds the plugin library and matching Linux `amd64` server from the
 versioned host replacement selected by `go.mod`.
-Docker Compose v2 is required because the build uses the `golang:1.27-bookworm`
+Docker Compose v2 is required because the build uses the `golang:1-bookworm`
 container.
 The outputs are:
 

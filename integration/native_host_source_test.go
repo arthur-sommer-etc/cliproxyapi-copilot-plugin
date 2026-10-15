@@ -47,7 +47,7 @@ func TestNativeHostSourceLinuxTargetMountsRelativePathWithSpaces(t *testing.T) {
 	if _, err := os.Stat(fixture.runnerCapture); err != nil {
 		t.Fatalf("fake integration runner was not invoked: %v", err)
 	}
-	if got, err := os.ReadFile(fixture.runnerCapture); err != nil || string(got) != "linux/amd64|golang:1.27-bookworm\n" {
+	if got, err := os.ReadFile(fixture.runnerCapture); err != nil || string(got) != "linux/amd64|golang:1-bookworm\n" {
 		t.Fatalf("unexpected fake integration runner record %q, error %v", got, err)
 	}
 }
@@ -171,7 +171,7 @@ func (f *nativeHostSourceMakeFixture) runMake(t *testing.T, target, source strin
 	command.Env = makeEnvironment(os.Environ(), map[string]string{
 		"PATH":                       f.bin + string(os.PathListSeparator) + os.Getenv("PATH"),
 		"DOCKER_CAPTURE":             f.dockerCapture,
-		"GO_IMAGE":                   "golang:1.27-bookworm",
+		"GO_IMAGE":                   "golang:1-bookworm",
 		"NATIVE_HOST_RUNNER_CAPTURE": f.runnerCapture,
 		"NATIVE_HOST_SOURCE":         source,
 		"MAKEFLAGS":                  "",
@@ -243,7 +243,7 @@ func assertNativeHostDockerArgs(t *testing.T, arguments []string, fixture *nativ
 		"-e", "HOME=/src/.cache/home",
 		"-e", "GOENV=off",
 		"-e", "GOWORK=off",
-		"-e", "GOTOOLCHAIN=local",
+		"-e", "GOTOOLCHAIN=auto",
 		"-e", "GOCACHE=/src/.cache/go-build",
 		"-e", "GOMODCACHE=/src/.cache/go-mod",
 		"-e", "NATIVE_HOST_GOOS=linux",
@@ -253,7 +253,7 @@ func assertNativeHostDockerArgs(t *testing.T, arguments []string, fixture *nativ
 			t.Errorf("Docker arguments omit %q: %#v", expected, arguments)
 		}
 	}
-	if len(arguments) < 2 || arguments[len(arguments)-2] != "golang:1.27-bookworm" || arguments[len(arguments)-1] != "integration/prepare-native-host.sh" {
+	if len(arguments) < 2 || arguments[len(arguments)-2] != "golang:1-bookworm" || arguments[len(arguments)-1] != "integration/prepare-native-host.sh" {
 		t.Errorf("Docker image or host preparation command changed: %#v", arguments)
 	}
 	if !slicesContainsPair(arguments, "-w", "/src") {

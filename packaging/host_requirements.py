@@ -69,7 +69,7 @@ def selected_host_requirements(
 ) -> dict[str, Any]:
     """Resolve Go's selected CLIProxyAPI module without changing the graph."""
     environment = os.environ.copy()
-    environment.update({"GOWORK": "off", "GOFLAGS": "", "GOTOOLCHAIN": "local"})
+    environment.update({"GOWORK": "off", "GOFLAGS": "", "GOTOOLCHAIN": "auto"})
     result = subprocess.run(
         ["go", "list", "-mod=readonly", "-m", "-json", SDK_MODULE],
         cwd=repository,

@@ -3,7 +3,7 @@
 This guide deploys CLIProxyAPI with this repository's GitHub Copilot plugin,
 authenticates both a Claude subscription and a GitHub Copilot subscription, and
 configures Claude Code to use both through one local endpoint.
-The Compose deployment uses the official v8.0.23 runtime image with a paired
+The Compose deployment uses the official v8.0.30 runtime image with a paired
 maintained host binary built from the module replacement selected in `go.mod`.
 
 Every step is an explicit command; no repository setup scripts are involved.
@@ -98,9 +98,9 @@ pinned Go container:
 make prepare-runtime-host
 ```
 
-The plugin uses the official CLIProxyAPI v8.0.23 SDK and plugin ABI. Its final
+The plugin uses the official CLIProxyAPI v8.0.30 SDK and plugin ABI. Its final
 payload-rule callback is supplied by the published maintained CLIProxyAPI
-module replacement selected in `go.mod`; the official v8.0.23 server does not
+module replacement selected in `go.mod`; the official v8.0.30 server does not
 implement that callback. The Compose file keeps the official image as the
 runtime base, then mounts the host binary built from that paired module over the
 image's server binary. Do not run Compose before `make prepare-runtime-host`, or

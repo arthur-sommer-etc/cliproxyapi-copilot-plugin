@@ -100,7 +100,7 @@ run_go() {
     TMPDIR="$BUILD_DIR" \
     GOENV=off \
     GOWORK=off \
-    GOTOOLCHAIN=local \
+    GOTOOLCHAIN=auto \
     GOFLAGS= \
     GOCACHE="$GO_BUILD_CACHE" \
     GOMODCACHE="$GO_MODULE_CACHE" \

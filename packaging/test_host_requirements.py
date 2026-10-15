@@ -24,7 +24,7 @@ class HostRequirementsTests(unittest.TestCase):
     def test_builds_metadata_for_the_selected_maintained_host(self) -> None:
         module = {
             "Path": SDK_MODULE,
-            "Version": "v8.0.23",
+            "Version": "v8.0.30",
             "Replace": {
                 "Path": MAINTAINED_HOST_MODULE,
                 "Version": "v8.0.0-20261010033233-a22e8f7c0065",
@@ -34,7 +34,7 @@ class HostRequirementsTests(unittest.TestCase):
 
         requirements = build_host_requirements(module, "cliproxyapi-copilot", "0.3.3")
 
-        self.assertEqual(requirements["plugin_abi"]["version"], "v8.0.23")
+        self.assertEqual(requirements["plugin_abi"]["version"], "v8.0.30")
         self.assertEqual(requirements["required_host"]["module"], MAINTAINED_HOST_MODULE)
         self.assertEqual(
             requirements["required_host"]["callbacks"], ["host.payload.finalize"]
@@ -43,8 +43,8 @@ class HostRequirementsTests(unittest.TestCase):
     def test_rejects_selected_official_host(self) -> None:
         module = {
             "Path": SDK_MODULE,
-            "Version": "v8.0.23",
-            "Replace": {"Path": SDK_MODULE, "Version": "v8.0.23"},
+            "Version": "v8.0.30",
+            "Replace": {"Path": SDK_MODULE, "Version": "v8.0.30"},
         }
 
         with self.assertRaisesRegex(HostRequirementsError, "selected host replacement"):
@@ -53,7 +53,7 @@ class HostRequirementsTests(unittest.TestCase):
     def test_rejects_local_host_replacement(self) -> None:
         module = {
             "Path": SDK_MODULE,
-            "Version": "v8.0.23",
+            "Version": "v8.0.30",
             "Replace": {"Path": "../CLIProxyAPI", "Dir": "/tmp/CLIProxyAPI"},
         }
 
@@ -75,19 +75,19 @@ class HostRequirementsTests(unittest.TestCase):
             )
             repository.mkdir()
             proxy_version.mkdir(parents=True)
-            (proxy_version / "v8.0.23.mod").write_text(
+            (proxy_version / "v8.0.30.mod").write_text(
                 f"module {SDK_MODULE}\n\ngo 1.26.0\n", encoding="utf-8"
             )
-            (proxy_version / "v8.0.23.info").write_text(
-                json.dumps({"Version": "v8.0.23", "Time": "2026-10-09T13:35:40Z"}),
+            (proxy_version / "v8.0.30.info").write_text(
+                json.dumps({"Version": "v8.0.30", "Time": "2026-10-15T13:55:09Z"}),
                 encoding="utf-8",
             )
             (repository / "go.mod").write_text(
                 f"module example.test/root\n\ngo 1.27\n\n"
-                f"require {SDK_MODULE} v8.0.23\n\n"
+                f"require {SDK_MODULE} v8.0.30\n\n"
                 f"replace {SDK_MODULE} => {MAINTAINED_HOST_MODULE} "
                 "v8.0.0-20261010033233-a22e8f7c0065\n"
-                f"replace {SDK_MODULE} v8.0.23 => {SDK_MODULE} v8.0.23\n",
+                f"replace {SDK_MODULE} v8.0.30 => {SDK_MODULE} v8.0.30\n",
                 encoding="utf-8",
             )
             environment = os.environ.copy()

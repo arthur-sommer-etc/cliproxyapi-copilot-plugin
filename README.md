@@ -11,9 +11,9 @@ To add the plugin and its required paired host to an existing CLIProxyAPI instal
 For feature-by-feature implementation, validation and external acceptance limits, see
 [`docs/feature-completion.md`](docs/feature-completion.md).
 
-GitHub Copilot subscription plugin built against the official `router-for-me/CLIProxyAPI` v8.0.23 SDK and plugin ABI version 1.
+GitHub Copilot subscription plugin built against the official `router-for-me/CLIProxyAPI` v8.0.30 SDK and plugin ABI version 1.
 Runtime requests require the paired maintained host selected by `go.mod`.
-The official v8.0.23 server lacks the required `host.payload.finalize` callback.
+The official v8.0.30 server lacks the required `host.payload.finalize` callback.
 The repository also defines a strictly isolated Docker deployment that retains CLIProxyAPI's built-in Claude subscription OAuth support.
 
 This stack uses only:
@@ -22,7 +22,7 @@ This stack uses only:
 - host address: `127.0.0.1:8317`
 - auth volume: `cliproxyapi_official_copilot_dev_home`
 - repository-local config and plugin bind mounts
-- image: `eceasy/cli-proxy-api:v8.0.23`
+- image: `eceasy/cli-proxy-api:v8.0.30`
 
 It does not map ports 3458 or 54545 on the host.
 
@@ -64,7 +64,7 @@ Set `support-prompt-cache-key: false` in the plugin configuration to omit genera
 The plugin preserves explicit caller keys.
 Copilot's implicit cache lifetime can differ from Codex's.
 Responses compaction is optional and requires explicit configuration for the model.
-The official CLIProxyAPI v8.0.23 host supports both plugin compaction routes.
+The official CLIProxyAPI v8.0.30 host supports both plugin compaction routes.
 Claude token-count requests are estimated locally with the same O200k tokenizer
 approach used by CLIProxyAPI for translated Claude requests.
 The deployment lists model exclusions under CLIProxyAPI's native `oauth.excluded-models.copilot` setting.
@@ -122,7 +122,7 @@ integration headers because Copilot rejects unrecognized
 ## Build and test
 
 Use Docker with Compose v2, Go 1.27.2 or newer, and Python 3.9 or newer for `make test`.
-The production plugin build uses `golang:1.27-bookworm`, matching the Debian Bookworm runtime of the official image.
+The production plugin build uses `golang:1-bookworm`, matching the Debian Bookworm runtime of the official image.
 
 ```sh
 make test
@@ -147,9 +147,9 @@ NATIVE_HOST_SOURCE="../CLIProxyAPI checkout" make prepare-runtime-host
 
 When `NATIVE_HOST_SOURCE` is unset, preparation uses the published host source selected in `go.mod`.
 Preparation may download dependencies.
-The plugin uses the official v8.0.23 SDK and ABI. Payload-rule finalization requires
+The plugin uses the official v8.0.30 SDK and ABI. Payload-rule finalization requires
 the published maintained host replacement selected in `go.mod`; the official
-v8.0.23 release does not provide that callback. The development Compose file still
+v8.0.30 release does not provide that callback. The development Compose file still
 defaults to the official image as its runtime base. `make prepare-runtime-host`
 builds the selected host and mounts it over the image's server binary, so the default
 development stack runs the maintained host while reusing the official image runtime.
@@ -192,7 +192,7 @@ The release archive includes `cliproxyapi-copilot.host-requirements.json`,
 which records the required `host.payload.finalize` callback and Go's selected
 versioned host module source. The plugin loader does not consume this metadata.
 Deploy the paired maintained host module recorded in the JSON; the official
-v8.0.23 server does not provide that callback.
+v8.0.30 server does not provide that callback.
 
 ## CI and releases
 
@@ -247,10 +247,10 @@ docker compose --env-file .runtime/secrets.env up -d
 ```
 
 `make prepare-runtime-host` builds both the plugin and its paired CLIProxyAPI
-host. The plugin uses the official v8.0.23 SDK and ABI, while payload-rule
+host. The plugin uses the official v8.0.30 SDK and ABI, while payload-rule
 finalization requires the published maintained host module selected by the
 `go.mod` replacement. Compose overlays that built host on the official runtime
-image; the official v8.0.23 server alone does not implement the required
+image; the official v8.0.30 server alone does not implement the required
 callback.
 
 This generates `.runtime/secrets.env` and `.runtime/config.yaml` with mode
