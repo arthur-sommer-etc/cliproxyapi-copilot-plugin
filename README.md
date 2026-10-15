@@ -6,7 +6,7 @@ For an end-to-end deployment and Claude Code configuration walkthrough, see [`do
 
 To add only the plugin to an existing CLIProxyAPI installation, see [`docs/install-existing-deployment.md`](docs/install-existing-deployment.md).
 
-Initial, self-owned GitHub Copilot subscription provider for the official `router-for-me/CLIProxyAPI` v7.2.118 plugin ABI.
+Initial, self-owned GitHub Copilot subscription provider for the official `router-for-me/CLIProxyAPI` v7.3.20 plugin ABI.
 The repository also defines a strictly isolated Docker deployment that retains CLIProxyAPI's built-in Claude subscription OAuth support.
 
 This stack uses only:
@@ -15,13 +15,12 @@ This stack uses only:
 - host address: `127.0.0.1:8317`
 - auth volume: `cliproxyapi_official_copilot_dev_home`
 - repository-local config and plugin bind mounts
-- image: `eceasy/cli-proxy-api:7.2.118`
+- image: `eceasy/cli-proxy-api:v7.3.20`
 
 It does not map ports 3458 or 54545 on the host.
 
-Docker Hub currently publishes this release as `v7.2.118` rather than the unprefixed tag required by this deployment.
-The setup guide documents pulling the official `v7.2.118` image and creating a local equivalent tag when the unprefixed image is absent.
-Compose remains pinned to `eceasy/cli-proxy-api:7.2.118`.
+Docker Hub publishes the matching `v7.3.20` release with a `v` prefix.
+Compose uses that published tag directly.
 
 ## Architecture
 

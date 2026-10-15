@@ -88,15 +88,11 @@ Build the plugin shared library inside the pinned Go container:
 make build
 ```
 
-Docker Hub currently publishes this CLIProxyAPI release as `v7.2.118` rather than the unprefixed `7.2.118` tag that Compose pins.
+Docker Hub publishes this CLIProxyAPI release as `v7.3.20`.
 If the pinned tag is not already present locally, pull the published tag and create the local equivalent:
 
 ```bash
-docker image inspect eceasy/cli-proxy-api:7.2.118 >/dev/null 2>&1 ||
-docker pull eceasy/cli-proxy-api:7.2.118 || {
-  docker pull eceasy/cli-proxy-api:v7.2.118
-  docker tag eceasy/cli-proxy-api:v7.2.118 eceasy/cli-proxy-api:7.2.118
-}
+docker pull eceasy/cli-proxy-api:v7.3.20
 ```
 
 Start the stack.

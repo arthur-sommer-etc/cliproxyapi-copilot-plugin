@@ -5,7 +5,7 @@
     "npm-run-all2": "catalog:"
   },
   "engines": {
-    "node": ">=24.15.0 <25"
+    "node": ">=24.22.0 <25"
   },
   "name": "cpa-copilot-bridge",
   "packageManager": "pnpm@12.11.2",
