@@ -50,3 +50,18 @@ func TestContinuityKeyringRejectsCredentialAndAccountReplacement(t *testing.T) {
 		t.Fatal("new login reused the prior account continuity root")
 	}
 }
+
+func TestLegacyAuthUsesRefreshCompatibleArtifactKey(t *testing.T) {
+	storage := authStorage{GitHubAccessToken: "legacy-credential", GitHubUserID: 4242}
+	materials, err := continuityKeyMaterialsFor(storage, "auth-a", "model-a", "/responses", "https://api.example")
+	if err != nil {
+		t.Fatalf("legacy auth did not provide temporary artifact material: %v", err)
+	}
+	if !materials.activeIsLegacy || len(materials.Legacy) != 1 || materials.Active.Scope != materials.Legacy[0].Scope || string(materials.Active.Secret) != string(materials.Legacy[0].Secret) {
+		t.Fatalf("legacy artifact material is not refresh-compatible: %#v", materials)
+	}
+	storage.ContinuityKeyring = &continuityKeyring{Version: continuityKeyringVersion}
+	if _, err := continuityKeyMaterialsFor(storage, "auth-a", "model-a", "/responses", "https://api.example"); err == nil {
+		t.Fatal("invalid persisted keyring used the temporary legacy key")
+	}
+}

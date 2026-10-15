@@ -599,3 +599,38 @@ func TestLegacyReasoningCarrierMigratesToStableV2(t *testing.T) {
 		t.Fatalf("legacy response carrier migration = %s, err=%v", migrated, err)
 	}
 }
+
+func TestLegacyAuthReasoningCarrierSurvivesKeyringMigration(t *testing.T) {
+	legacyStorage := authStorage{GitHubAccessToken: "credential-before-refresh", GitHubUserID: 4242}
+	legacyKeys, err := continuityKeyMaterialsFor(legacyStorage, "auth-a", "test-chat", translate.EndpointChatCompletions, "https://api.example")
+	if err != nil {
+		t.Fatalf("legacy auth material: %v", err)
+	}
+	legacyScope := reasoningCarrierScopeFor("auth-a", "test-chat", translate.EndpointChatCompletions, "https://api.example", legacyKeys)
+	response := []byte(`{"content":[{"type":"thinking","thinking":"prior","signature":"cpa-copilot-reasoning:v1:fixture"}]}`)
+	sealedResponse, err := sealResponseReasoningCarriers("claude", response, legacyScope)
+	if err != nil {
+		t.Fatalf("seal legacy response reasoning: %v", err)
+	}
+	sealed := gjson.GetBytes(sealedResponse, "content.0.signature").String()
+	if !strings.HasPrefix(sealed, sealedReasoningCarrierV1Prefix) {
+		t.Fatalf("legacy auth emitted a non-migratable carrier: %s", sealed)
+	}
+
+	keyring, err := newContinuityKeyring(4242, "credential-after-refresh")
+	if err != nil {
+		t.Fatalf("new continuity keyring: %v", err)
+	}
+	addLegacyContinuityKey(keyring, "auth-a", "credential-before-refresh", "https://api.example")
+	migratedStorage := authStorage{GitHubAccessToken: "credential-after-refresh", GitHubUserID: 4242, ContinuityKeyring: keyring}
+	migratedKeys, err := continuityKeyMaterialsFor(migratedStorage, "auth-a", "test-chat", translate.EndpointChatCompletions, "https://api.example")
+	if err != nil {
+		t.Fatalf("migrated auth material: %v", err)
+	}
+	migratedScope := reasoningCarrierScopeFor("auth-a", "test-chat", translate.EndpointChatCompletions, "https://api.example", migratedKeys)
+	request := []byte(`{"messages":[{"role":"assistant","content":[{"type":"thinking","thinking":"prior","signature":"` + sealed + `"}]}]}`)
+	unwrapped, err := unwrapRequestReasoningCarriers("claude", request, migratedScope)
+	if err != nil || gjson.GetBytes(unwrapped, "messages.0.content.0.signature").String() != "cpa-copilot-reasoning:v1:fixture" {
+		t.Fatalf("migrated auth did not unwrap its pre-refresh carrier: %s, %v", unwrapped, err)
+	}
+}

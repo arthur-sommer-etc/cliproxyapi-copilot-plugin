@@ -117,8 +117,14 @@ func sealReasoningCarrier(inner string, scope reasoningCarrierScope) (string, er
 	if err != nil {
 		return "", err
 	}
-	mac := reasoningCarrierMAC(secret, scopeID, []byte(inner), reasoningCarrierMACDomainV2)
-	return sealedReasoningCarrierV2Prefix + base64.RawURLEncoding.EncodeToString([]byte(inner)) + "." + base64.RawURLEncoding.EncodeToString(mac), nil
+	prefix := sealedReasoningCarrierV2Prefix
+	domain := reasoningCarrierMACDomainV2
+	if scope.Keys.activeIsLegacy {
+		prefix = sealedReasoningCarrierV1Prefix
+		domain = reasoningCarrierMACDomainV1
+	}
+	mac := reasoningCarrierMAC(secret, scopeID, []byte(inner), domain)
+	return prefix + base64.RawURLEncoding.EncodeToString([]byte(inner)) + "." + base64.RawURLEncoding.EncodeToString(mac), nil
 }
 
 func unsealReasoningCarrier(sealed string, scope reasoningCarrierScope) (string, error) {

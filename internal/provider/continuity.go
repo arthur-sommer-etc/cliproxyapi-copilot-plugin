@@ -34,8 +34,9 @@ type legacyContinuityKey struct {
 }
 
 type artifactKeyMaterials struct {
-	Active compact.KeyMaterial
-	Legacy []compact.KeyMaterial
+	Active         compact.KeyMaterial
+	Legacy         []compact.KeyMaterial
+	activeIsLegacy bool
 }
 
 func newContinuityKeyring(accountID int64, credential string) (*continuityKeyring, error) {
@@ -94,6 +95,17 @@ func addLegacyContinuityKey(keyring *continuityKeyring, authID, credential, apiB
 }
 
 func continuityKeyMaterialsFor(storage authStorage, authID, model, endpoint, apiBaseURL string) (artifactKeyMaterials, error) {
+	if storage.ContinuityKeyring == nil {
+		if storage.GitHubUserID <= 0 || strings.TrimSpace(authID) == "" || strings.TrimSpace(storage.GitHubAccessToken) == "" {
+			return artifactKeyMaterials{}, errContinuityKeyringUnavailable
+		}
+		scope, secret := compactionKeyMaterial(authID, storage.GitHubAccessToken, model, endpoint, apiBaseURL)
+		if scope == "" || len(secret) != sha256.Size {
+			return artifactKeyMaterials{}, errContinuityKeyringUnavailable
+		}
+		key := compact.KeyMaterial{Scope: scope, Secret: secret}
+		return artifactKeyMaterials{Active: key, Legacy: []compact.KeyMaterial{key}, activeIsLegacy: true}, nil
+	}
 	root, errKeyring := validateContinuityKeyring(storage, authID)
 	if errKeyring != nil {
 		return artifactKeyMaterials{}, errKeyring

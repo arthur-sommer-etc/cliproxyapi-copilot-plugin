@@ -267,15 +267,32 @@ func (s *Service) restoreReasoningReplay(scopeKey string, original, translated [
 		return translated
 	}
 	entries := s.reasoningReplayForScope(scopeKey)
+	restored := translated
+	seenCalls := make(map[string]struct{})
 	for _, entry := range entries {
+		if overlapsCallIDs(entry.CallIDs, seenCalls) {
+			continue
+		}
 		if !assistantMessageMatchesCalls(original, entry.CallIDs) {
 			continue
 		}
-		if restored, ok := insertReasoningBeforeCalls(translated, entry.CallIDs, entry.Reasoning); ok {
-			return restored
+		if updated, ok := insertReasoningBeforeCalls(restored, entry.CallIDs, entry.Reasoning); ok {
+			restored = updated
+			for _, callID := range entry.CallIDs {
+				seenCalls[callID] = struct{}{}
+			}
 		}
 	}
-	return translated
+	return restored
+}
+
+func overlapsCallIDs(callIDs []string, seen map[string]struct{}) bool {
+	for _, callID := range callIDs {
+		if _, exists := seen[callID]; exists {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *Service) restoreNativeResponsesReplay(scopeKey string, translated []byte) []byte {

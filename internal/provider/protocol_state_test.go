@@ -112,6 +112,26 @@ func TestReasoningReplayUsesExactTranslatedToolCallAnchor(t *testing.T) {
 	}
 }
 
+func TestReasoningReplayRestoresMultipleHistoricalToolTurns(t *testing.T) {
+	t.Parallel()
+	service := New(nil)
+	now := time.Date(2026, 10, 3, 0, 0, 0, 0, time.UTC)
+	service.now = func() time.Time { return now }
+	scope := protocolScopeKey("auth-a", continuityTestStorage("github-token-a"), "model-a", "https://api.githubcopilot.com", translate.EndpointResponses, "session-a", "main", 0)
+	service.recordReasoningReplay(scope, []byte(`{"status":"completed","output":[{"type":"reasoning","encrypted_content":"signature:first","summary":[]},{"type":"function_call","id":"item-1","call_id":"call-1","name":"run","arguments":"{}"}]}`))
+	now = now.Add(time.Second)
+	service.recordReasoningReplay(scope, []byte(`{"status":"completed","output":[{"type":"reasoning","encrypted_content":"signature:second","summary":[]},{"type":"function_call","id":"item-2","call_id":"call-2","name":"run","arguments":"{}"}]}`))
+	original := []byte(`{"messages":[{"role":"assistant","content":[{"type":"tool_use","id":"call-1","name":"run","input":{}}]},{"role":"assistant","content":[{"type":"tool_use","id":"call-2","name":"run","input":{}}]}]}`)
+	translated := []byte(`{"input":[{"type":"function_call","call_id":"call-1"},{"type":"function_call","call_id":"call-2"}]}`)
+	restored := service.restoreReasoningReplay(scope, original, translated)
+	if gjson.GetBytes(restored, "input.0.encrypted_content").String() != "signature:first" ||
+		gjson.GetBytes(restored, "input.1.call_id").String() != "call-1" ||
+		gjson.GetBytes(restored, "input.2.encrypted_content").String() != "signature:second" ||
+		gjson.GetBytes(restored, "input.3.call_id").String() != "call-2" {
+		t.Fatalf("multiple tool turns were not restored in history order: %s", restored)
+	}
+}
+
 func TestReasoningReplayRequiresSuccessfulUniqueCallsAndExpires(t *testing.T) {
 	t.Parallel()
 	service := New(nil)

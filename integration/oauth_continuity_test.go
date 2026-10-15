@@ -57,6 +57,48 @@ func TestNativeHostOAuthContinuityPersistsAcrossRestart(t *testing.T) {
 	}
 }
 
+func TestNativeHostLegacyOAuthInferenceDoesNotRequireRefresh(t *testing.T) {
+	binary := os.Getenv("CPA_BINARY")
+	if binary == "" {
+		t.Skip("set CPA_BINARY to a built CLIProxyAPI v8 server for native host integration")
+	}
+	futureExpiry := time.Now().Add(2 * time.Hour).Unix()
+	for _, test := range []struct {
+		name      string
+		expiresAt *int64
+	}{
+		{name: "future expiry", expiresAt: &futureExpiry},
+		{name: "unknown expiry"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			state := newNativeFixture(t)
+			upstream := httptest.NewServer(state)
+			t.Cleanup(upstream.Close)
+			root := t.TempDir()
+			auth := legacyOAuthAuthFixtureWithExpiry(t, test.expiresAt)
+			base, stop := startProxyInRoot(t, binary, upstream.URL, root, auth, "fixture-management-secret")
+			defer stop()
+			route := matrixRoute{name: "ResponsesToGeminiChat", clientFormat: "openai-response", model: matrixChatModel, upstreamPath: "/chat/completions"}
+			request := matrixInitialRequest(route, false)
+			response := callProxyWithSession(t, base+matrixClientPath(route.clientFormat), request, "legacy-auth-upgrade")
+			captured, path := lastUpstreamRequest(t, state)
+			assertMatrixRoute(t, route, captured, path, false)
+			assertMatrixInitialRequest(t, route, captured)
+			assertMatrixClientOutput(t, route, response, false)
+			persisted := readPersistedOAuthStorage(t, root)
+			if persisted.Continuity.Version != 0 {
+				t.Fatal("legacy auth was refreshed before its first inference")
+			}
+			state.mu.Lock()
+			refreshCount := state.oauthRefreshCount
+			state.mu.Unlock()
+			if refreshCount != 0 {
+				t.Fatalf("inference required %d OAuth refreshes", refreshCount)
+			}
+		})
+	}
+}
+
 type persistedOAuthStorage struct {
 	GitHubAccessToken string `json:"github_access_token"`
 	GitHubUserID      int64  `json:"github_user_id"`
@@ -78,6 +120,28 @@ type persistedOAuthStorage struct {
 func legacyOAuthAuthFixtureJSON(t *testing.T) []byte {
 	t.Helper()
 	return readNativeSeed(t, "legacy-auth.json")
+}
+
+func legacyOAuthAuthFixtureWithExpiry(t *testing.T, expiresAt *int64) []byte {
+	t.Helper()
+	var storage map[string]json.RawMessage
+	if err := json.Unmarshal(legacyOAuthAuthFixtureJSON(t), &storage); err != nil {
+		t.Fatal(err)
+	}
+	if expiresAt == nil {
+		delete(storage, "expires_at")
+	} else {
+		encoded, err := json.Marshal(*expiresAt)
+		if err != nil {
+			t.Fatal(err)
+		}
+		storage["expires_at"] = encoded
+	}
+	encoded, err := json.Marshal(storage)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return encoded
 }
 
 func forceRefreshAuthFile(t *testing.T, base, secret, name string) {
