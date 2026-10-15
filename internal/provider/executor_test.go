@@ -589,7 +589,7 @@ func TestCountTokensReturnsClaudeInputTokens(t *testing.T) {
 
 func TestCollectStreamErrorRedactsSecretsAndCapsBody(t *testing.T) {
 	ctx := context.Background()
-	githubToken := "ghp_abcdefghijklmnopqrstuvwxyz1234567890"
+	githubToken := "fixture-github-token-not-real"
 	copilotToken := "copilot-secret"
 	host := &errorStreamHost{readErr: errors.New("connection failed: " + copilotToken + " " + githubToken)}
 	service := New(host)
