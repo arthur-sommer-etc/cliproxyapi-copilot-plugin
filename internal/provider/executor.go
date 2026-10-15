@@ -120,7 +120,7 @@ func (s *Service) doModelRequest(ctx context.Context, callbackID, authID string,
 	request := transport.Request{
 		Method:  http.MethodPost,
 		URL:     token.APIBaseURL + endpoint,
-		Headers: copilotHeaders(token.Token, stream),
+		Headers: inferenceHeaders(token.Token, stream, endpoint, body),
 		Body:    body,
 	}
 	resp, errDo := s.host.Do(ctx, callbackID, request)
@@ -138,7 +138,7 @@ func (s *Service) doModelRequest(ctx context.Context, callbackID, authID string,
 			return transport.Response{}, token, statusError("reasoning_scope_mismatch", "Copilot reasoning cannot move to another API origin during refresh", http.StatusUnprocessableEntity)
 		}
 		request.URL = token.APIBaseURL + endpoint
-		request.Headers = copilotHeaders(token.Token, stream)
+		request.Headers = inferenceHeaders(token.Token, stream, endpoint, body)
 		resp, errDo = s.host.Do(ctx, callbackID, request)
 		if errDo != nil {
 			return transport.Response{}, token, fmt.Errorf("call Copilot model endpoint after token refresh: %w", errDo)
@@ -154,7 +154,7 @@ func (s *Service) openModelStream(ctx context.Context, callbackID, authID string
 	request := transport.Request{
 		Method:  http.MethodPost,
 		URL:     token.APIBaseURL + endpoint,
-		Headers: copilotHeaders(token.Token, true),
+		Headers: inferenceHeaders(token.Token, true, endpoint, body),
 		Body:    body,
 	}
 	stream, errOpen := s.host.OpenStream(ctx, callbackID, request)
@@ -173,7 +173,7 @@ func (s *Service) openModelStream(ctx context.Context, callbackID, authID string
 			return transport.Stream{}, token, statusError("reasoning_scope_mismatch", "Copilot reasoning cannot move to another API origin during refresh", http.StatusUnprocessableEntity)
 		}
 		request.URL = token.APIBaseURL + endpoint
-		request.Headers = copilotHeaders(token.Token, true)
+		request.Headers = inferenceHeaders(token.Token, true, endpoint, body)
 		stream, errOpen = s.host.OpenStream(ctx, callbackID, request)
 		if errOpen != nil {
 			return transport.Stream{}, token, fmt.Errorf("open Copilot model stream after token refresh: %w", errOpen)
