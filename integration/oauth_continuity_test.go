@@ -84,10 +84,13 @@ func TestNativeHostLegacyOAuthInferenceDoesNotRequireRefresh(t *testing.T) {
 			captured, path := lastUpstreamRequest(t, state)
 			assertMatrixRoute(t, route, captured, path, false)
 			assertMatrixInitialRequest(t, route, captured)
-			assertMatrixClientOutput(t, route, response, false)
-			persisted := readPersistedOAuthStorage(t, root)
+			assertMatrixClientOutputTurnWithCarrier(t, route, response, false, 1, "cpa-copilot-reasoning-auth:v1:")
+			persisted := readOAuthStorage(t, root)
 			if persisted.Continuity.Version != 0 {
 				t.Fatal("legacy auth was refreshed before its first inference")
+			}
+			if persisted.GitHubAccessToken != "fixture-old-github-token" {
+				t.Fatal("legacy inference changed the GitHub access token")
 			}
 			state.mu.Lock()
 			refreshCount := state.oauthRefreshCount
@@ -170,6 +173,19 @@ func forceRefreshAuthFile(t *testing.T, base, secret, name string) {
 
 func readPersistedOAuthStorage(t *testing.T, root string) persistedOAuthStorage {
 	t.Helper()
+	storage := readOAuthStorage(t, root)
+	rootKey, err := base64.RawURLEncoding.DecodeString(storage.Continuity.RootKey)
+	if err != nil || len(rootKey) != sha256.Size {
+		t.Fatal("persisted continuity root is not a 32-byte RawURL key")
+	}
+	if storage.Continuity.Version != 1 || storage.Continuity.AccountID != 4242 || storage.GitHubUserID != 4242 || len(storage.Continuity.KeyID) != 32 {
+		t.Fatalf("persisted continuity identity is malformed: version=%d account=%d user=%d", storage.Continuity.Version, storage.Continuity.AccountID, storage.GitHubUserID)
+	}
+	return storage
+}
+
+func readOAuthStorage(t *testing.T, root string) persistedOAuthStorage {
+	t.Helper()
 	path := filepath.Join(root, "auths", "fixture.json")
 	body, err := os.ReadFile(path)
 	if err != nil {
@@ -178,13 +194,6 @@ func readPersistedOAuthStorage(t *testing.T, root string) persistedOAuthStorage 
 	var storage persistedOAuthStorage
 	if err := json.Unmarshal(body, &storage); err != nil {
 		t.Fatalf("decode persisted synthetic auth state: %v", err)
-	}
-	rootKey, err := base64.RawURLEncoding.DecodeString(storage.Continuity.RootKey)
-	if err != nil || len(rootKey) != sha256.Size {
-		t.Fatal("persisted continuity root is not a 32-byte RawURL key")
-	}
-	if storage.Continuity.Version != 1 || storage.Continuity.AccountID != 4242 || storage.GitHubUserID != 4242 || len(storage.Continuity.KeyID) != 32 {
-		t.Fatalf("persisted continuity identity is malformed: version=%d account=%d user=%d", storage.Continuity.Version, storage.Continuity.AccountID, storage.GitHubUserID)
 	}
 	return storage
 }

@@ -1538,6 +1538,10 @@ func assertMatrixClientOutput(t *testing.T, route matrixRoute, body []byte, stre
 }
 
 func assertMatrixClientOutputTurn(t *testing.T, route matrixRoute, body []byte, stream bool, turn int) matrixOutput {
+	return assertMatrixClientOutputTurnWithCarrier(t, route, body, stream, turn, "cpa-copilot-reasoning-auth:v2:")
+}
+
+func assertMatrixClientOutputTurnWithCarrier(t *testing.T, route matrixRoute, body []byte, stream bool, turn int, carrierPrefix string) matrixOutput {
 	t.Helper()
 	output := matrixOutput{Turn: turn}
 	if route.clientFormat == "claude" {
@@ -1712,7 +1716,7 @@ func assertMatrixClientOutputTurn(t *testing.T, route matrixRoute, body []byte, 
 			}
 		}
 	}
-	assertMatrixOutputSemantics(t, route, output)
+	assertMatrixOutputSemanticsWithCarrier(t, route, output, carrierPrefix)
 	return output
 }
 
@@ -1800,6 +1804,10 @@ func firstStringValue(value map[string]any, keys ...string) string {
 }
 
 func assertMatrixOutputSemantics(t *testing.T, route matrixRoute, output matrixOutput) {
+	assertMatrixOutputSemanticsWithCarrier(t, route, output, "cpa-copilot-reasoning-auth:v2:")
+}
+
+func assertMatrixOutputSemanticsWithCarrier(t *testing.T, route matrixRoute, output matrixOutput, carrierPrefix string) {
 	t.Helper()
 	if route.clientFormat == "openai" && output.Model != route.model {
 		t.Fatalf("Chat response model = %q on %s, want original upstream model %q", output.Model, route.name, route.model)
@@ -1818,7 +1826,7 @@ func assertMatrixOutputSemantics(t *testing.T, route matrixRoute, output matrixO
 			}
 			return
 		}
-		decoded := assertChatReasoningCarrier(t, output.Signature, route.model)
+		decoded := assertChatReasoningCarrierWithPrefix(t, output.Signature, route.model, carrierPrefix)
 		if decoded != matrixSignature || output.CallID != matrixChatCallID {
 			t.Fatalf("Chat opaque reasoning or call ID changed on %s: opaque=%q call=%q", route.name, decoded, output.CallID)
 		}
@@ -1918,8 +1926,11 @@ func matrixOpaqueContains(value any, expected string) bool {
 }
 
 func assertChatReasoningCarrier(t *testing.T, carrier, model string) string {
+	return assertChatReasoningCarrierWithPrefix(t, carrier, model, "cpa-copilot-reasoning-auth:v2:")
+}
+
+func assertChatReasoningCarrierWithPrefix(t *testing.T, carrier, model, authPrefix string) string {
 	t.Helper()
-	const authPrefix = "cpa-copilot-reasoning-auth:v2:"
 	if !strings.HasPrefix(carrier, authPrefix) {
 		t.Fatalf("Chat reasoning carrier missing or malformed: %q", carrier)
 	}
