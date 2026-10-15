@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	sdktranslator "github.com/router-for-me/CLIProxyAPI/v8/sdk/translator"
+	"github.com/tidwall/gjson"
 )
 
 func syntheticAttachmentData(t *testing.T) (string, string) {
@@ -474,5 +475,91 @@ func TestSyntheticAttachmentToolResultsPreserveContent(t *testing.T) {
 				})
 			}
 		}
+	}
+}
+
+func TestOrphanToolResultImageToChatPreservesToolIdentity(t *testing.T) {
+	imageData, _ := syntheticAttachmentData(t)
+	request, err := json.Marshal(map[string]any{"input": []any{
+		map[string]any{"type": "function_call_output", "call_id": "call_orphan", "output": []any{
+			map[string]any{"type": "input_image", "image_url": imageData},
+		}},
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	converted, err := RequestForEndpointFrom("openai-response", "exact-upstream-id", request, false, EndpointChatCompletions)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gjson.GetBytes(converted, "messages.0.role").String() != "tool" {
+		t.Fatalf("orphan tool result role = %s, want tool; request=%s", gjson.GetBytes(converted, "messages.0.role"), converted)
+	}
+	if gjson.GetBytes(converted, "messages.0.tool_call_id").String() != "call_orphan" {
+		t.Fatalf("orphan tool result call ID = %s, want call_orphan; request=%s", gjson.GetBytes(converted, "messages.0.tool_call_id"), converted)
+	}
+	convertedRoot, err := decodeObject(converted)
+	if err != nil {
+		t.Fatal(err)
+	}
+	attachments, err := requestAttachments(convertedRoot, sdktranslator.FormatOpenAI)
+	if err != nil || len(attachments) != 1 || attachments[0].data != imageData {
+		t.Fatalf("orphan tool result image changed: %s; error=%v", converted, err)
+	}
+}
+
+func TestOrphanToolResultsPreserveRequestOrderAndInstructions(t *testing.T) {
+	request := []byte(`{"instructions":"Keep each result attached to its original turn.","input":[{"type":"message","role":"user","content":"first"},{"type":"function_call_output","call_id":"call_orphan_a","output":"result a"},{"type":"message","role":"user","content":"second"},{"type":"custom_tool_call_output","call_id":"call_orphan_b","output":[{"type":"output_text","text":"result b"}]},{"type":"message","role":"user","content":"third"}]}`)
+	converted, err := RequestForEndpointFrom("openai-response", "exact-upstream-id", request, false, EndpointChatCompletions)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gjson.GetBytes(converted, "messages.0.role").String() != "system" {
+		t.Fatalf("Responses instructions were not translated: %s", converted)
+	}
+	if gjson.GetBytes(converted, "messages.0.content").String() != "Keep each result attached to its original turn." {
+		t.Fatalf("Responses instructions changed during translation: %s", converted)
+	}
+	wantRoles := []string{"user", "tool", "user", "tool", "user"}
+	wantCallIDs := []string{"", "call_orphan_a", "", "call_orphan_b", ""}
+	wantText := []string{"first", "result a", "second", "result b", "third"}
+	messages := gjson.GetBytes(converted, "messages").Array()
+	if len(messages) != len(wantRoles)+1 {
+		t.Fatalf("message count = %d, want %d: %s", len(messages), len(wantRoles)+1, converted)
+	}
+	for index, wantRole := range wantRoles {
+		message := messages[index+1]
+		if got := message.Get("role").String(); got != wantRole {
+			t.Fatalf("message %d role = %q, want %q: %s", index+1, got, wantRole, converted)
+		}
+		if got := message.Get("tool_call_id").String(); got != wantCallIDs[index] {
+			t.Fatalf("message %d tool_call_id = %q, want %q: %s", index+1, got, wantCallIDs[index], converted)
+		}
+		content := message.Get("content")
+		gotText := content.String()
+		if content.IsArray() {
+			gotText = content.Get("0.text").String()
+		}
+		if gotText != wantText[index] {
+			t.Fatalf("message %d content = %q, want %q: %s", index+1, gotText, wantText[index], converted)
+		}
+	}
+}
+
+func TestOrphanToolResultMarkerDoesNotCollideWithEscapedInput(t *testing.T) {
+	request := []byte(`{"input":[{"type":"message","role":"user","content":"\u0063pa_bridge_orphan_tool_1"},{"type":"function_call_output","call_id":"call_orphan","output":"result"}]}`)
+	converted, err := RequestForEndpointFrom("openai-response", "exact-upstream-id", request, false, EndpointChatCompletions)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := gjson.GetBytes(converted, "messages.0.content").String(); got != "cpa_bridge_orphan_tool_1" {
+		t.Fatalf("original user content = %q, want escaped marker text", got)
+	}
+	if got := gjson.GetBytes(converted, "messages.1.role").String(); got != "tool" {
+		t.Fatalf("orphan tool result role = %q, want tool", got)
+	}
+	if got := gjson.GetBytes(converted, "messages.1.tool_call_id").String(); got != "call_orphan" {
+		t.Fatalf("orphan tool result call ID = %q, want call_orphan", got)
 	}
 }

@@ -136,7 +136,7 @@ func (s *Service) Execute(ctx context.Context, req ExecuteRequest) (pluginapi.Ex
 	if errFinalize != nil {
 		return pluginapi.ExecutorResponse{}, errFinalize
 	}
-	resp, token, errDo := s.doModelRequest(ctx, req.HostCallbackID, req.AuthID, storage, token, endpoint, requestBody, false)
+	resp, token, errDo := s.doModelRequest(ctx, req.HostCallbackID, req.AuthID, storage, token, endpoint, requestBody, false, nativeResponseBeta(req, sourceFormat, endpoint)...)
 	if errDo != nil {
 		return pluginapi.ExecutorResponse{}, errDo
 	}
@@ -285,7 +285,7 @@ func (s *Service) ExecuteStream(ctx context.Context, req ExecuteRequest) (http.H
 	if errFinalize != nil {
 		return nil, errFinalize
 	}
-	upstream, token, errOpen := s.openModelStream(ctx, req.HostCallbackID, req.AuthID, storage, token, endpoint, requestBody)
+	upstream, token, errOpen := s.openModelStream(ctx, req.HostCallbackID, req.AuthID, storage, token, endpoint, requestBody, nativeResponseBeta(req, sourceFormat, endpoint)...)
 	if errOpen != nil {
 		return nil, errOpen
 	}
@@ -318,11 +318,11 @@ func (s *Service) pumpCompactionStream(ctx context.Context, outputID string, fra
 	}
 }
 
-func (s *Service) doModelRequest(ctx context.Context, callbackID, authID string, storage authStorage, token copilotTokenEntry, endpoint string, body []byte, stream bool) (transport.Response, copilotTokenEntry, error) {
+func (s *Service) doModelRequest(ctx context.Context, callbackID, authID string, storage authStorage, token copilotTokenEntry, endpoint string, body []byte, stream bool, nativeBeta ...string) (transport.Response, copilotTokenEntry, error) {
 	request := transport.Request{
 		Method:  http.MethodPost,
 		URL:     token.APIBaseURL + endpoint,
-		Headers: copilotRequestHeaders(token, stream),
+		Headers: copilotInferenceHeaders(token, stream, nativeBeta),
 		Body:    body,
 	}
 	resp, errDo := s.host.Do(ctx, callbackID, request)
@@ -342,7 +342,7 @@ func (s *Service) doModelRequest(ctx context.Context, callbackID, authID string,
 		}
 		token = refreshed
 		request.URL = token.APIBaseURL + endpoint
-		request.Headers = copilotRequestHeaders(token, stream)
+		request.Headers = copilotInferenceHeaders(token, stream, nativeBeta)
 		resp, errDo = s.host.Do(ctx, callbackID, request)
 		if errDo != nil {
 			return transport.Response{}, token, fmt.Errorf("call Copilot model endpoint after token refresh: %w", errDo)
@@ -354,11 +354,11 @@ func (s *Service) doModelRequest(ctx context.Context, callbackID, authID string,
 	return resp, token, nil
 }
 
-func (s *Service) openModelStream(ctx context.Context, callbackID, authID string, storage authStorage, token copilotTokenEntry, endpoint string, body []byte) (transport.Stream, copilotTokenEntry, error) {
+func (s *Service) openModelStream(ctx context.Context, callbackID, authID string, storage authStorage, token copilotTokenEntry, endpoint string, body []byte, nativeBeta ...string) (transport.Stream, copilotTokenEntry, error) {
 	request := transport.Request{
 		Method:  http.MethodPost,
 		URL:     token.APIBaseURL + endpoint,
-		Headers: copilotRequestHeaders(token, true),
+		Headers: copilotInferenceHeaders(token, true, nativeBeta),
 		Body:    body,
 	}
 	stream, errOpen := s.host.OpenStream(ctx, callbackID, request)
@@ -379,7 +379,7 @@ func (s *Service) openModelStream(ctx context.Context, callbackID, authID string
 		}
 		token = refreshed
 		request.URL = token.APIBaseURL + endpoint
-		request.Headers = copilotRequestHeaders(token, true)
+		request.Headers = copilotInferenceHeaders(token, true, nativeBeta)
 		stream, errOpen = s.host.OpenStream(ctx, callbackID, request)
 		if errOpen != nil {
 			return transport.Stream{}, token, fmt.Errorf("open Copilot model stream after token refresh: %w", errOpen)

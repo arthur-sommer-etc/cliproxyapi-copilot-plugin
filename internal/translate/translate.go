@@ -137,7 +137,11 @@ func requestFromResponsesToChat(model string, body []byte, stream bool) ([]byte,
 	if err := rejectOpaqueReasoningRequest(sdktranslator.FormatOpenAIResponse, sdktranslator.FormatOpenAI, body); err != nil {
 		return nil, err
 	}
-	carriedBody, err := responsesRequestToChatToolIDs(body)
+	carriedBody, orphaned, err := prepareOrphanResponsesToolOutputs(body)
+	if err != nil {
+		return nil, err
+	}
+	carriedBody, err = responsesRequestToChatToolIDs(carriedBody)
 	if err != nil {
 		return nil, err
 	}
@@ -150,6 +154,10 @@ func requestFromResponsesToChat(model string, body []byte, stream bool) ([]byte,
 		return nil, err
 	}
 	out, err = restoreChatAttachmentFiles(out, files)
+	if err != nil {
+		return nil, err
+	}
+	out, err = restoreOrphanResponsesToolOutputs(out, orphaned)
 	if err != nil {
 		return nil, err
 	}

@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/translate"
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/transport"
@@ -14,10 +16,11 @@ import (
 
 type chatRequestParityHost struct {
 	*compactionStreamHost
-	responseBody []byte
-	doCount      int
-	openCount    int
-	requests     [][]byte
+	responseBody  []byte
+	doCount       int
+	openCount     int
+	requests      [][]byte
+	modelRequests []transport.Request
 }
 
 func (h *chatRequestParityHost) Do(ctx context.Context, callback string, request transport.Request) (transport.Response, error) {
@@ -26,12 +29,61 @@ func (h *chatRequestParityHost) Do(ctx context.Context, callback string, request
 	}
 	h.doCount++
 	h.requests = append(h.requests, append([]byte(nil), request.Body...))
+	request.Body = append([]byte(nil), request.Body...)
+	request.Headers = request.Headers.Clone()
+	h.modelRequests = append(h.modelRequests, request)
 	return transport.Response{StatusCode: http.StatusOK, Headers: http.Header{"Content-Type": []string{"application/json"}}, Body: append([]byte(nil), h.responseBody...)}, nil
+}
+
+func TestExecutorForwardsBetaHeadersOnlyOnUnchangedNativeResponses(t *testing.T) {
+	for _, streaming := range []bool{false, true} {
+		t.Run(fmt.Sprintf("stream=%t", streaming), func(t *testing.T) {
+			payload := []byte(`{"model":"gpt-5.6-sol","input":"inspect"}`)
+			service, host := newChatRequestParityService(t, translate.EndpointResponses, []byte(`{"id":"resp_beta","object":"response","status":"completed","output":[]}`))
+			host.allowStream = streaming
+			inbound := http.Header{
+				"Openai-Beta":   {"responses=beta", "responses-websocket=beta"},
+				"Authorization": {"Bearer client-token"},
+				"Cookie":        {"synthetic-cookie"},
+			}
+			before := inbound.Clone()
+			request := compactionStreamRequest(payload, "")
+			request.Headers = inbound
+			if streaming {
+				if _, err := service.ExecuteStream(context.Background(), request); err != nil {
+					t.Fatalf("execute native Responses stream: %v", err)
+				}
+				select {
+				case <-host.closed:
+				case <-time.After(10 * time.Second):
+					t.Fatal("native Responses stream did not close")
+				}
+			} else if _, err := service.Execute(context.Background(), request); err != nil {
+				t.Fatalf("execute native Responses request: %v", err)
+			}
+			if len(host.modelRequests) != 1 {
+				t.Fatalf("model request count = %d, want 1", len(host.modelRequests))
+			}
+			outbound := host.modelRequests[0].Headers
+			if got, want := outbound.Values("OpenAI-Beta"), []string{"responses=beta", "responses-websocket=beta"}; !reflect.DeepEqual(got, want) {
+				t.Fatalf("outbound beta flags = %#v, want %#v", got, want)
+			}
+			if outbound.Get("Authorization") == "Bearer client-token" || len(outbound.Values("Cookie")) != 0 {
+				t.Fatal("client authorization or cookie was forwarded to Copilot")
+			}
+			if !reflect.DeepEqual(inbound, before) {
+				t.Fatal("inbound request headers were mutated")
+			}
+		})
+	}
 }
 
 func (h *chatRequestParityHost) OpenStream(_ context.Context, _ string, request transport.Request) (transport.Stream, error) {
 	h.openCount++
 	h.requests = append(h.requests, append([]byte(nil), request.Body...))
+	request.Body = append([]byte(nil), request.Body...)
+	request.Headers = request.Headers.Clone()
+	h.modelRequests = append(h.modelRequests, request)
 	return transport.Stream{ID: fmt.Sprintf("chat-parity-%d", h.openCount), StatusCode: http.StatusOK}, nil
 }
 

@@ -106,8 +106,11 @@ func TestResponsesRequestPreflightKeepsSupportedToolOutputImages(t *testing.T) {
 	if err != nil {
 		t.Fatalf("translate supported Chat tool output image: %v", err)
 	}
-	if !gjson.GetBytes(chat, `messages.#(role==user).content.#(type==image_url)`).Exists() {
+	if !gjson.GetBytes(chat, `messages.#(role==tool).content.#(type==image_url)`).Exists() {
 		t.Fatalf("Chat tool output image was not preserved: %s", chat)
+	}
+	if gjson.GetBytes(chat, "messages.#(role==tool).tool_call_id").String() != "call_1" {
+		t.Fatalf("Chat tool output call ID was not preserved: %s", chat)
 	}
 	claudeBody := []byte(`{"input":[{"type":"function_call_output","call_id":"call_1","output":[{"type":"input_text","text":"result"},{"type":"input_image","image_url":"data:image/png;base64,YWJj"}]}]}`)
 	claude, err := RequestForEndpointFrom("openai-response", "gpt-test", claudeBody, false, EndpointMessages)
