@@ -4,54 +4,45 @@ This repository implements a Go plugin for CLIProxyAPI.
 The root pnpm package owns contributor automation, not runtime provider code.
 There is no maintained frontend, React application, or Gradle project.
 
-## Development Lifecycle
+## Contributor Tooling
 
-Read the affected source, tests, and documented ABI before editing.
-Stop discovery when evidence supports the smallest complete implementation.
-Preserve the host callback boundary and host-owned credential storage.
-Use existing translators and native tooling before adding another implementation or dependency.
-Migrate callers and remove superseded interfaces in the same change.
-Reproduce defects through observable behavior, then fix their cause.
-Sequence coupled changes into units with explicit acceptance evidence.
-Verify each unit before depending on it.
-Reuse passing evidence only while relevant behavior, inputs, configuration, and toolchains remain unchanged.
+Keep Node dependency ranges in the `pnpm-workspace.yaml` catalog as `^x.y.z` and reference them with `catalog:` in `package.json`.
+Keep the pnpm version in `packageManager` without a version-plus-hash pin.
+Preserve lockfile integrity fields and compatible Go module and toolchain versions.
+Prefer supported LTS runtimes and compatible stable tools where no LTS line exists.
 
 Run `pnpm install --frozen-lockfile` to install tooling and Git hooks.
+Keep the `prepare` script running `husky` and the real hooks running `pnpm run pre-commit` and `pnpm run pre-push`.
 Run `pnpm run check` before handoff.
 Run `pnpm run fix` for Go formatting and Markdown fixes, then inspect the diff and rerun checks.
 Preserve `make test` as the Go test owner and `make package` as the production package owner.
-Verify changed hook behavior through actual commits and pushes in disposable repositories.
-Test failure propagation as well as successful execution.
-Do not weaken checks or bypass hooks to publish failing changes.
+Verify hook changes through successful and rejected commits and pushes in disposable repositories.
+Ultracite is the only caller of `oxlint` and `oxfmt` when Node source linting or formatting applies.
 
-Review the complete candidate diff and its callers before integration.
-Report actual checks, valid reused evidence, and unrun acceptance separately.
-Automated tests do not prove live provider, installed-host, or deployed-service behavior.
-Remove task-owned temporary resources after recording evidence.
-Preserve resources needed for recovery or continued work.
+Public CI runs on pull requests, manual dispatch and tag pushes.
+Keep release publication restricted to release tags.
+Keep Markdownlint configuration keys sorted, with `line-length: false`, compact `table-column-style` and `gitignore: true`.
+Add an explicit Markdown ignore only for a concrete file Git ignore cannot cover.
 
-## Safety And Style
+## Source And Documentation
 
-Keep credentials, callback URLs, local paths, and private environment details out of tracked content.
-Use isolated checkouts for development involving deployment instructions.
-Do not change running deployments or their configuration, plugins, or authentication assets during contributor-tooling work.
-Keep references read-only.
-Prefer officially supported LTS runtimes and compatible stable tools where no LTS line exists.
-Retain compatible Go module, toolchain, ABI, and production image pins.
-Prefer condition inversion, explicit loop termination, and flat `if` / `else if` / `else` chains for eligible early exits.
-Preserve evaluation order, side effects, cost, cancellation, cleanup, and admission checks.
-Keep natural final returns and required failure propagation.
-Do not add deeper nesting, artificial flags, or lint suppressions to remove an exit.
-Project lint rules and formatter output take precedence over the preferred control-flow form.
-Write each complete documentation sentence on its own source line.
-Do not join sentences with semicolons or em dashes.
-Use compact Markdown tables and sorted configuration object keys.
-Use `gitignore: true` for Markdown lint exclusions and add an explicit ignore only for a concrete file that Git ignore cannot cover.
-Write actionable errors and recovery instructions for exposed interfaces.
+Assert error identity, type or structured fields in tests rather than exact human-readable prose.
+At string-only host callbacks, assert terminal success or failure and structured callback arguments and ordering.
+Add documentation comments only, preserving required language directives and license notices.
+Treat condition inversion and flat `if` / `else if` / `else` chains as guidance for trivially equivalent local changes.
+Lint rules and formatter output take precedence.
+Keep required error, cancellation, overflow and admission exits, preserving evaluation order, side effects, cost and cleanup.
+Avoid broad exit sweeps, deeper nesting, artificial flags and lint suppressions.
+Write one complete documentation sentence per line without semicolon joins or em dashes.
+
+## Plugin Lifecycle
+
+Preserve the host callback ABI, host-owned credential storage and existing translators.
+Verify real callback outcomes and cleanup order through the existing fixtures before depending on a change.
+Source and fixture checks do not establish live provider, installed-host or deployed-service acceptance.
+Keep broader provider and original-client acceptance tracked separately from contributor tooling.
 
 ## Reference Basis
 
 The lifecycle rules adapt [pstack](https://github.com/cursor/plugins/tree/main/pstack/skills) principles for proof, sequencing, and root causes.
 They align with the [Sinon Harness](https://github.com/ririnto/sinon/tree/main/plugins/harness) engineering and tooling baseline.
-The [web interface guidelines](https://github.com/vercel-labs/web-interface-guidelines) inform actionable feedback where applicable.
-React, Radix, Storybook, and frontend lint guidance apply only when a maintained frontend exists.
