@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 )
 
@@ -196,7 +197,7 @@ func responsesResponseToClaude(model string, body []byte) ([]byte, error) {
 				}
 				switch stringValue(part["type"]) {
 				case "output_text", "text", "refusal":
-					content = append(content, map[string]any{"type": "text", "text": firstString(part, "text", "refusal")})
+					content = append(content, map[string]any{"type": "text", "text": firstRawString(part, "text", "refusal")})
 				}
 			}
 		case "reasoning":
@@ -219,8 +220,8 @@ func responsesResponseToClaude(model string, body []byte) ([]byte, error) {
 			var input map[string]any
 			if strings.TrimSpace(arguments) == "" {
 				input = map[string]any{}
-			} else if errArguments := json.Unmarshal([]byte(arguments), &input); errArguments != nil {
-				return nil, fmt.Errorf("decode Responses tool arguments: %w", errArguments)
+			} else if input, err = decodeObject([]byte(arguments)); err != nil {
+				return nil, fmt.Errorf("decode Responses tool arguments: %w", err)
 			}
 			content = append(content, map[string]any{
 				"type":  "tool_use",
@@ -384,7 +385,7 @@ func responsesReasoningText(item map[string]any) string {
 			case string:
 				builder.WriteString(part)
 			case map[string]any:
-				builder.WriteString(stringValue(part["text"]))
+				builder.WriteString(rawStringValue(part["text"]))
 			}
 		}
 		if builder.Len() > 0 {
@@ -428,6 +429,13 @@ func decodeObject(raw []byte) (map[string]any, error) {
 	}
 	if out == nil {
 		return nil, fmt.Errorf("expected a JSON object")
+	}
+	var extra any
+	if err := decoder.Decode(&extra); err != io.EOF {
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("expected a single JSON object")
 	}
 	return out, nil
 }

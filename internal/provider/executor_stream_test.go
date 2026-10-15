@@ -111,7 +111,7 @@ func TestPumpStreamTerminationAndCleanup(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			host := &scriptedStreamHost{chunks: test.chunks, readError: test.readError, emitError: test.emitError}
 			service := &Service{host: host}
-			service.pumpStream("output", translate.EndpointResponses, "openai-response", "test-model", nil, nil, transport.Stream{ID: "upstream"})
+			service.pumpStream("output", translate.EndpointResponses, "openai-response", "test-model", nil, nil, transport.Stream{ID: "upstream"}, nil)
 			if !reflect.DeepEqual(host.calls, test.wantCalls) {
 				t.Errorf("calls = %v, want %v", host.calls, test.wantCalls)
 			}
