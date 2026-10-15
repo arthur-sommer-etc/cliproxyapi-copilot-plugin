@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"image/png"
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -95,6 +96,104 @@ func TestCapturedNativeAttachmentSafetyIdentifierSanitization(t *testing.T) {
 			inspect(events)
 			if strings.HasPrefix(capture.Name, "gpt-") && count != 4 {
 				t.Fatal("the captured GPT safety identifier equality relationships changed")
+			}
+		})
+	}
+}
+
+func TestCapturedNativeAttachmentReasoningTextIsSanitized(t *testing.T) {
+	const placeholder = "SANITIZED_REASONING_TEXT"
+	body := readLiveBodyFixture(t, "native-attachment-captures/gemini-pdf", "response.sse")
+	events, _ := liveBodySSEEvents(t, body)
+	var reasoning []string
+	var inspect func(any)
+	inspect = func(value any) {
+		switch value := value.(type) {
+		case map[string]any:
+			for key, child := range value {
+				if key == "reasoning_text" {
+					text, ok := child.(string)
+					if !ok {
+						t.Fatal("sanitized reasoning text changed JSON type")
+					}
+					reasoning = append(reasoning, text)
+				}
+				inspect(child)
+			}
+		case []any:
+			for _, child := range value {
+				inspect(child)
+			}
+		}
+	}
+	inspect(events)
+	if len(reasoning) != 20 || reasoning[0] != placeholder {
+		t.Fatal("captured reasoning text is not replaced by the first-delta placeholder")
+	}
+	for _, text := range reasoning[1:] {
+		if text != "" {
+			t.Fatal("captured reasoning text remains in a later delta")
+		}
+	}
+	derived, err := decodeObject(readLiveBodyFixture(t, "native-attachment-captures/gemini-pdf", "derived-response.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	choices := arrayValue(derived["choices"])
+	if len(choices) != 1 || stringValue(objectValue(objectValue(choices[0])["message"])["reasoning_text"]) != placeholder {
+		t.Fatal("derived response reasoning text does not use the sanitized placeholder")
+	}
+}
+
+func TestCapturedNativeResponsesItemIDsRemainCorrelated(t *testing.T) {
+	for _, name := range []string{"gpt-pdf", "gpt-png"} {
+		t.Run(name, func(t *testing.T) {
+			folder := "native-attachment-captures/" + name
+			events, _ := liveBodySSEEvents(t, readLiveBodyFixture(t, folder, "response.sse"))
+			itemIDs := make(map[int]string)
+			for _, rawEvent := range events {
+				event := objectValue(rawEvent)
+				if stringValue(event["type"]) != "response.output_item.added" {
+					continue
+				}
+				index, err := strconv.Atoi(numberKey(event["output_index"]))
+				id := stringValue(objectValue(event["item"])["id"])
+				if err != nil || id == "" || itemIDs[index] != "" {
+					t.Fatal("captured output item IDs or indexes are ambiguous")
+				}
+				itemIDs[index] = id
+			}
+			for _, rawEvent := range events {
+				event := objectValue(rawEvent)
+				index, err := strconv.Atoi(numberKey(event["output_index"]))
+				if err != nil {
+					continue
+				}
+				id := itemIDs[index]
+				if id == "" {
+					t.Fatal("captured output event has no matching added item")
+				}
+				if itemID, exists := event["item_id"]; exists {
+					if stringValue(itemID) != id {
+						t.Fatal("captured output item reference changed its ID")
+					}
+				}
+				if stringValue(event["type"]) == "response.output_item.done" && stringValue(objectValue(event["item"])["id"]) != id {
+					t.Fatal("captured completed output item changed its ID")
+				}
+			}
+			derived, err := decodeObject(readLiveBodyFixture(t, folder, "derived-response.json"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			output := arrayValue(derived["output"])
+			if len(output) != len(itemIDs) {
+				t.Fatal("captured response snapshot changed its output item count")
+			}
+			for index, rawItem := range output {
+				if stringValue(objectValue(rawItem)["id"]) != itemIDs[index] {
+					t.Fatal("captured response snapshot changed an output item ID")
+				}
 			}
 		})
 	}

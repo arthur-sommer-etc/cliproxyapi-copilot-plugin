@@ -151,6 +151,8 @@ CLIProxyAPI stores the plugin's GitHub OAuth credential there.
 
 Review [GitHub's supported Copilot models](https://github.com/github/docs/blob/main/content/copilot/reference/ai-models/supported-models.md) when updating this filter.
 When migrating an older plugin configuration, move any `excluded_model_prefixes` entries to this host setting because the plugin rejects the retired key.
+Merge this `excluded-models` block under the existing top-level `oauth` key.
+Do not add a second `oauth` key when that section already exists.
 The v8 OAuth filter excludes selected older Copilot model IDs by family and exact name.
 It affects Copilot only.
 Matching IDs from other provider catalogs remain available.
@@ -159,18 +161,19 @@ Configured `model_endpoint_overrides` can also register their IDs when they are 
 Known models with a non-enabled Copilot policy remain excluded; upstream availability and capabilities are unverified for override-only IDs.
 
 ```yaml
-excluded-models:
-  copilot:
-    - "gpt-5*"
-    - "gpt-6-sol"
-    - "claude-fable-5"
-    - "claude-sonnet-4*"
-    - "claude-sonnet-5"
-    - "claude-opus-4*"
-    - "claude-opus-5"
-    - "gemini-3.7-flash"
-    - "grok-4.5"
-    - "grok-4.6"
+oauth:
+  excluded-models:
+    copilot:
+      - "gpt-5*"
+      - "gpt-6-sol"
+      - "claude-fable-5"
+      - "claude-sonnet-4*"
+      - "claude-sonnet-5"
+      - "claude-opus-4*"
+      - "claude-opus-5"
+      - "gemini-3.7-flash"
+      - "grok-4.5"
+      - "grok-4.6"
 ```
 
 The exact Claude exclusions do not filter `claude-opus-5.5` or `claude-sonnet-5.5`.

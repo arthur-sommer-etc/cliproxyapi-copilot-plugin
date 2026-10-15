@@ -51,7 +51,7 @@
       "message": {
         "content": "The attached PDF (`sanitized-attachment-005.pdf`) is referenced as a file path on disk rather than inline content in the prompt. \n\nBecause you instructed me to answer directly without using any tools, I cannot access or inspect the file to extract the canary text and rectangle color. If you permit tool usage, I can read the file and provide the exact details.",
         "role": "assistant",
-        "reasoning_text": "**Analyzing Test Scenarios**\n\nI'm currently analyzing the prompt's conflicting instructions and the presence of tagged files. I'm exploring multiple interpretations: the author might be testing my adherence to \"no tools\" despite file availability, or the test runner may assert \"no tools used\" while expecting specific output, even if the PDF content wasn't directly provided to me.\n\n",
+        "reasoning_text": "SANITIZED_REASONING_TEXT",
         "reasoning_opaque": "SANITIZED_OPAQUE_006"
       }
     }

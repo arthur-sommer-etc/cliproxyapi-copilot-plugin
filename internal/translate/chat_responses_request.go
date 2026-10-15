@@ -42,6 +42,10 @@ func chatRequestToResponses(model string, body []byte, stream bool) ([]byte, err
 	if err != nil {
 		return nil, err
 	}
+	responses, err = restoreChatTemperatureToResponses(responses, body)
+	if err != nil {
+		return nil, err
+	}
 	if key := gjson.GetBytes(body, "prompt_cache_key"); key.Exists() {
 		responses, err = sjson.SetRawBytes(responses, "prompt_cache_key", []byte(key.Raw))
 		if err != nil {
@@ -932,6 +936,21 @@ func restoreChatTemperatureToMessages(messages, chat []byte) ([]byte, error) {
 	updated, err := sjson.SetRawBytes(messages, "temperature", []byte(temperature.Raw))
 	if err != nil {
 		return nil, fmt.Errorf("preserve Chat temperature for Messages")
+	}
+	return updated, nil
+}
+
+func restoreChatTemperatureToResponses(responses, chat []byte) ([]byte, error) {
+	temperature, err := validateChatTemperature(chat, 2)
+	if err != nil {
+		return nil, err
+	}
+	if !temperature.Exists() {
+		return responses, nil
+	}
+	updated, err := sjson.SetRawBytes(responses, "temperature", []byte(temperature.Raw))
+	if err != nil {
+		return nil, fmt.Errorf("preserve Chat temperature for Responses")
 	}
 	return updated, nil
 }

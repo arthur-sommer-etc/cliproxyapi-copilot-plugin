@@ -489,12 +489,12 @@
   ],
   "prompt_cache_key": "cached-search-capture-fixture",
   "client_metadata": {
-    "x-codex-turn-metadata": "{\"installation_id\":\"00000000-0000-4000-8000-000000000007\",\"session_id\":\"00000000-0000-4000-8000-000000000001\",\"thread_id\":\"00000000-0000-4000-8000-000000000001\",\"agent_name\":\"fixture-agent\",\"turn_id\":\"00000000-0000-4000-8000-000000000003\",\"window_id\":\"00000000-0000-4000-8000-000000000001:0\",\"window_number\":0,\"context_window_id\":\"00000000-0000-4000-8000-000000000002\",\"request_kind\":\"turn\",\"root_turn_id\":\"00000000-0000-4000-8000-000000000003\",\"thread_source\":\"user\",\"turn_trigger\":\"exec\",\"sandbox\":\"seatbelt\",\"sandbox_mode\":\"workspace-write\",\"auto_review_enabled\":false,\"node_repl_auto_review_required\":false,\"node_repl_disabled\":false,\"turn_started_at_unix_ms\":1791596377427,\"analytics_enabled\":true,\"model\":\"claude-haiku-5.5\",\"reasoning_effort\":\"medium\"}",
-    "x-codex-installation-id": "00000000-0000-4000-8000-000000000007",
-    "session_id": "00000000-0000-4000-8000-000000000001",
-    "thread_id": "00000000-0000-4000-8000-000000000001",
-    "x-codex-window-id": "00000000-0000-4000-8000-000000000001:0",
-    "turn_id": "00000000-0000-4000-8000-000000000003",
-    "root_turn_id": "00000000-0000-4000-8000-000000000003"
+    "x-codex-turn-metadata": "{\"installation_id\":\"fixture-installation-1\",\"session_id\":\"fixture-session-1\",\"thread_id\":\"fixture-thread-1\",\"agent_name\":\"fixture-agent\",\"turn_id\":\"fixture-turn-1\",\"window_id\":\"fixture-window-1\",\"window_number\":0,\"context_window_id\":\"fixture-context-window-1\",\"request_kind\":\"turn\",\"root_turn_id\":\"fixture-root-turn-1\",\"thread_source\":\"user\",\"turn_trigger\":\"exec\",\"sandbox\":\"seatbelt\",\"sandbox_mode\":\"workspace-write\",\"auto_review_enabled\":false,\"node_repl_auto_review_required\":false,\"node_repl_disabled\":false,\"turn_started_at_unix_ms\":1791596377427,\"analytics_enabled\":true,\"model\":\"claude-haiku-5.5\",\"reasoning_effort\":\"medium\"}",
+    "x-codex-installation-id": "fixture-installation-1",
+    "session_id": "fixture-session-1",
+    "thread_id": "fixture-thread-1",
+    "x-codex-window-id": "fixture-window-1:0",
+    "turn_id": "fixture-turn-1",
+    "root_turn_id": "fixture-root-turn-1"
   }
 }

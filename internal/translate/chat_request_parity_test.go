@@ -309,6 +309,24 @@ func TestChatMessagesRejectsInvalidExplicitTemperature(t *testing.T) {
 	}
 }
 
+func TestChatToResponsesPreservesTemperatureForBothStreamModes(t *testing.T) {
+	for _, stream := range []bool{false, true} {
+		for _, temperature := range []string{"0", "0.75"} {
+			t.Run(fmt.Sprintf("stream=%t/temperature=%s", stream, temperature), func(t *testing.T) {
+				request := []byte(`{"temperature":` + temperature + `,"messages":[{"role":"user","content":"hello"}]}`)
+				translated, err := RequestForEndpointFrom("openai", "gpt-6-luna", request, stream, EndpointResponses)
+				if err != nil {
+					t.Fatalf("translate Chat request to Responses: %v", err)
+				}
+				actual := gjson.GetBytes(translated, "temperature")
+				if actual.Type != gjson.Number || actual.Raw != temperature {
+					t.Fatalf("temperature = %s, want %s; request=%s", actual.Raw, temperature, translated)
+				}
+			})
+		}
+	}
+}
+
 func TestChatResponsesRejectsUnsupportedResponseFormats(t *testing.T) {
 	for _, raw := range []string{
 		`{"type":"grammar","grammar":"x"}`,
