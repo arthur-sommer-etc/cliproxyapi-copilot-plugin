@@ -38,7 +38,7 @@ func TestStreamTerminalRequiresSourceSuccessEvent(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			var terminal streamTerminal
-			done, err := terminal.observe(test.endpoint, []byte(test.frame), "secret-copilot", "ghp_123456789012345678901234")
+			done, err := terminal.observe(test.endpoint, []byte(test.frame), "secret-copilot", "fixture-github-token-not-real")
 			if (err != nil) != test.wantError {
 				t.Fatalf("observe error = %v, wantError=%v", err, test.wantError)
 			}
