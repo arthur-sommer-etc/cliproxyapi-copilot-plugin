@@ -78,7 +78,7 @@ func TestAttachmentToolTerminalAtOriginalClientHTTPBoundary(t *testing.T) {
 					t.Fatal("tool terminal lost readiness or completion/carrier observations")
 				}
 				if fixture.client == "codex" {
-					call := liveAttachmentOriginalResponsesToolCalls(captures)["call-render"]
+					call := liveAttachmentOriginalToolCalls(captures)["call-render"]
 					if call.ItemID != "fc_call-render" || call.CallID != "call-render" || call.Name != "exec_command" || call.Arguments["cmd"] != "printf CPA_CONTINUATION_OK" {
 						t.Fatal("original-format Responses carrier identity or arguments were lost")
 					}
@@ -94,8 +94,8 @@ func TestAttachmentHaikuPDFRendererAdmissionAtPublicHTTPBoundary(t *testing.T) {
 	var dispatched atomic.Int32
 	peer := httptest.NewTLSServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		dispatched.Add(1)
-		writer.Header().Set("Content-Type", "application/json")
-		_, _ = io.WriteString(writer, `{"type":"message","role":"assistant","model":"claude-haiku-5.5","stop_reason":"tool_use","usage":{"input_tokens":12,"output_tokens":5},"content":[{"type":"tool_use","id":"call-view","name":"view_image","input":{"path":"page-1.png"}}]}`)
+		writer.Header().Set("Content-Type", "text/event-stream")
+		_, _ = io.WriteString(writer, "data: {\"id\":\"chat-render\",\"object\":\"chat.completion.chunk\",\"model\":\"claude-haiku-5.5\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"id\":\"call-view\",\"type\":\"function\",\"function\":{\"name\":\"view_image\",\"arguments\":\"{\\\"path\\\":\\\"page-1.png\\\"}\"}}]},\"finish_reason\":\"tool_calls\"}],\"usage\":{\"prompt_tokens\":12,\"completion_tokens\":5,\"total_tokens\":17}}\n\ndata: [DONE]\n\n")
 	}))
 	defer peer.Close()
 	gate := newLiveServerToolGate(t, t.TempDir())
@@ -113,30 +113,34 @@ func TestAttachmentHaikuPDFRendererAdmissionAtPublicHTTPBoundary(t *testing.T) {
 		t.Fatal(err)
 	}
 	gate.setAttachmentFixture("X-fixture/"+candidate.cell, candidate.fixture)
-	result := map[string]any{"type": "tool_result", "tool_use_id": "call-render", "content": "Chunk ID: fixture\nWall time: 1 seconds\nProcess exited with code 0\nOutput:\npage-1.png\n"}
+	result := map[string]any{"role": "tool", "tool_call_id": "call-render", "content": "Chunk ID: fixture\nWall time: 1 seconds\nProcess exited with code 0\nOutput:\npage-1.png\n"}
+	arguments, err := json.Marshal(map[string]any{"cmd": "pdftoppm -png " + candidate.fixture + " page && ls"})
+	if err != nil {
+		t.Fatal(err)
+	}
 	request := map[string]any{
-		"model": candidate.model, "stream": true, "output_config": map[string]any{"effort": "medium"},
+		"model": candidate.model, "stream": true, "reasoning_effort": "medium",
 		"messages": []any{
 			map[string]any{"role": "user", "content": "<cwd>" + filepath.Dir(candidate.fixture) + "</cwd>\n" + liveAttachmentPrompt(candidate)},
-			map[string]any{"role": "assistant", "content": []any{map[string]any{"type": "tool_use", "id": "call-render", "name": "exec_command", "input": map[string]any{"cmd": "pdftoppm -png " + candidate.fixture + " page && ls"}}}},
-			map[string]any{"role": "user", "content": []any{result}},
+			map[string]any{"role": "assistant", "tool_calls": []any{map[string]any{"id": "call-render", "type": "function", "function": map[string]any{"name": "exec_command", "arguments": string(arguments)}}}},
+			result,
 		},
-		"tools": []any{map[string]any{"name": "exec_command"}, map[string]any{"name": "view_image"}},
+		"tools": []any{map[string]any{"type": "function", "function": map[string]any{"name": "exec_command"}}, map[string]any{"type": "function", "function": map[string]any{"name": "view_image"}}},
 	}
 	client := &http.Client{Timeout: 3 * time.Second, Transport: &http.Transport{Proxy: nil}}
 	defer client.CloseIdleConnections()
 	for turn, status := range []int{http.StatusOK, http.StatusBadRequest, http.StatusTooManyRequests} {
 		if turn == 1 {
-			result["tool_use_id"] = "foreign-call"
+			result["tool_call_id"] = "foreign-call"
 		}
 		if turn == 2 {
-			result["tool_use_id"] = "call-render"
+			result["tool_call_id"] = "call-render"
 		}
 		body, err := json.Marshal(request)
 		if err != nil {
 			t.Fatal(err)
 		}
-		response, err := client.Post(gate.server.URL+"/v1/messages", "application/json", strings.NewReader(string(body)))
+		response, err := client.Post(gate.server.URL+"/chat/completions", "application/json", strings.NewReader(string(body)))
 		if err != nil {
 			t.Fatal(err)
 		}

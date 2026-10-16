@@ -106,6 +106,7 @@ func (s *Service) Execute(ctx context.Context, req ExecuteRequest) (pluginapi.Ex
 	if endpoint == translate.EndpointResponses {
 		if sourceFormat == "claude" {
 			requestBody = s.restoreReasoningReplay(scopeKey, req.OriginalRequest, requestBody)
+			requestBody = s.restoreNativeResponsesReplay(scopeKey, requestBody)
 		} else if sourceFormat == "openai-response" {
 			requestBody = s.restoreNativeResponsesReplay(scopeKey, requestBody)
 		}
@@ -266,6 +267,7 @@ func (s *Service) ExecuteStream(ctx context.Context, req ExecuteRequest) (http.H
 	if endpoint == translate.EndpointResponses {
 		if sourceFormat == "claude" {
 			requestBody = s.restoreReasoningReplay(scopeKey, req.OriginalRequest, requestBody)
+			requestBody = s.restoreNativeResponsesReplay(scopeKey, requestBody)
 		} else if sourceFormat == "openai-response" {
 			requestBody = s.restoreNativeResponsesReplay(scopeKey, requestBody)
 		}

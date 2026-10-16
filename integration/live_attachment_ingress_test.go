@@ -828,7 +828,7 @@ func TestAttachmentIngressCleanEOFRequiresCompleteResponsesTerminal(t *testing.T
 			if capture.StreamTerminalComplete != test.wantCompleted || capture.StreamOutcome != map[bool]string{true: "clean_eof", false: "unconfirmed_stream_failure"}[test.wantCompleted] {
 				t.Fatalf("terminal complete=%t outcome=%q, want complete=%t", capture.StreamTerminalComplete, capture.StreamOutcome, test.wantCompleted)
 			}
-			calls := liveAttachmentOriginalResponsesToolCalls([]liveAttachmentIngressCapture{capture})
+			calls := liveAttachmentOriginalToolCalls([]liveAttachmentIngressCapture{capture})
 			if (len(calls) == 1) != test.wantCompleted {
 				t.Fatalf("original Responses tool call evidence count=%d, want completed=%t", len(calls), test.wantCompleted)
 			}

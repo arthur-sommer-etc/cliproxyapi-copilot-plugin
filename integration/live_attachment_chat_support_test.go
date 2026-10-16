@@ -71,27 +71,37 @@ type liveChatToolCallBuilder struct {
 	arguments strings.Builder
 }
 
-func liveAttachmentOriginalResponsesToolCalls(captures []liveAttachmentIngressCapture) map[string]liveAttachmentCapturedToolCall {
+func liveAttachmentOriginalToolCalls(captures []liveAttachmentIngressCapture) map[string]liveAttachmentCapturedToolCall {
 	calls := make(map[string]liveAttachmentCapturedToolCall)
 	for _, capture := range captures {
 		requestURL, err := url.Parse(capture.Request.URL)
-		if err != nil || requestURL.Path != "/v1/responses" || !capture.Dispatched || !capture.BodyComplete || !capture.StreamTerminalComplete || capture.CaptureTruncated || capture.Response.Status < 200 || capture.Response.Status >= 300 {
+		if err != nil || requestURL.Path != "/v1/responses" && requestURL.Path != "/v1/messages" || !capture.Dispatched || !capture.BodyComplete || !capture.StreamTerminalComplete || capture.CaptureTruncated || capture.Response.Status < 200 || capture.Response.Status >= 300 {
 			continue
 		}
 		for _, event := range attachmentStreamObjects(capture.Response.Body) {
-			if event["type"] != "response.output_item.done" {
+			if event["type"] != "response.output_item.done" && event["type"] != "assembled_tool_use" {
 				continue
 			}
 			item, ok := event["item"].(map[string]any)
-			if !ok || item["type"] != "function_call" {
+			if !ok || item["type"] != "function_call" && item["type"] != "tool_use" {
 				continue
 			}
 			itemID := attachmentString(item, "id")
 			callID := attachmentString(item, "call_id")
 			name := attachmentString(item, "name")
-			argumentsText := attachmentString(item, "arguments")
 			var arguments map[string]any
-			if itemID == "" || callID == "" || name == "" || argumentsText == "" || json.Unmarshal([]byte(argumentsText), &arguments) != nil || arguments == nil {
+			if item["type"] == "tool_use" {
+				arguments, _ = item["input"].(map[string]any)
+				var encoded bool
+				itemID, callID, encoded = translate.DecodeClaudeToolIDs(itemID)
+				if !encoded {
+					callID = attachmentString(item, "id")
+					itemID = "fc_" + callID
+				}
+			} else if json.Unmarshal([]byte(attachmentString(item, "arguments")), &arguments) != nil {
+				return nil
+			}
+			if itemID == "" || callID == "" || name == "" || arguments == nil {
 				return nil
 			}
 			call := liveAttachmentCapturedToolCall{ItemID: itemID, CallID: callID, Name: name, Arguments: arguments}
@@ -363,7 +373,7 @@ func liveAttachmentChatRequest(body []byte, candidate liveAttachmentCase) (liveA
 }
 
 func liveAttachmentChatPDFPreparation(request map[string]any, evidence liveAttachmentChatRequestEvidence, candidate liveAttachmentCase) bool {
-	if candidate.model != "gemini-3.8-flash" || len(evidence.Images) != 0 || !filepath.IsAbs(candidate.fixture) {
+	if candidate.model != "gemini-3.8-flash" && candidate.model != "claude-haiku-5.5" || len(evidence.Images) != 0 || !filepath.IsAbs(candidate.fixture) {
 		return false
 	}
 	tools, _ := request["tools"].([]any)
@@ -1247,7 +1257,7 @@ func TestLiveChatAttachmentResponseCaptureRequiresCompleteNativeTerminal(t *test
 	}
 }
 
-func TestLiveChatAttachmentCapturedCodexPDFMessagesBootstrapIsContextual(t *testing.T) {
+func TestAttachmentHistoricalPDFMessagesBootstrapCannotEnableMixedRoute(t *testing.T) {
 	candidate := liveAttachmentCases()[3]
 	candidate.fixture = filepath.Join(t.TempDir(), "client-workspace", "document.pdf")
 	request := map[string]any{
@@ -1268,8 +1278,8 @@ func TestLiveChatAttachmentCapturedCodexPDFMessagesBootstrapIsContextual(t *test
 	gate.mu.Lock()
 	preparedFixture := gate.attachmentFixtures[cell]
 	gate.mu.Unlock()
-	if !liveAttachmentMessagesRequest(encoded, candidate) || preparedFixture != candidate.fixture || liveAttachmentPreparedPublicRequest(cell, "/v1/messages", encoded) || !liveAttachmentPreparedPublicRequestForFixture(cell, "/v1/messages", encoded, preparedFixture) {
-		t.Fatal("the exact same-model, medium-effort PDF bootstrap Messages request was rejected")
+	if !liveAttachmentMessagesRequest(encoded, candidate) || preparedFixture != candidate.fixture || liveAttachmentPreparedPublicRequest(cell, "/v1/messages", encoded) || liveAttachmentPreparedPublicRequestForFixture(cell, "/v1/messages", encoded, preparedFixture) {
+		t.Fatal("historical contextual preparation was lost or re-enabled the unsupported mixed route")
 	}
 	if liveAttachmentPreparedPublicRequestForFixture(cell, "/responses", encoded, preparedFixture) || liveAttachmentPreparedPublicRequestForFixture(cell, "/chat/completions", encoded, preparedFixture) {
 		t.Fatal("the pre-media Messages request was admitted on a different endpoint")
@@ -1298,14 +1308,14 @@ func TestLiveChatAttachmentCapturedCodexPDFMessagesBootstrapIsContextual(t *test
 			if err != nil {
 				t.Fatal(err)
 			}
-			if liveAttachmentPreparedPublicRequestForFixture(cell, "/v1/messages", changed, preparedFixture) {
+			if liveAttachmentMessagesRequest(changed, candidate) || liveAttachmentPreparedPublicRequestForFixture(cell, "/v1/messages", changed, preparedFixture) {
 				t.Fatal("lossy model/effort, different source path, or media bootstrap was accepted")
 			}
 		})
 	}
 }
 
-func TestLiveChatAttachmentCapturedCodexPDFMessagesRenderContinuationIsContextual(t *testing.T) {
+func TestAttachmentHistoricalPDFMessagesRendererCannotEnableMixedRoute(t *testing.T) {
 	candidate := liveAttachmentCases()[3]
 	workspace := filepath.Join(t.TempDir(), "client-workspace")
 	candidate.fixture = filepath.Join(workspace, "document.pdf")
@@ -1331,8 +1341,8 @@ func TestLiveChatAttachmentCapturedCodexPDFMessagesRenderContinuationIsContextua
 		},
 	}
 	encoded, err := json.Marshal(request)
-	if err != nil || !liveAttachmentMessagesRequest(encoded, candidate) || !liveAttachmentPreparedPublicRequestForFixture("X-fixture/"+candidate.cell, "/v1/messages", encoded, candidate.fixture) {
-		t.Fatal("same-model medium-effort PDF renderer continuation with a correlated successful result was rejected")
+	if err != nil || !liveAttachmentMessagesRequest(encoded, candidate) || liveAttachmentPreparedPublicRequestForFixture("X-fixture/"+candidate.cell, "/v1/messages", encoded, candidate.fixture) {
+		t.Fatal("historical renderer preparation was lost or re-enabled the unsupported mixed route")
 	}
 
 	for _, suffix := range []string{" && ls", " && ls -la", " && ls page*", " && ls -la page*"} {
@@ -1346,15 +1356,15 @@ func TestLiveChatAttachmentCapturedCodexPDFMessagesRenderContinuationIsContextua
 			input["cmd"] = "pdftoppm -png " + candidate.fixture + " page" + suffix
 			changed["messages"].([]any)[2].(map[string]any)["content"].([]any)[0].(map[string]any)["content"] = "Chunk ID: fixture\nWall time: 2.2 seconds\nProcess exited with code 0\nOutput:\npage-1.png\n"
 			body, err := json.Marshal(changed)
-			if err != nil || !liveAttachmentPreparedPublicRequestForFixture("X-fixture/"+candidate.cell, "/v1/messages", body, candidate.fixture) {
-				t.Fatal("bounded renderer command with inherited isolated cwd was denied")
+			if err != nil || !liveAttachmentMessagesRequest(body, candidate) || liveAttachmentPreparedPublicRequestForFixture("X-fixture/"+candidate.cell, "/v1/messages", body, candidate.fixture) {
+				t.Fatal("historical bounded command was lost or re-enabled the unsupported mixed route")
 			}
 			changed["messages"].([]any)[0].(map[string]any)["content"].([]any)[0].(map[string]any)["text"] = "<environment_context><cwd>/other</cwd></environment_context>"
 			body, err = json.Marshal(changed)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if liveAttachmentPreparedPublicRequestForFixture("X-fixture/"+candidate.cell, "/v1/messages", body, candidate.fixture) {
+			if liveAttachmentMessagesRequest(body, candidate) || liveAttachmentPreparedPublicRequestForFixture("X-fixture/"+candidate.cell, "/v1/messages", body, candidate.fixture) {
 				t.Fatal("omitted workdir accepted without the matching isolated cwd")
 			}
 		})
@@ -1412,7 +1422,7 @@ func TestLiveChatAttachmentCapturedCodexPDFMessagesRenderContinuationIsContextua
 			if err != nil {
 				t.Fatal(err)
 			}
-			if liveAttachmentPreparedPublicRequestForFixture("X-fixture/"+candidate.cell, "/v1/messages", body, candidate.fixture) {
+			if liveAttachmentMessagesRequest(body, candidate) || liveAttachmentPreparedPublicRequestForFixture("X-fixture/"+candidate.cell, "/v1/messages", body, candidate.fixture) {
 				t.Fatal("unrelated, failed, uncorrelated, or lossy PDF Messages continuation was admitted")
 			}
 		})

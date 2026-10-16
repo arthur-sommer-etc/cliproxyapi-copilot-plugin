@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/redact"
+	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/translate"
 )
 
 var attachmentPNG = liveAttachmentFixturePath("visual.png", "CPA_ATTACHMENT_PNG_PATH")
@@ -197,17 +198,6 @@ func liveAttachmentPreparedPublicRequestForFixture(cell, path string, body []byt
 		if fixturePath != "" {
 			candidate.fixture = fixturePath
 		}
-		if candidate.client == "codex" && candidate.media == "pdf" && candidate.model == "claude-haiku-5.5" {
-			switch path {
-			case "/v1/messages":
-				return liveAttachmentMessagesRequest(body, candidate)
-			case "/chat/completions":
-				_, ok := liveAttachmentChatRequest(body, candidate)
-				return ok
-			default:
-				return false
-			}
-		}
 		if path != candidate.modelPath {
 			return false
 		}
@@ -243,9 +233,6 @@ func liveAttachmentExpectedModel(cell string) string {
 }
 
 func liveAttachmentExpectedPublicEndpoints(candidate liveAttachmentCase) []string {
-	if candidate.client == "codex" && candidate.media == "pdf" && candidate.model == "claude-haiku-5.5" {
-		return []string{"/v1/messages", "/chat/completions"}
-	}
 	return []string{candidate.modelPath}
 }
 
@@ -297,15 +284,18 @@ func liveAttachmentChangedCondition(candidate liveAttachmentCase) string {
 }
 
 func liveAttachmentClientExecutable(candidate liveAttachmentCase, path string, args ...string) (string, []string) {
-	if candidate.client == "codex" && candidate.media == "pdf" {
+	if candidate.client == "codex" {
 		return path, args
 	}
 	return livePacketExecutable(path, args...)
 }
 
 func liveAttachmentClientSandbox(candidate liveAttachmentCase) string {
-	if candidate.client == "codex" && candidate.media == "pdf" {
-		return "native_codex_workspace_write"
+	if candidate.client == "codex" {
+		if candidate.media == "pdf" {
+			return "native_codex_workspace_write"
+		}
+		return "native_codex_read_only"
 	}
 	return "outer_loopback_seatbelt"
 }
@@ -649,12 +639,36 @@ func TestLiveCrossClientAttachmentsPacket(t *testing.T) {
 			}
 		}
 	}
+	codexHaikuPDFBase := base
+	for _, candidate := range selected {
+		if candidate.cell != "codex-claude-pdf" {
+			continue
+		}
+		storage, err := readLiveCopilotAuthFile(strings.TrimSpace(os.Getenv("CPA_LIVE_COPILOT_AUTH_FILE")))
+		if err != nil {
+			t.Fatal("task-private copied Copilot auth unavailable for the fixed Chat host")
+		}
+		overrides := liveEndpointOverrides(nil)
+		overrides[candidate.model] = "/chat/completions"
+		var stopChat func()
+		codexHaikuPDFBase, stopChat = startLiveNativeHostWithGate(t, livePacketBinary(), storage, "token_exchange", overrides, gate.server.URL, func(body []byte) {
+			if !livePacketCatalogHasModel(body, candidate.model) || liveAttachmentReadinessError(gate) != nil {
+				t.Fatal("fixed Chat host lost exact-model or capture readiness before bootstrap")
+			}
+		})
+		defer stopChat()
+		break
+	}
 	catalogHash := sha256.Sum256(publicCatalog)
-	livePacketWriteJSON(t, packetDirectory, "startup.json", map[string]any{"public_origin": origin, "catalog_sha256": hex.EncodeToString(catalogHash[:]), "gate_directory": gate.directory})
+	livePacketWriteJSON(t, packetDirectory, "startup.json", map[string]any{"public_origin": origin, "catalog_sha256": hex.EncodeToString(catalogHash[:]), "gate_directory": gate.directory, "codex_haiku_pdf_fixed_chat_host": codexHaikuPDFBase != base})
 	for index, candidate := range selected {
 		cell, _ := liveAttachmentOperationCell(candidate, attempt)
 		t.Run(candidate.cell, func(t *testing.T) {
-			liveRunAttachmentCase(t, gate, base, packetDirectory, candidate, cell, attempt, rendererHashes[candidate.cell])
+			caseBase := base
+			if candidate.cell == "codex-claude-pdf" {
+				caseBase = codexHaikuPDFBase
+			}
+			liveRunAttachmentCase(t, gate, caseBase, packetDirectory, candidate, cell, attempt, rendererHashes[candidate.cell])
 		})
 		if err := liveAttachmentReadinessError(gate); err != nil {
 			remaining := make([]string, 0, len(selected)-index-1)
@@ -839,7 +853,7 @@ func inspectLiveAttachmentEvidence(t *testing.T, gate *liveServerToolGate, candi
 	toolInputs := make(map[string]map[string]any)
 	originalCalls := make(map[string]liveAttachmentCapturedToolCall)
 	if len(ingress) > 0 {
-		originalCalls = liveAttachmentOriginalResponsesToolCalls(ingress[0])
+		originalCalls = liveAttachmentOriginalToolCalls(ingress[0])
 	}
 	publicReasoning := liveAttachmentReasoningTrace{}
 	publicReadArguments := make(map[string]string)
@@ -902,15 +916,18 @@ func inspectLiveAttachmentEvidence(t *testing.T, gate *liveServerToolGate, candi
 			allEndpoint = allEndpoint && liveAttachmentResponsesHistoryCorrelated(capture.PublicRequest.Body, originalCalls, publicResponsesCalls)
 		}
 		chatCarrierNames := map[string]string(nil)
-		if chatRequestValid && candidate.client == "codex" && len(chatRequest.ToolCalls) > 0 && len(ingress) > 0 {
+		if chatRequestValid && len(chatRequest.ToolCalls) > 0 && len(ingress) > 0 {
 			messagesCalls := make(map[string]liveAttachmentCapturedToolCall, len(responseCalls))
 			for id, name := range responseCalls {
 				messagesCalls[id] = liveAttachmentCapturedToolCall{ItemID: "fc_" + id, CallID: id, Name: name, Arguments: toolInputs[id]}
 			}
 			var correlated bool
-			requiredNames := []string{"exec_command", "view_image"}
-			if candidate.media == "png" || len(chatRequest.ToolCalls) == 1 && len(chatRequest.Images) == 0 {
-				requiredNames = []string{"exec_command"}
+			requiredNames := []string{"Read"}
+			if candidate.client == "codex" {
+				requiredNames = []string{"exec_command", "view_image"}
+				if candidate.media == "png" || len(chatRequest.ToolCalls) == 1 && len(chatRequest.Images) == 0 {
+					requiredNames = []string{"exec_command"}
+				}
 			}
 			chatCarrierNames, correlated = liveAttachmentChatHistoryCorrelations(chatRequest, originalCalls, messagesCalls, requiredNames...)
 			allEndpoint = allEndpoint && correlated
@@ -942,6 +959,10 @@ func inspectLiveAttachmentEvidence(t *testing.T, gate *liveServerToolGate, candi
 				success := liveChatAttachmentToolResultSucceeded(result, callName, candidate)
 				requestResults[id] = success
 				requestCommandSuccess[id] = success
+				if candidate.client == "claude" && chatCarrierNames[id] != "" {
+					_, callID, _ := translate.DecodeClaudeToolIDs(id)
+					requestResults[callID] = success
+				}
 				requestHadPriorToolResult = requestHadPriorToolResult || callName != "" && success
 				requestHadRequiredToolResult = requestHadRequiredToolResult || candidate.client == "codex" && candidate.media == "pdf" && callName == "view_image" && success
 				if candidate.client == "codex" && candidate.media == "png" && callName == "exec_command" {

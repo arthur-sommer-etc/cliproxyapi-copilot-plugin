@@ -209,6 +209,29 @@ func TestNativeResponsesReplayRestoresOnlyMissingExactAnchoredIDs(t *testing.T) 
 	if got := service.restoreNativeResponsesReplay(otherScope, translated); string(got) != string(translated) {
 		t.Fatalf("native replay crossed API-origin scope: %s", got)
 	}
+	reasoningOnly := []byte(`{"input":[{"type":"reasoning","encrypted_content":"opaque-signature","summary":[]}]}`)
+	for _, other := range []string{
+		protocolScopeKey("auth-b", continuityTestStorage("github-token-a"), "model-a", "https://api.githubcopilot.com", translate.EndpointResponses, "session-a", "main", 0),
+		protocolScopeKey("auth-a", continuityTestStorage("github-token-a"), "model-b", "https://api.githubcopilot.com", translate.EndpointResponses, "session-a", "main", 0),
+		protocolScopeKey("auth-a", continuityTestStorage("github-token-a"), "model-a", "https://api.githubcopilot.com", translate.EndpointChatCompletions, "session-a", "main", 0),
+		protocolScopeKey("auth-a", continuityTestStorage("github-token-a"), "model-a", "https://api.githubcopilot.com", translate.EndpointResponses, "session-b", "main", 0),
+	} {
+		if got := service.restoreNativeResponsesReplay(other, reasoningOnly); string(got) != string(reasoningOnly) {
+			t.Fatal("native reasoning ID restoration crossed its owned scope")
+		}
+	}
+	for _, preserved := range [][]byte{
+		[]byte(`{"input":[{"type":"reasoning","id":"explicit-conflicting-id","encrypted_content":"opaque-signature","summary":[]}]}`),
+		[]byte(`{"input":[{"type":"reasoning","encrypted_content":"foreign-signature","summary":[]}]}`),
+	} {
+		if got := service.restoreNativeResponsesReplay(scope, preserved); string(got) != string(preserved) {
+			t.Fatal("native reasoning ID restoration rewrote explicit identity or foreign ciphertext")
+		}
+	}
+	service.recordReasoningReplay(scope, []byte(`{"status":"completed","output":[{"type":"reasoning","id":"rs_other","encrypted_content":"opaque-signature","summary":[]}]}`))
+	if got := service.restoreNativeResponsesReplay(scope, reasoningOnly); string(got) != string(reasoningOnly) {
+		t.Fatal("native reasoning ID restoration selected an ambiguous owner")
+	}
 }
 
 func TestReasoningReplayRejectsResultsFromPriorConfiguration(t *testing.T) {

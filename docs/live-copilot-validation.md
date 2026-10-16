@@ -79,6 +79,41 @@ No packet restart, cell retry, ledger clearing or second final-artifact packet o
 Final original-client attachment and multi-turn reasoning acceptance remains incomplete.
 Earlier protocol and client passes remain historical evidence rather than acceptance of these twelve cells.
 
+### Follow-up owned-boundary qualification
+
+The follow-up census found that the former Codex Haiku PDF route could switch from native Messages preparation to Chat after signed reasoning was issued.
+Native Messages signatures are not Chat-owned carriers, so rejecting that switch is correct.
+This cell now selects a separate task-owned Chat-configured host before bootstrap and keeps that route throughout the conversation.
+Claude Haiku cells retain native Messages.
+The public gate admits exact-source Haiku PDF Chat preparation without permitting the former mixed route.
+
+Actual installed-client replay now composes original ingress, the matched native host, production translation, the public gate, synthetic loopback provider responses and the unchanged full acceptance predicate.
+It also exercises source-derived PDF rendering and native tool execution rather than substituting client event fixtures.
+The replay exposed two additional corrections.
+Claude Read continuations now correlate encoded tool identity and canonical arguments against both original and public captures before recognizing the result.
+Claude-to-Responses requests now restore an omitted native reasoning item ID using the existing exact-ciphertext, unique-owner, same-scope cache.
+Explicit IDs, foreign ciphertext and ambiguous ownership are not rewritten.
+Both buffered and streamed execution use that existing restoration capability.
+The reasoning observer remains strict.
+
+Codex retains its native read-only sandbox for PNG and workspace-write sandbox for PDF without a nested external Seatbelt wrapper.
+The owned offline host and Claude client use the existing loopback Seatbelt wrapper.
+Codex uses isolated client configuration and the synthetic task-proxy route; these checks do not establish universal OS-level network denial for its parent process.
+A separate read-only HTTP regression forwards the exact retained failed ingress transaction without sending its private carriers to a synthetic provider.
+
+The final owned offline twelve-cell run passed ten cells against the full acceptance predicate.
+Both `codex-gpt-png` and `codex-gpt-pdf` remain FAILED because original and public native Responses image detail is omitted rather than explicitly `high`.
+Their tools, final answers, source-bound media and reasoning replay complete, but those successes do not override the required detail assertion.
+The installed Codex CLI 0.162.1 embeds `gpt-6-luna` metadata with `use_responses_lite=true`.
+Inspected Codex source removes image detail from both initial image content and tool-output images for that model mode.
+No supported inspected configuration override preserves explicit high detail without replacing the required catalog or model.
+This is an unmet installed-client prerequisite, not a reason to manufacture metadata, inject detail after original capture or weaken acceptance.
+
+The rebuilt plugin passed the matched native-host suite with 220 PASS markers and zero failures.
+No new live packet was armed or dispatched during this follow-up.
+The historical physical inference ledger remains 14, and all earlier failed and NOT RUN records remain unchanged.
+Final twelve-cell acceptance remains incomplete.
+
 ## Historical validation (2026-10-11)
 
 The latest dependency and original-client checks use CLIProxyAPI SDK v8.0.30.

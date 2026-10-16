@@ -69,7 +69,7 @@ func livePacketSandboxProfile() string {
 }
 
 func livePacketExecutable(path string, args ...string) (string, []string) {
-	if os.Getenv("CPA_LIVE_CLIENT_ATTACHMENTS") != "1" && os.Getenv("CPA_OFFLINE_CLAUDE_PDF_READ") != "1" {
+	if os.Getenv("CPA_LIVE_CLIENT_ATTACHMENTS") != "1" && os.Getenv("CPA_OFFLINE_CLAUDE_PDF_READ") != "1" && os.Getenv("CPA_ATTACHMENT_OWNED_CLIENT_REPLAY") != "1" {
 		return path, args
 	}
 	return "/usr/bin/sandbox-exec", append([]string{"-f", livePacketSandboxProfile(), path}, args...)
