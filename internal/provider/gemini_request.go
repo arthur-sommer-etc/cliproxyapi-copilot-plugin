@@ -14,9 +14,8 @@ import (
 const geminiChatFunctionCallingMode = "validated"
 
 // applyGeminiChatFunctionCallingMode selects the gemini-3 function calling
-// mode for a tool-bearing chat request unless the caller pinned a specific
-// function. Captured original-client gemini-3.8-flash traffic dispatches with
-// this mode.
+// mode for automatic selection in a tool-bearing chat request. Explicit
+// prohibition, mandatory selection and pinned functions remain unchanged.
 func applyGeminiChatFunctionCallingMode(model upstreamModel, endpoint string, body []byte) ([]byte, error) {
 	if endpoint != translate.EndpointChatCompletions || !isGemini3FamilyModel(model) {
 		return body, nil
@@ -25,7 +24,8 @@ func applyGeminiChatFunctionCallingMode(model upstreamModel, endpoint string, bo
 	if len(root.Get("tools").Array()) == 0 {
 		return body, nil
 	}
-	if root.Get("tool_choice").IsObject() {
+	choice := root.Get("tool_choice")
+	if choice.Exists() && choice.String() != "auto" {
 		return body, nil
 	}
 	updated, err := sjson.SetBytes(body, "tool_choice", geminiChatFunctionCallingMode)

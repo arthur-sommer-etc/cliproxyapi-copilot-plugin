@@ -12,9 +12,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"image"
-	"image/color"
-	"image/jpeg"
 	"math"
 	"net/http"
 	"net/http/httptest"
@@ -268,6 +265,10 @@ func liveAttachmentSelectedCases(selection string) ([]liveAttachmentCase, error)
 
 func liveAttachmentChangedCondition(candidate liveAttachmentCase) string {
 	switch candidate.cell {
+	case "claude-gemini-png", "claude-gemini-pdf":
+		return "complete Messages tool-use terminals now confirm original Claude stream completion; automatic Gemini Chat tool selection uses validated"
+	case "codex-gemini-png":
+		return "opaque reasoning replay now skips image-bearing prior-user content symmetrically with sealing on the SDK-coalesced Chat assistant turn"
 	case "claude-gpt-png":
 		return "refreshed dependencies and matched CPA host; original Claude Code Read image path and fixture bytes"
 	case "codex-claude-png":
@@ -457,120 +458,10 @@ func liveAttachmentPopplerPreflight(t *testing.T, candidate liveAttachmentCase, 
 	if err := os.Chmod(page, 0600); err != nil {
 		t.Fatal("could not protect task-owned renderer preflight page")
 	}
-	if !attachmentPDFPageReadable(pageBytes) {
+	if fmt.Sprintf("%x", sha256.Sum256(pageBytes)) != attachmentExpectedReadablePDFPageSHA256 {
 		t.Fatal("task-owned PDF renderer did not produce the readable printed code and blue element")
 	}
 	return livePacketFileSHA256(t, attachmentMaintainedPoppler)
-}
-
-// attachmentPDFPageReadable reports whether a rendered fixture page shows the
-// printed canary text line and the solid blue element, independent of the
-// specific renderer build that produced the page.
-func attachmentPDFPageReadable(page []byte) bool {
-	decoded, _, err := image.Decode(bytes.NewReader(page))
-	if err != nil {
-		return false
-	}
-	bounds := decoded.Bounds()
-	width, height := bounds.Dx(), bounds.Dy()
-	if width < 100 || height < 60 {
-		return false
-	}
-	textLeft, textRight, textTop, textBottom, textInk := width, 0, height/2, 0, 0
-	blueLeft, blueRight, blueTop, blueBottom, blueFill := width, 0, height, 0, 0
-	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
-		for x := bounds.Min.X; x < bounds.Max.X; x++ {
-			red, green, blue, _ := decoded.At(x, y).RGBA()
-			red, green, blue = red>>8, green>>8, blue>>8
-			if red+green+blue < 240 && y < bounds.Min.Y+height/2 {
-				textInk++
-				if x < textLeft {
-					textLeft = x
-				}
-				if x > textRight {
-					textRight = x
-				}
-				if y < textTop {
-					textTop = y
-				}
-				if y > textBottom {
-					textBottom = y
-				}
-			}
-			if blue >= 140 && blue-red >= 60 && blue-green >= 60 {
-				blueFill++
-				if x < blueLeft {
-					blueLeft = x
-				}
-				if x > blueRight {
-					blueRight = x
-				}
-				if y < blueTop {
-					blueTop = y
-				}
-				if y > blueBottom {
-					blueBottom = y
-				}
-			}
-		}
-	}
-	if textInk < width*height/250 {
-		return false
-	}
-	textWidth, textHeight := textRight-textLeft+1, textBottom-textTop+1
-	if textTop > bounds.Min.Y+height/4 || textWidth < width/2 || textHeight < height/20 || textHeight > height/4 {
-		return false
-	}
-	blueWidth, blueHeight := blueRight-blueLeft+1, blueBottom-blueTop+1
-	if blueFill < width*height/50 || blueWidth < width/4 || blueHeight < height/10 || blueWidth < blueHeight || blueWidth > blueHeight*3 {
-		return false
-	}
-	return true
-}
-
-func TestAttachmentPDFPageReadableOracle(t *testing.T) {
-	render := func(textInk, blueElement bool) []byte {
-		imageBuffer := &bytes.Buffer{}
-		page := image.NewRGBA(image.Rect(0, 0, 417, 278))
-		for y := 0; y < 278; y++ {
-			for x := 0; x < 417; x++ {
-				page.Set(x, y, color.RGBA{R: 255, G: 255, B: 255, A: 255})
-			}
-		}
-		if textInk {
-			for y := 59; y < 90; y++ {
-				for x := 58; x < 417; x += 2 {
-					page.Set(x, y, color.RGBA{A: 255})
-				}
-			}
-		}
-		if blueElement {
-			for y := 144; y < 224; y++ {
-				for x := 48; x < 208; x++ {
-					page.Set(x, y, color.RGBA{B: 255, A: 255})
-				}
-			}
-		}
-		if err := jpeg.Encode(imageBuffer, page, nil); err != nil {
-			t.Fatal(err)
-		}
-		return imageBuffer.Bytes()
-	}
-	if !attachmentPDFPageReadable(render(true, true)) {
-		t.Fatal("readable canary page with text line and blue element was rejected")
-	}
-	for name, page := range map[string][]byte{
-		"missing text":    render(false, true),
-		"missing blue":    render(true, false),
-		"blank page":      render(false, false),
-		"truncated bytes": render(true, true)[:32],
-	} {
-		t.Run(name, func(t *testing.T) {
-			if attachmentPDFPageReadable(page) {
-				t.Fatal("unreadable page was accepted")
-			}
-		})
-	}
 }
 
 func liveAttachmentCaptureCLI(t *testing.T, directory string, candidate liveAttachmentCase, result liveAttachmentCLI) {
@@ -1903,11 +1794,14 @@ func TestAttachmentPacketCodexUnknownSlugReachesLocalProvider(t *testing.T) {
 }
 
 func TestAttachmentPacketChangedCaseSelectionAndRendererPreflight(t *testing.T) {
-	selected, err := liveAttachmentSelectedCases("claude-gpt-pdf,codex-claude-png,codex-claude-pdf")
-	if err != nil || len(selected) != 3 {
+	selected, err := liveAttachmentSelectedCases("claude-gpt-pdf,codex-claude-png,codex-claude-pdf,claude-gemini-png,claude-gemini-pdf,codex-gemini-png")
+	if err != nil || len(selected) != 6 {
 		t.Fatal("changed-case selection was not exact")
 	}
 	for _, candidate := range selected {
+		if liveAttachmentChangedCondition(candidate) == "none" {
+			t.Fatalf("corrected case %s has no changed-evidence description", candidate.cell)
+		}
 		cell, err := liveAttachmentOperationCell(candidate, "fix-client-preparation")
 		if err != nil || !liveAttachmentGateCell(cell) || cell == "X/"+candidate.cell {
 			t.Fatal("changed-case identity could overwrite a frozen historical cell")

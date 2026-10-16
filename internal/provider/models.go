@@ -184,7 +184,7 @@ func (s *Service) models(ctx context.Context, callbackID, authID string, storage
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		redactedBody := redact.ErrorBody(resp.Body, token.Token, storage.GitHubAccessToken)
-		recordUpstreamRejection(resp.StatusCode, "/models", resp.Headers, redactedBody)
+		recordUpstreamRejection(resp.StatusCode, "/models", resp.Headers, redactedBody, token.Token, storage.GitHubAccessToken)
 		return nil, copilotTokenEntry{}, upstreamStatusError(resp.StatusCode, redactedBody)
 	}
 	var list modelListResponse

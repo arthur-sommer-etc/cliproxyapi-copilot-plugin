@@ -36,7 +36,7 @@ func copilotInferenceInitiator(endpoint string, body []byte) string {
 			return "user"
 		}
 		last := items[len(items)-1]
-		if last.Get("type").String() == "message" && last.Get("role").String() == "user" {
+		if itemType := last.Get("type").String(); last.Get("role").String() == "user" && (itemType == "" || itemType == "message") {
 			return "user"
 		}
 		return "agent"

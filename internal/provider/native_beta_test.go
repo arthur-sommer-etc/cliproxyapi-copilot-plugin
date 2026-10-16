@@ -76,6 +76,16 @@ func TestCopilotInferenceHeadersDeriveInitiatorAndVisionFromOutboundBody(t *test
 			visionSupported: true, wantInitiator: "user", wantVision: "true",
 		},
 		{
+			name: "responses user message with omitted type", endpoint: translate.EndpointResponses, mode: authModeTokenExchange,
+			body:          `{"input":[{"role":"user","content":"hello"}]}`,
+			wantInitiator: "user",
+		},
+		{
+			name: "responses explicit user message", endpoint: translate.EndpointResponses, mode: authModeTokenExchange,
+			body:          `{"input":[{"type":"message","role":"user","content":"hello"}]}`,
+			wantInitiator: "user",
+		},
+		{
 			name: "responses reasoning continuation is agent", endpoint: translate.EndpointResponses, mode: authModeTokenExchange,
 			body:          `{"model":"gpt-6-luna","input":[{"type":"reasoning","encrypted_content":"cpa-copilot-reasoning:v1:e30"},{"type":"function_call","call_id":"call_1","name":"Read","arguments":"{}"},{"type":"function_call_output","call_id":"call_1","output":"done"}]}`,
 			wantInitiator: "agent",

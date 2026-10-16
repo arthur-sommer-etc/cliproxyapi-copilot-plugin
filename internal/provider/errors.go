@@ -66,7 +66,7 @@ var upstreamRejectionEvidenceHeaders = map[string]bool{
 // recordUpstreamRejection retains a private redacted record of a non-2xx
 // Copilot response when CPA_COPILOT_UPSTREAM_EVIDENCE_FILE is set. The body is
 // re-redacted defensively; evidence failures never affect inference.
-func recordUpstreamRejection(status int, endpoint string, header http.Header, body string) {
+func recordUpstreamRejection(status int, endpoint string, header http.Header, body string, secrets ...string) {
 	path := strings.TrimSpace(os.Getenv("CPA_COPILOT_UPSTREAM_EVIDENCE_FILE"))
 	if path == "" {
 		return
@@ -74,7 +74,7 @@ func recordUpstreamRejection(status int, endpoint string, header http.Header, bo
 	kept := make(map[string]string, len(upstreamRejectionEvidenceHeaders))
 	for name, values := range header {
 		if upstreamRejectionEvidenceHeaders[strings.ToLower(name)] {
-			kept[strings.ToLower(name)] = strings.Join(values, ", ")
+			kept[strings.ToLower(name)] = redact.Text(strings.Join(values, ", "), secrets...)
 		}
 	}
 	entry, err := json.Marshal(struct {
@@ -83,7 +83,7 @@ func recordUpstreamRejection(status int, endpoint string, header http.Header, bo
 		Endpoint string            `json:"endpoint"`
 		Headers  map[string]string `json:"headers"`
 		Body     string            `json:"body"`
-	}{Time: time.Now().UTC().Format(time.RFC3339Nano), Status: status, Endpoint: endpoint, Headers: kept, Body: redact.Text(body)})
+	}{Time: time.Now().UTC().Format(time.RFC3339Nano), Status: status, Endpoint: endpoint, Headers: kept, Body: redact.Text(body, secrets...)})
 	if err != nil {
 		return
 	}
@@ -92,6 +92,9 @@ func recordUpstreamRejection(status int, endpoint string, header http.Header, bo
 		return
 	}
 	defer file.Close()
+	if errChmod := file.Chmod(0600); errChmod != nil {
+		return
+	}
 	_, _ = file.Write(append(entry, '\n'))
 }
 

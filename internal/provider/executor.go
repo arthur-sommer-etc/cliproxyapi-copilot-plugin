@@ -303,7 +303,7 @@ func (s *Service) ExecuteStream(ctx context.Context, req ExecuteRequest) (http.H
 			return nil, errCollect
 		}
 		redactedBody := redact.ErrorBody(body, token.Token, storage.GitHubAccessToken)
-		recordUpstreamRejection(upstream.StatusCode, endpoint, upstream.Headers, redactedBody)
+		recordUpstreamRejection(upstream.StatusCode, endpoint, upstream.Headers, redactedBody, token.Token, storage.GitHubAccessToken)
 		return nil, upstreamStatusError(upstream.StatusCode, redactedBody)
 	}
 	go s.pumpStream(ctx, req.StreamID, endpoint, sourceFormat, req.Model, req.OriginalRequest, requestBody, upstream, scopeKey, carrierScope, token.Token, storage.GitHubAccessToken)
@@ -360,7 +360,7 @@ func (s *Service) doModelRequest(ctx context.Context, callbackID, authID string,
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		redactedBody := redact.ErrorBody(resp.Body, token.Token, storage.GitHubAccessToken)
-		recordUpstreamRejection(resp.StatusCode, endpoint, resp.Headers, redactedBody)
+		recordUpstreamRejection(resp.StatusCode, endpoint, resp.Headers, redactedBody, token.Token, storage.GitHubAccessToken)
 		return resp, token, upstreamStatusError(resp.StatusCode, redactedBody)
 	}
 	return resp, token, nil

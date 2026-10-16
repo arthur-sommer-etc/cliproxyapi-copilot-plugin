@@ -149,12 +149,23 @@ func TestRecordUpstreamRejectionRetainsOnlyPrivateRedactedEvidence(t *testing.T)
 		"X-Copilot-Api-Key":   []string{"gho_CCCCCCCCCCCCCCCCCCCC"},
 		"X-Github-Request-Id": []string{"public-id"},
 	}
+	header.Set("X-Request-Id", "opaque-copilot-bearer")
 	path := filepath.Join(t.TempDir(), "upstream-rejections.jsonl")
+	if err := os.WriteFile(path, nil, 0644); err != nil {
+		t.Fatal(err)
+	}
 	t.Setenv("CPA_COPILOT_UPSTREAM_EVIDENCE_FILE", path)
-	recordUpstreamRejection(http.StatusTooManyRequests, "/chat/completions", header, `rate limited, leaked token "gho_AAAAAAAAAAAAAAAAAAAA"`)
+	recordUpstreamRejection(http.StatusTooManyRequests, "/chat/completions", header, `rate limited, leaked token "gho_AAAAAAAAAAAAAAAAAAAA" opaque-copilot-bearer`, "opaque-copilot-bearer")
 	content, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)
+	}
+	info, err := os.Stat(path)
+	if err != nil || info.Mode().Perm() != 0600 {
+		t.Fatalf("evidence file is not private: info=%v err=%v", info, err)
+	}
+	if strings.Contains(string(content), "opaque-copilot-bearer") {
+		t.Fatal("allowlisted header leaked a token")
 	}
 	entry := gjson.ParseBytes(content)
 	if entry.Get("status").Int() != http.StatusTooManyRequests || entry.Get("endpoint").String() != "/chat/completions" {
