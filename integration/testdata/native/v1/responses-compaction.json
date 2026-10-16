@@ -1,0 +1,1 @@
+{"id":"fixture-response-id","object":"response","status":"completed","model":"fixture-model","output":[{"type":"message","id":"fixture-summary-id","status":"completed","role":"assistant","content":[{"type":"output_text","text":"The active goal is to finish the native host bridge. The next step is integration."}]}],"usage":{"input_tokens":1,"output_tokens":1,"total_tokens":2}}

@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "fields": {
+    "error": {
+      "type": "object",
+      "fields": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

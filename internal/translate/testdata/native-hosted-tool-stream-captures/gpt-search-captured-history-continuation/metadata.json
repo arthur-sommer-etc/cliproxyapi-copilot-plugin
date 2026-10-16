@@ -1,0 +1,24 @@
+{
+  "cell": "C-captured-identity/gpt-responses-search",
+  "endpoint_path": "/responses",
+  "fixture_sha256": {
+    "request": "250aa1e0d53b897f983f3258196c9be590b295d2f0e61e7be9a0463d6e4a11b7",
+    "response": "216afdef8a1727df8497f1b005e91f930e81362e98e75927cabe7fb9f384b80d"
+  },
+  "http_status": 200,
+  "native_model": "gpt-6-luna",
+  "original_shape_sha256": {
+    "request": "242111e5b1b94f31bdd52e58849667fd3a257c7ab0e0d173eb94533cc24088be",
+    "response": "890e06927a0504365a8bb29164e7d219e6aef66425916a67b63a636676a00699"
+  },
+  "response_format": "json",
+  "sanitized_source_sha256": {
+    "request": "250aa1e0d53b897f983f3258196c9be590b295d2f0e61e7be9a0463d6e4a11b7",
+    "response": "216afdef8a1727df8497f1b005e91f930e81362e98e75927cabe7fb9f384b80d"
+  },
+  "source_body_sha256": {
+    "request": "a7f3b990c34979e8eb0ffc30e2fa9487e3345ee64ae1bdbbd430b1c155d90332",
+    "response": "13fd74a7073172d71b3b67d31e4d532f5cf47877c58353d5bded8f87a6b3a4b1"
+  },
+  "source_outcome": "actual terminal history continuation; original stream identity failure preserved"
+}

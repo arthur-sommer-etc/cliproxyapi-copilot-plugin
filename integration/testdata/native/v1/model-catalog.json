@@ -1,0 +1,32 @@
+{
+  "data": [
+    {"id":"bridge-responses","supported_endpoints":["/responses"],"capabilities":{"type":"chat","supports":{"streaming":true,"tool_calls":true}}},
+    {"id":"bridge-messages","supported_endpoints":["/v1/messages","/chat/completions"],"capabilities":{"type":"chat"}},
+    {"id":"bridge-chat","supported_endpoints":["/chat/completions"],"capabilities":{"type":"chat"}},
+    {"id":"bridge-gemini-3.8","vendor":"Google","supported_endpoints":["/chat/completions"],"capabilities":{"type":"chat","family":"gemini","supports":{"streaming":true,"tool_calls":true}}},
+    {"id":"bridge-gpt-6-luna","vendor":"OpenAI","supported_endpoints":["/responses"],"capabilities":{"type":"chat","family":"gpt","supports":{"streaming":true,"tool_calls":true}}},
+    {"id":"bridge-chat-sonnet-5.5","vendor":"Anthropic","supported_endpoints":["/v1/messages"],"capabilities":{"type":"chat","family":"claude","supports":{"streaming":true,"tool_calls":true,"adaptive_thinking":true,"reasoning_effort":["low","medium","high","max"]},"limits":{"max_context_window_tokens":81920}}},
+    {"id":"bridge-sonnet-5.5","vendor":"Anthropic","supported_endpoints":["/chat/completions","/v1/messages"],"capabilities":{"type":"chat","family":"claude","supports":{"streaming":true,"tool_calls":true,"adaptive_thinking":true,"reasoning_effort":["low","medium","high","max"]},"limits":{"max_context_window_tokens":81920}}},
+    {"id":"gpt-5.5","vendor":"OpenAI","supported_endpoints":["/responses"],"capabilities":{"type":"chat","family":"gpt"}},
+    {"id":"gpt-5-copilot-only","vendor":"OpenAI","supported_endpoints":["/responses"],"capabilities":{"type":"chat","family":"gpt"}},
+    {"id":"gpt-6-sol","vendor":"OpenAI","supported_endpoints":["/responses"],"capabilities":{"type":"chat","family":"gpt"}},
+    {"id":"claude-fable-5","vendor":"Anthropic","supported_endpoints":["/v1/messages"],"capabilities":{"type":"chat","family":"claude"}},
+    {"id":"claude-fable-5.1","vendor":"Anthropic","supported_endpoints":["/v1/messages"],"capabilities":{"type":"chat","family":"claude"}},
+    {"id":"claude-sonnet-4.8-fast","vendor":"Anthropic","supported_endpoints":["/v1/messages"],"capabilities":{"type":"chat","family":"claude"}},
+    {"id":"claude-sonnet-4-8-fast","vendor":"Anthropic","supported_endpoints":["/v1/messages"],"capabilities":{"type":"chat","family":"claude"}},
+    {"id":"claude-sonnet-5","vendor":"Anthropic","supported_endpoints":["/v1/messages"],"capabilities":{"type":"chat","family":"claude"}},
+    {"id":"claude-sonnet-5.5","vendor":"Anthropic","supported_endpoints":["/v1/messages"],"capabilities":{"type":"chat","family":"claude","supports":{"adaptive_thinking":true,"reasoning_effort":["low","high"]},"limits":{"max_context_window_tokens":32768}}},
+    {"id":"claude-opus-4.8-fast","vendor":"Anthropic","supported_endpoints":["/v1/messages"],"capabilities":{"type":"chat","family":"claude"}},
+    {"id":"claude-opus-4-8-fast","vendor":"Anthropic","supported_endpoints":["/v1/messages"],"capabilities":{"type":"chat","family":"claude"}},
+    {"id":"claude-opus-5","vendor":"Anthropic","supported_endpoints":["/v1/messages"],"capabilities":{"type":"chat","family":"claude"}},
+    {"id":"claude-opus-5.5","vendor":"Anthropic","supported_endpoints":["/v1/messages"],"capabilities":{"type":"chat","family":"claude"}},
+    {"id":"gemini-3.7-flash","vendor":"Google","supported_endpoints":["/responses"],"capabilities":{"type":"chat","family":"gemini"}},
+    {"id":"gemini-3.8-flash","vendor":"Google","supported_endpoints":["/chat/completions"],"capabilities":{"type":"chat","family":"gemini"}},
+    {"id":"gpt-6.1-sol","vendor":"OpenAI","supported_endpoints":["/responses"],"capabilities":{"type":"chat","family":"gpt","supports":{"adaptive_thinking":true,"reasoning_effort":["low","medium","high","xhigh"]},"limits":{"max_context_window_tokens":128000}}},
+    {"id":"gpt-6-luna","vendor":"OpenAI","supported_endpoints":["/responses"],"capabilities":{"type":"chat","family":"gpt","supports":{"adaptive_thinking":true,"reasoning_effort":["low","medium","high"]},"limits":{"max_context_window_tokens":96000}}},
+    {"id":"mai-code-1.1-flash","model_picker_enabled":true,"policy":{"state":"enabled"},"supported_endpoints":["/responses"],"capabilities":{"type":"chat","family":"mai","supports":{"adaptive_thinking":true,"reasoning_effort":["low","medium","high"]}}},
+    {"id":"grok-4.5","vendor":"xAI","supported_endpoints":["/responses"],"capabilities":{"type":"chat","family":"grok"}},
+    {"id":"grok-4.6","vendor":"xAI","supported_endpoints":["/responses"],"capabilities":{"type":"chat","family":"grok"}},
+    {"id":"grok-4.7","vendor":"xAI","supported_endpoints":["/responses"],"capabilities":{"type":"chat","family":"grok"}}
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "fields": {
+    "messages": {
+      "type": "array",
+      "length": 1,
+      "items": [
+        {
+          "type": "object",
+          "fields": {
+            "content": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "model": {
+      "type": "string"
+    },
+    "stream": {
+      "type": "boolean"
+    },
+    "web_search_options": {
+      "type": "object",
+      "fields": {
+        "search_context_size": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

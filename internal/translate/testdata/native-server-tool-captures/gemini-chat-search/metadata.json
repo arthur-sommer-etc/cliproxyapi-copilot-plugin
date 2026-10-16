@@ -1,0 +1,24 @@
+{
+  "capture": "gate-003",
+  "incoming_api": "openai",
+  "endpoint_path": "/chat/completions",
+  "requested_model": "gemini-3.8-flash",
+  "http_status": 200,
+  "provider_outcome": "HTTP 200; finish_reason=error; empty assistant content",
+  "source_body_sha256": {
+    "request": "88d712cc71eee6fb214c241116eafc25b96b2d03600f377af6b95ac81cb1765c",
+    "response": "8a6db8f5a488059b95674b8f9e40554d3914cfb4fec8a7f41a528916d48fb596"
+  },
+  "sanitized_source_sha256": {
+    "request": "b5a87d59a1bbd217f7f8dbd67dc8e42a64fc872fe32f2a5c37a06885c12e3b36",
+    "response": "a6a5a018f39b860e017bd7ed2158d6b6d941d0aa554bd0ddda12e1bb4e0eb683"
+  },
+  "fixture_sha256": {
+    "request": "b5a87d59a1bbd217f7f8dbd67dc8e42a64fc872fe32f2a5c37a06885c12e3b36",
+    "response": "a6a5a018f39b860e017bd7ed2158d6b6d941d0aa554bd0ddda12e1bb4e0eb683"
+  },
+  "original_shape_sha256": {
+    "request": "15b9f478883f4c260549d3ea64976dc4de25d91ea71c2451b9ad7522437a00ba",
+    "response": "9659d5d716a65c8701439d6bfce54effdce1c783a85f5ca62645c742aeae7d8e"
+  }
+}

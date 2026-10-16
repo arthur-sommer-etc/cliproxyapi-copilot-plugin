@@ -1,0 +1,342 @@
+event: response.created
+data: {"response":{"access_programs":null,"background":false,"completed_at":null,"created_at":1791592877,"error":null,"frequency_penalty":0,"id":"fixture_opaque_id_046","incomplete_details":null,"instructions":null,"max_output_tokens":32000,"max_tool_calls":null,"metadata":{},"model":"gpt-6-luna","moderation":null,"object":"response","output":[],"parallel_tool_calls":true,"presence_penalty":0,"previous_response_id":null,"prompt_cache_retention":"24h","reasoning":{"context":"all_turns","effort":"medium","mode":"standard","summary":"detailed"},"safety_identifier":"fixture_safety_identifier_002","service_tier":"default","status":"in_progress","store":false,"temperature":1,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"description":"Reads a file from the local filesystem.\n\n- `file_path` must be an absolute path.\n- Reads up to 2000 lines by default.\n- When you already know which part of the file you need, only read that part. This can be important for larger files.\n- Results are returned using cat -n format, with line numbers starting at 1\n- Reads images (PNG, JPG, …) and presents them visually. Reads PDFs via the `pages` parameter (e.g. \"1-5\", max 20 pages/request; required for PDFs over 10 pages). Reads Jupyter notebooks (.ipynb) as cells with outputs.\n- Reading a directory, a missing file, or an empty file returns an error or system reminder rather than content.\n- Do NOT re-read a file you just edited to verify — Edit/Write would have errored if the change failed, and the harness tracks file state for you.","name":"Read","output_schema":null,"parameters":{"$schema":"https://json-schema.org/draft/2020-12/schema","additionalProperties":false,"properties":{"allow_large":{"description":"Set to true to read a text file, or a line range of one, that is over the usual size limits, up to what still fits in your context. Only use this when you genuinely need all of it or the user asked for the whole file; otherwise read it in parts with offset and limit, or search it.","type":"boolean"},"file_path":{"description":"The absolute path to the file to read","type":"string"},"limit":{"description":"The number of lines to read. Only provide if the file is too large to read at once.","exclusiveMinimum":0,"maximum":9007199254740991,"type":"integer"},"offset":{"description":"The line number to start reading from. Only provide if the file is too large to read at once","maximum":9007199254740991,"minimum":0,"type":"integer"},"pages":{"description":"Page range for PDF files (e.g., \"1-5\", \"3\", \"10-20\"). Only applicable to PDF files. Maximum 20 pages per request.","type":"string"}},"required":["allow_large","file_path","limit","offset","pages"],"type":"object"},"strict":true,"type":"function"}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null},"sequence_number":0,"type":"response.created"}
+
+event: response.in_progress
+data: {"response":{"access_programs":null,"background":false,"completed_at":null,"created_at":1791592877,"error":null,"frequency_penalty":0,"id":"fixture_opaque_id_047","incomplete_details":null,"instructions":null,"max_output_tokens":32000,"max_tool_calls":null,"metadata":{},"model":"gpt-6-luna","moderation":null,"object":"response","output":[],"parallel_tool_calls":true,"presence_penalty":0,"previous_response_id":null,"prompt_cache_retention":"24h","reasoning":{"context":"all_turns","effort":"medium","mode":"standard","summary":"detailed"},"safety_identifier":"fixture_safety_identifier_002","service_tier":"default","status":"in_progress","store":false,"temperature":1,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"description":"Reads a file from the local filesystem.\n\n- `file_path` must be an absolute path.\n- Reads up to 2000 lines by default.\n- When you already know which part of the file you need, only read that part. This can be important for larger files.\n- Results are returned using cat -n format, with line numbers starting at 1\n- Reads images (PNG, JPG, …) and presents them visually. Reads PDFs via the `pages` parameter (e.g. \"1-5\", max 20 pages/request; required for PDFs over 10 pages). Reads Jupyter notebooks (.ipynb) as cells with outputs.\n- Reading a directory, a missing file, or an empty file returns an error or system reminder rather than content.\n- Do NOT re-read a file you just edited to verify — Edit/Write would have errored if the change failed, and the harness tracks file state for you.","name":"Read","output_schema":null,"parameters":{"$schema":"https://json-schema.org/draft/2020-12/schema","additionalProperties":false,"properties":{"allow_large":{"description":"Set to true to read a text file, or a line range of one, that is over the usual size limits, up to what still fits in your context. Only use this when you genuinely need all of it or the user asked for the whole file; otherwise read it in parts with offset and limit, or search it.","type":"boolean"},"file_path":{"description":"The absolute path to the file to read","type":"string"},"limit":{"description":"The number of lines to read. Only provide if the file is too large to read at once.","exclusiveMinimum":0,"maximum":9007199254740991,"type":"integer"},"offset":{"description":"The line number to start reading from. Only provide if the file is too large to read at once","maximum":9007199254740991,"minimum":0,"type":"integer"},"pages":{"description":"Page range for PDF files (e.g., \"1-5\", \"3\", \"10-20\"). Only applicable to PDF files. Maximum 20 pages per request.","type":"string"}},"required":["allow_large","file_path","limit","offset","pages"],"type":"object"},"strict":true,"type":"function"}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null},"sequence_number":1,"type":"response.in_progress"}
+
+event: response.output_item.added
+data: {"item":{"content":[],"encrypted_content":"fixture_redacted_encrypted_content_002","id":"fixture_opaque_id_048","summary":[],"type":"reasoning"},"output_index":0,"sequence_number":2,"type":"response.output_item.added"}
+
+event: response.reasoning_summary_part.added
+data: {"item_id":"fixture_opaque_id_049","output_index":0,"part":{"text":"","type":"summary_text"},"sequence_number":3,"summary_index":0,"type":"response.reasoning_summary_part.added"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":"**Considering the code task**\n\nI","item_id":"fixture_opaque_id_050","obfuscation":"","output_index":0,"sequence_number":4,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":"’m","item_id":"fixture_opaque_id_051","obfuscation":"R73kJGAH2E7b6N","output_index":0,"sequence_number":5,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" interpreting","item_id":"fixture_opaque_id_052","obfuscation":"lmT","output_index":0,"sequence_number":6,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" this","item_id":"fixture_opaque_id_053","obfuscation":"faKvxg7xb4B","output_index":0,"sequence_number":7,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" task","item_id":"fixture_opaque_id_054","obfuscation":"nDx3s7fGmGh","output_index":0,"sequence_number":8,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" as","item_id":"fixture_opaque_id_055","obfuscation":"XY7GoxR8Pvzqz","output_index":0,"sequence_number":9,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" possibly","item_id":"fixture_opaque_id_056","obfuscation":"h5oIFBi","output_index":0,"sequence_number":10,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" dealing","item_id":"fixture_opaque_id_057","obfuscation":"FIOCZbBB","output_index":0,"sequence_number":11,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" with","item_id":"fixture_opaque_id_058","obfuscation":"uRM7ry4qOTE","output_index":0,"sequence_number":12,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" code","item_id":"fixture_opaque_id_059","obfuscation":"i4xYQmPXiXS","output_index":0,"sequence_number":13,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" described","item_id":"fixture_opaque_id_060","obfuscation":"pM0ygL","output_index":0,"sequence_number":14,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" by","item_id":"fixture_opaque_id_061","obfuscation":"wqbbQfk6VGk5b","output_index":0,"sequence_number":15,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" visual","item_id":"fixture_opaque_id_062","obfuscation":"MGhTVWa0o","output_index":0,"sequence_number":16,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" cues","item_id":"fixture_opaque_id_063","obfuscation":"2GhQlpgOgVn","output_index":0,"sequence_number":17,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":",","item_id":"fixture_opaque_id_064","obfuscation":"rirUblxtbOsK5EN","output_index":0,"sequence_number":18,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" maybe","item_id":"fixture_opaque_id_065","obfuscation":"rAbnxr8AW2","output_index":0,"sequence_number":19,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" color","item_id":"fixture_opaque_id_066","obfuscation":"zFISSGkWIu","output_index":0,"sequence_number":20,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":"-coded","item_id":"fixture_opaque_id_067","obfuscation":"xlznjfXIMW","output_index":0,"sequence_number":21,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":".","item_id":"fixture_opaque_id_068","obfuscation":"WxYyo2yjpQhq2an","output_index":0,"sequence_number":22,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" The","item_id":"fixture_opaque_id_069","obfuscation":"kd8QQIgTlP89","output_index":0,"sequence_number":23,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" rectangle","item_id":"fixture_opaque_id_070","obfuscation":"n6uhGb","output_index":0,"sequence_number":24,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" might","item_id":"fixture_opaque_id_071","obfuscation":"ZJpQzYFdRU","output_index":0,"sequence_number":25,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" just","item_id":"fixture_opaque_id_072","obfuscation":"GwYMnxhE1JI","output_index":0,"sequence_number":26,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" be","item_id":"fixture_opaque_id_073","obfuscation":"VsN72liBwSnuX","output_index":0,"sequence_number":27,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" solid","item_id":"fixture_opaque_id_074","obfuscation":"hrWNycln4v","output_index":0,"sequence_number":28,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" bright","item_id":"fixture_opaque_id_075","obfuscation":"IOvFog2Lj","output_index":0,"sequence_number":29,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" blue","item_id":"fixture_opaque_id_076","obfuscation":"FmnwJA1Fptp","output_index":0,"sequence_number":30,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" without","item_id":"fixture_opaque_id_077","obfuscation":"nRCkMUmM","output_index":0,"sequence_number":31,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" any","item_id":"fixture_opaque_id_078","obfuscation":"RgxJzabvPg6X","output_index":0,"sequence_number":32,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" visible","item_id":"fixture_opaque_id_079","obfuscation":"SL7z8aiM","output_index":0,"sequence_number":33,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" text","item_id":"fixture_opaque_id_080","obfuscation":"PkyrisCw4CM","output_index":0,"sequence_number":34,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":".","item_id":"fixture_opaque_id_081","obfuscation":"4XlGIxZ4uCyDIeS","output_index":0,"sequence_number":35,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" I","item_id":"fixture_opaque_id_082","obfuscation":"qg30Pvutji006l","output_index":0,"sequence_number":36,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":"’ll","item_id":"fixture_opaque_id_083","obfuscation":"gbnGFOdHrJqW8","output_index":0,"sequence_number":37,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" need","item_id":"fixture_opaque_id_084","obfuscation":"ds8d0hHhqVt","output_index":0,"sequence_number":38,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" to","item_id":"fixture_opaque_id_085","obfuscation":"1Rzf5lm11cqBO","output_index":0,"sequence_number":39,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" focus","item_id":"fixture_opaque_id_086","obfuscation":"coK4hBoAp4","output_index":0,"sequence_number":40,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" on","item_id":"fixture_opaque_id_087","obfuscation":"OuTBnouI6L4Xb","output_index":0,"sequence_number":41,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" the","item_id":"fixture_opaque_id_088","obfuscation":"HzGriPC4CkTU","output_index":0,"sequence_number":42,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" first","item_id":"fixture_opaque_id_089","obfuscation":"3Lipjr23V7","output_index":0,"sequence_number":43,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" page","item_id":"fixture_opaque_id_090","obfuscation":"Fz0guNLGG3P","output_index":0,"sequence_number":44,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" and","item_id":"fixture_opaque_id_091","obfuscation":"i5jH1ygyZLww","output_index":0,"sequence_number":45,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" what","item_id":"fixture_opaque_id_092","obfuscation":"0hCcnBmynXT","output_index":0,"sequence_number":46,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" the","item_id":"fixture_opaque_id_093","obfuscation":"pUunv6t7ws51","output_index":0,"sequence_number":47,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" tool","item_id":"fixture_opaque_id_094","obfuscation":"3NXkJ934zFZ","output_index":0,"sequence_number":48,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" displays","item_id":"fixture_opaque_id_095","obfuscation":"WdxRmHM","output_index":0,"sequence_number":49,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":".","item_id":"fixture_opaque_id_096","obfuscation":"saYFT9xsGRHSF4Y","output_index":0,"sequence_number":50,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" I","item_id":"fixture_opaque_id_097","obfuscation":"jdL5Y6KRVtnTh3","output_index":0,"sequence_number":51,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" wonder","item_id":"fixture_opaque_id_098","obfuscation":"33Pg9kZHO","output_index":0,"sequence_number":52,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" if","item_id":"fixture_opaque_id_099","obfuscation":"QTUltAUDSflxK","output_index":0,"sequence_number":53,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" there","item_id":"fixture_opaque_id_100","obfuscation":"ECiPguIgnf","output_index":0,"sequence_number":54,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":"’s","item_id":"fixture_opaque_id_101","obfuscation":"4NPg76ncNVby6y","output_index":0,"sequence_number":55,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" a","item_id":"fixture_opaque_id_102","obfuscation":"nusGo3Seih2WSe","output_index":0,"sequence_number":56,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" hidden","item_id":"fixture_opaque_id_103","obfuscation":"wOxROhHOA","output_index":0,"sequence_number":57,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" code","item_id":"fixture_opaque_id_104","obfuscation":"IYQsAVhJOPJ","output_index":0,"sequence_number":58,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" under","item_id":"fixture_opaque_id_105","obfuscation":"mOmg3uJwvF","output_index":0,"sequence_number":59,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" the","item_id":"fixture_opaque_id_106","obfuscation":"2wP0FnVOsWSd","output_index":0,"sequence_number":60,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" colored","item_id":"fixture_opaque_id_107","obfuscation":"iEBEkbl7","output_index":0,"sequence_number":61,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" element","item_id":"fixture_opaque_id_108","obfuscation":"lw27Fhqm","output_index":0,"sequence_number":62,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":".","item_id":"fixture_opaque_id_109","obfuscation":"R1e318lbl5rhRk3","output_index":0,"sequence_number":63,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" However","item_id":"fixture_opaque_id_110","obfuscation":"rEDH54y9","output_index":0,"sequence_number":64,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":",","item_id":"fixture_opaque_id_111","obfuscation":"qDxmKJE0Z8SK2K1","output_index":0,"sequence_number":65,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" I","item_id":"fixture_opaque_id_112","obfuscation":"0CGfF3ISPjpW7F","output_index":0,"sequence_number":66,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" must","item_id":"fixture_opaque_id_113","obfuscation":"26sNglZsJLp","output_index":0,"sequence_number":67,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" be","item_id":"fixture_opaque_id_114","obfuscation":"H1qTXG3aokSD7","output_index":0,"sequence_number":68,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" clear","item_id":"fixture_opaque_id_115","obfuscation":"NviWSX6ONB","output_index":0,"sequence_number":69,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" that","item_id":"fixture_opaque_id_116","obfuscation":"kfRMvn40RlP","output_index":0,"sequence_number":70,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" if","item_id":"fixture_opaque_id_117","obfuscation":"gPdkIPl6NfbEY","output_index":0,"sequence_number":71,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" the","item_id":"fixture_opaque_id_118","obfuscation":"Q7K2bhH4rCf9","output_index":0,"sequence_number":72,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" code","item_id":"fixture_opaque_id_119","obfuscation":"57OIu90Qsdy","output_index":0,"sequence_number":73,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" isn","item_id":"fixture_opaque_id_120","obfuscation":"2ZxpAHbhVnpY","output_index":0,"sequence_number":74,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":"’t","item_id":"fixture_opaque_id_121","obfuscation":"zam0HfJl0yctGI","output_index":0,"sequence_number":75,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" leg","item_id":"fixture_opaque_id_122","obfuscation":"3UXFTNFuuf7d","output_index":0,"sequence_number":76,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":"ible","item_id":"fixture_opaque_id_123","obfuscation":"Gr0YUL5RqDa3","output_index":0,"sequence_number":77,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":",","item_id":"fixture_opaque_id_124","obfuscation":"KZ3KFDpkEfaolqS","output_index":0,"sequence_number":78,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" I","item_id":"fixture_opaque_id_125","obfuscation":"VFiVv3PZGRYVL1","output_index":0,"sequence_number":79,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" should","item_id":"fixture_opaque_id_126","obfuscation":"OFcXu8Ygq","output_index":0,"sequence_number":80,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" state","item_id":"fixture_opaque_id_127","obfuscation":"FaHbs6mkhh","output_index":0,"sequence_number":81,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" that","item_id":"fixture_opaque_id_128","obfuscation":"cr2lJOkyw8K","output_index":0,"sequence_number":82,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" directly","item_id":"fixture_opaque_id_129","obfuscation":"4OAkinR","output_index":0,"sequence_number":83,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":".","item_id":"fixture_opaque_id_130","obfuscation":"oMtRCLPeA0Cg8qi","output_index":0,"sequence_number":84,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" I'll","item_id":"fixture_opaque_id_131","obfuscation":"T5AyN53GZ05","output_index":0,"sequence_number":85,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" keep","item_id":"fixture_opaque_id_132","obfuscation":"WEdPE3ylemQ","output_index":0,"sequence_number":86,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" my","item_id":"fixture_opaque_id_133","obfuscation":"t372OiHib5Zr4","output_index":0,"sequence_number":87,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" observations","item_id":"fixture_opaque_id_134","obfuscation":"tBZ","output_index":0,"sequence_number":88,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":" straightforward","item_id":"fixture_opaque_id_135","obfuscation":"","output_index":0,"sequence_number":89,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.delta
+data: {"delta":"!","item_id":"fixture_opaque_id_136","obfuscation":"JYMCSpAUtk7bsqE","output_index":0,"sequence_number":90,"summary_index":0,"type":"response.reasoning_summary_text.delta"}
+
+event: response.reasoning_summary_text.done
+data: {"item_id":"fixture_opaque_id_137","output_index":0,"sequence_number":91,"summary_index":0,"text":"**Considering the code task**\n\nI’m interpreting this task as possibly dealing with code described by visual cues, maybe color-coded. The rectangle might just be solid bright blue without any visible text. I’ll need to focus on the first page and what the tool displays. I wonder if there’s a hidden code under the colored element. However, I must be clear that if the code isn’t legible, I should state that directly. I'll keep my observations straightforward!","type":"response.reasoning_summary_text.done"}
+
+event: response.reasoning_summary_part.done
+data: {"item_id":"fixture_opaque_id_138","output_index":0,"part":{"text":"**Considering the code task**\n\nI’m interpreting this task as possibly dealing with code described by visual cues, maybe color-coded. The rectangle might just be solid bright blue without any visible text. I’ll need to focus on the first page and what the tool displays. I wonder if there’s a hidden code under the colored element. However, I must be clear that if the code isn’t legible, I should state that directly. I'll keep my observations straightforward!","type":"summary_text"},"sequence_number":92,"summary_index":0,"type":"response.reasoning_summary_part.done"}
+
+event: response.output_item.done
+data: {"item":{"content":[],"encrypted_content":"fixture_redacted_signature_001","id":"fixture_opaque_id_139","summary":[{"text":"**Considering the code task**\n\nI’m interpreting this task as possibly dealing with code described by visual cues, maybe color-coded. The rectangle might just be solid bright blue without any visible text. I’ll need to focus on the first page and what the tool displays. I wonder if there’s a hidden code under the colored element. However, I must be clear that if the code isn’t legible, I should state that directly. I'll keep my observations straightforward!","type":"summary_text"}],"type":"reasoning"},"output_index":0,"sequence_number":93,"type":"response.output_item.done"}
+
+event: response.output_item.added
+data: {"item":{"content":[],"id":"fixture_opaque_id_140","phase":"final_answer","role":"assistant","status":"in_progress","type":"message"},"output_index":1,"sequence_number":94,"type":"response.output_item.added"}
+
+event: response.content_part.added
+data: {"content_index":0,"item_id":"fixture_opaque_id_141","output_index":1,"part":{"annotations":[],"logprobs":[],"text":"","type":"output_text"},"sequence_number":95,"type":"response.content_part.added"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":"The","item_id":"fixture_opaque_id_142","logprobs":[],"obfuscation":"GzrJSsZRHQLo2","output_index":1,"sequence_number":96,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" element","item_id":"fixture_opaque_id_143","logprobs":[],"obfuscation":"vd9zBElo","output_index":1,"sequence_number":97,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" is","item_id":"fixture_opaque_id_144","logprobs":[],"obfuscation":"z9BUkjkxwD6gq","output_index":1,"sequence_number":98,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" blue","item_id":"fixture_opaque_id_145","logprobs":[],"obfuscation":"RQFdJejCSpX","output_index":1,"sequence_number":99,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":".","item_id":"fixture_opaque_id_146","logprobs":[],"obfuscation":"QVNeQB1CbhMwKxl","output_index":1,"sequence_number":100,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" No","item_id":"fixture_opaque_id_147","logprobs":[],"obfuscation":"u9ZZEkF1br6LX","output_index":1,"sequence_number":101,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" printed","item_id":"fixture_opaque_id_148","logprobs":[],"obfuscation":"00nIpqET","output_index":1,"sequence_number":102,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" code","item_id":"fixture_opaque_id_149","logprobs":[],"obfuscation":"uVQmsLU4SeZ","output_index":1,"sequence_number":103,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" is","item_id":"fixture_opaque_id_150","logprobs":[],"obfuscation":"gI6JqmlrHcs0V","output_index":1,"sequence_number":104,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" visible","item_id":"fixture_opaque_id_151","logprobs":[],"obfuscation":"hXVZfjCK","output_index":1,"sequence_number":105,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" in","item_id":"fixture_opaque_id_152","logprobs":[],"obfuscation":"hbdNMz6XEeYVl","output_index":1,"sequence_number":106,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" the","item_id":"fixture_opaque_id_153","logprobs":[],"obfuscation":"muBSqxlJ0bRr","output_index":1,"sequence_number":107,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" PDF","item_id":"fixture_opaque_id_154","logprobs":[],"obfuscation":"CNlVU56BZ9JA","output_index":1,"sequence_number":108,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":".","item_id":"fixture_opaque_id_155","logprobs":[],"obfuscation":"ZpGDBE6DkMAM9Bk","output_index":1,"sequence_number":109,"type":"response.output_text.delta"}
+
+event: response.output_text.done
+data: {"content_index":0,"item_id":"fixture_opaque_id_156","logprobs":[],"output_index":1,"sequence_number":110,"text":"The element is blue. No printed code is visible in the PDF.","type":"response.output_text.done"}
+
+event: response.content_part.done
+data: {"content_index":0,"item_id":"fixture_opaque_id_157","output_index":1,"part":{"annotations":[],"logprobs":[],"text":"The element is blue. No printed code is visible in the PDF.","type":"output_text"},"sequence_number":111,"type":"response.content_part.done"}
+
+event: response.output_item.done
+data: {"item":{"content":[{"annotations":[],"logprobs":[],"text":"The element is blue. No printed code is visible in the PDF.","type":"output_text"}],"id":"fixture_opaque_id_158","phase":"final_answer","role":"assistant","status":"completed","type":"message"},"output_index":1,"sequence_number":112,"type":"response.output_item.done"}
+
+event: response.completed
+data: {"copilot_usage":{"token_details":[{"batch_size":1000000,"cost_per_batch":10000000000,"model":"gpt-6-luna","token_count":20,"token_type":"input"},{"batch_size":1000000,"cost_per_batch":1000000000,"model":"gpt-6-luna","token_count":1248,"token_type":"cache_read"},{"batch_size":1000000,"cost_per_batch":12500000000,"model":"gpt-6-luna","token_count":445,"token_type":"cache_write"},{"batch_size":1000000,"cost_per_batch":50000000000,"model":"gpt-6-luna","token_count":348,"token_type":"output"}],"total_nano_aiu":24410500},"response":{"access_programs":null,"background":false,"completed_at":1791592881,"created_at":1791592877,"error":null,"frequency_penalty":0,"id":"fixture_opaque_id_159","incomplete_details":null,"instructions":null,"max_output_tokens":32000,"max_tool_calls":null,"metadata":{},"model":"gpt-6-luna","moderation":null,"object":"response","output":[{"content":[],"encrypted_content":"fixture_redacted_encrypted_content_003","id":"fixture_opaque_id_160","summary":[{"text":"**Considering the code task**\n\nI’m interpreting this task as possibly dealing with code described by visual cues, maybe color-coded. The rectangle might just be solid bright blue without any visible text. I’ll need to focus on the first page and what the tool displays. I wonder if there’s a hidden code under the colored element. However, I must be clear that if the code isn’t legible, I should state that directly. I'll keep my observations straightforward!","type":"summary_text"}],"type":"reasoning"},{"content":[{"annotations":[],"logprobs":[],"text":"The element is blue. No printed code is visible in the PDF.","type":"output_text"}],"id":"fixture_opaque_id_161","phase":"final_answer","role":"assistant","status":"completed","type":"message"}],"parallel_tool_calls":true,"presence_penalty":0,"previous_response_id":null,"prompt_cache_retention":"24h","reasoning":{"context":"all_turns","effort":"medium","mode":"standard","summary":"detailed"},"safety_identifier":"fixture_safety_identifier_002","service_tier":"default","status":"completed","store":false,"temperature":1,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"description":"Reads a file from the local filesystem.\n\n- `file_path` must be an absolute path.\n- Reads up to 2000 lines by default.\n- When you already know which part of the file you need, only read that part. This can be important for larger files.\n- Results are returned using cat -n format, with line numbers starting at 1\n- Reads images (PNG, JPG, …) and presents them visually. Reads PDFs via the `pages` parameter (e.g. \"1-5\", max 20 pages/request; required for PDFs over 10 pages). Reads Jupyter notebooks (.ipynb) as cells with outputs.\n- Reading a directory, a missing file, or an empty file returns an error or system reminder rather than content.\n- Do NOT re-read a file you just edited to verify — Edit/Write would have errored if the change failed, and the harness tracks file state for you.","name":"Read","output_schema":null,"parameters":{"$schema":"https://json-schema.org/draft/2020-12/schema","additionalProperties":false,"properties":{"allow_large":{"description":"Set to true to read a text file, or a line range of one, that is over the usual size limits, up to what still fits in your context. Only use this when you genuinely need all of it or the user asked for the whole file; otherwise read it in parts with offset and limit, or search it.","type":"boolean"},"file_path":{"description":"The absolute path to the file to read","type":"string"},"limit":{"description":"The number of lines to read. Only provide if the file is too large to read at once.","exclusiveMinimum":0,"maximum":9007199254740991,"type":"integer"},"offset":{"description":"The line number to start reading from. Only provide if the file is too large to read at once","maximum":9007199254740991,"minimum":0,"type":"integer"},"pages":{"description":"Page range for PDF files (e.g., \"1-5\", \"3\", \"10-20\"). Only applicable to PDF files. Maximum 20 pages per request.","type":"string"}},"required":["allow_large","file_path","limit","offset","pages"],"type":"object"},"strict":true,"type":"function"}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":{"input_tokens":1713,"input_tokens_details":{"cache_write_tokens":445,"cached_tokens":1248},"output_tokens":348,"output_tokens_details":{"reasoning_tokens":328},"total_tokens":2061},"user":null},"sequence_number":113,"type":"response.completed"}
+

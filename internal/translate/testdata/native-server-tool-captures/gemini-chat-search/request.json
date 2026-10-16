@@ -1,0 +1,13 @@
+{
+  "messages": [
+    {
+      "content": "Use the offered server tool to find NASA's Moon Facts page, then give one fact with its source URL.",
+      "role": "user"
+    }
+  ],
+  "model": "gemini-3.8-flash",
+  "stream": false,
+  "web_search_options": {
+    "search_context_size": "low"
+  }
+}

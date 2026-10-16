@@ -1,0 +1,6 @@
+[
+  {"type":"message","role":"user","content":[{"type":"input_text","text":"Remember the active goal: finish the native host bridge."}]},
+  {"type":"reasoning","id":"reasoning_compaction_original/+","summary":[],"encrypted_content":"copilot-opaque/+ encrypted content exact"},
+  {"type":"function_call","id":"function_compaction_original/+","call_id":"call_compaction_original/+","name":"inspect","arguments":"{\"query\":\"original\"}"},
+  {"type":"function_call_output","call_id":"call_compaction_original/+","output":"original result"}
+]

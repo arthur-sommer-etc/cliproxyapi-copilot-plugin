@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"sort"
@@ -12,7 +13,7 @@ import (
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/redact"
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/translate"
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/transport"
-	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
 )
 
 type modelListResponse struct {
@@ -25,12 +26,17 @@ type upstreamModel struct {
 	Name                string            `json:"name"`
 	Version             string            `json:"version"`
 	Object              string            `json:"object"`
-	ModelPickerEnabled  bool              `json:"model_picker_enabled"`
+	ModelPickerEnabled  *bool             `json:"model_picker_enabled"`
+	Policy              *modelPolicy      `json:"policy"`
 	Preview             bool              `json:"preview"`
 	SupportedEndpoints  []string          `json:"supported_endpoints"`
 	WarningMessages     []modelMessage    `json:"warning_messages"`
 	InformationMessages []modelMessage    `json:"info_messages"`
 	Capabilities        modelCapabilities `json:"capabilities"`
+}
+
+type modelPolicy struct {
+	State string `json:"state"`
 }
 
 type modelMessage struct {
@@ -64,11 +70,12 @@ type modelLimits struct {
 }
 
 type modelCacheEntry struct {
-	Fingerprint string
-	APIBaseURL  string
-	ExpiresAt   time.Time
-	Models      []upstreamModel
-	ByID        map[string]upstreamModel
+	Fingerprint      string
+	APIBaseURL       string
+	Mode             string
+	ConfigGeneration uint64
+	ExpiresAt        time.Time
+	Models           []upstreamModel
 }
 
 func (s *Service) StaticModels() pluginapi.ModelResponse {
@@ -84,7 +91,51 @@ func (s *Service) ModelsForAuth(ctx context.Context, callbackID string, req plug
 	if errModels != nil {
 		return pluginapi.ModelResponse{}, errModels
 	}
-	return pluginapi.ModelResponse{Provider: providerID, Models: modelInfos(models)}, nil
+	cfg := s.Config()
+	inventory := normalizeModels(models)
+	registered := make([]upstreamModel, 0, len(inventory))
+	knownIDs := make(map[string]struct{}, len(inventory))
+	for _, model := range inventory {
+		id := strings.ToLower(model.ID)
+		knownIDs[id] = struct{}{}
+		if !modelPolicyAllowsUse(model.Policy) || (!modelAvailable(model) && cfg.ModelEndpointOverrides[id] == "") {
+			continue
+		}
+		registered = append(registered, model)
+	}
+
+	infos := modelInfos(registered)
+	seenIDs := make(map[string]struct{}, len(infos)+len(cfg.ModelEndpointOverrides))
+	for _, info := range infos {
+		seenIDs[strings.ToLower(info.ID)] = struct{}{}
+	}
+	for modelID, endpoint := range cfg.ModelEndpointOverrides {
+		id := strings.TrimSpace(modelID)
+		key := strings.ToLower(id)
+		if id == "" {
+			continue
+		}
+		if _, exists := knownIDs[key]; exists {
+			continue
+		}
+		if _, exists := seenIDs[key]; exists {
+			continue
+		}
+		infos = append(infos, pluginapi.ModelInfo{
+			ID:          id,
+			Description: fmt.Sprintf("Configured endpoint override: %s. Copilot availability and capabilities are unverified.", endpoint),
+			UserDefined: true,
+		})
+		seenIDs[key] = struct{}{}
+	}
+	sort.SliceStable(infos, func(i, j int) bool {
+		left, right := strings.ToLower(infos[i].ID), strings.ToLower(infos[j].ID)
+		if left == right {
+			return infos[i].ID < infos[j].ID
+		}
+		return left < right
+	})
+	return pluginapi.ModelResponse{Provider: providerID, Models: infos}, nil
 }
 
 func (s *Service) models(ctx context.Context, callbackID, authID string, storage authStorage, force bool) ([]upstreamModel, copilotTokenEntry, error) {
@@ -98,24 +149,25 @@ func (s *Service) models(ctx context.Context, callbackID, authID string, storage
 		key = fingerprint
 	}
 	now := s.now()
-	if !force {
-		s.modelMu.Lock()
-		cached, ok := s.modelEntries[key]
-		s.modelMu.Unlock()
-		if ok && cached.Fingerprint == fingerprint && cached.APIBaseURL == token.APIBaseURL && cached.ExpiresAt.After(now) {
-			return cloneUpstreamModels(cached.Models), token, nil
-		}
+	s.modelMu.Lock()
+	pruneModelCache(s.modelEntries, now)
+	cached, ok := s.modelEntries[key]
+	s.modelMu.Unlock()
+	if !force && ok && cached.Fingerprint == fingerprint && cached.APIBaseURL == token.APIBaseURL && effectiveAuthMode(cached.Mode) == effectiveAuthMode(token.Mode) && cached.ConfigGeneration == token.ConfigGeneration && cached.ExpiresAt.After(now) {
+		return cloneUpstreamModels(cached.Models), token, nil
 	}
 
 	resp, errDo := s.host.Do(ctx, callbackID, transport.Request{
 		Method:  http.MethodGet,
 		URL:     token.APIBaseURL + "/models",
-		Headers: copilotHeaders(token.Token, false),
+		Headers: copilotRequestHeaders(token, false),
 	})
 	if errDo != nil {
 		return nil, copilotTokenEntry{}, fmt.Errorf("discover Copilot models: %w", errDo)
 	}
-	if resp.StatusCode == http.StatusUnauthorized {
+	if effectiveAuthMode(token.Mode) == authModeDirectOAuth && (resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden) {
+		s.invalidateAuthForCredential(authID, fingerprint)
+	} else if effectiveAuthMode(token.Mode) != authModeDirectOAuth && resp.StatusCode == http.StatusUnauthorized {
 		s.invalidateAuth(authID)
 		token, errToken = s.copilotToken(ctx, callbackID, authID, storage)
 		if errToken != nil {
@@ -124,71 +176,135 @@ func (s *Service) models(ctx context.Context, callbackID, authID string, storage
 		resp, errDo = s.host.Do(ctx, callbackID, transport.Request{
 			Method:  http.MethodGet,
 			URL:     token.APIBaseURL + "/models",
-			Headers: copilotHeaders(token.Token, false),
+			Headers: copilotRequestHeaders(token, false),
 		})
 		if errDo != nil {
 			return nil, copilotTokenEntry{}, fmt.Errorf("discover Copilot models after token refresh: %w", errDo)
 		}
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, copilotTokenEntry{}, upstreamStatusError(resp.StatusCode, redact.ErrorBody(resp.Body, token.Token, storage.GitHubAccessToken))
+		redactedBody := redact.ErrorBody(resp.Body, token.Token, storage.GitHubAccessToken)
+		recordUpstreamRejection(resp.StatusCode, "/models", resp.Headers, redactedBody, token.Token, storage.GitHubAccessToken)
+		return nil, copilotTokenEntry{}, upstreamStatusError(resp.StatusCode, redactedBody)
 	}
 	var list modelListResponse
 	if errUnmarshal := json.Unmarshal(resp.Body, &list); errUnmarshal != nil {
 		return nil, copilotTokenEntry{}, fmt.Errorf("decode Copilot models response: %w", errUnmarshal)
 	}
-	cleaned := filterModels(normalizeModels(list.Data), s.Config().ExcludedModelPrefixes)
-	if len(cleaned) == 0 {
-		return nil, copilotTokenEntry{}, fmt.Errorf("Copilot models endpoint returned no usable models")
+	cfg, generation := s.configSnapshot()
+	if generation != token.ConfigGeneration {
+		return nil, copilotTokenEntry{}, fmt.Errorf("Copilot configuration changed during model discovery")
 	}
+	inventory := normalizeModels(list.Data)
 
-	byID := make(map[string]upstreamModel, len(cleaned))
-	for _, model := range cleaned {
-		byID[strings.ToLower(model.ID)] = model
+	s.configMu.RLock()
+	if s.configGeneration != token.ConfigGeneration {
+		s.configMu.RUnlock()
+		return nil, copilotTokenEntry{}, fmt.Errorf("Copilot configuration changed during model discovery")
 	}
 	s.modelMu.Lock()
+	cacheNow := s.now()
+	pruneModelCache(s.modelEntries, cacheNow)
 	s.modelEntries[key] = modelCacheEntry{
-		Fingerprint: fingerprint,
-		APIBaseURL:  token.APIBaseURL,
-		ExpiresAt:   now.Add(s.Config().modelCacheTTL()),
-		Models:      cloneUpstreamModels(cleaned),
-		ByID:        byID,
+		Fingerprint:      fingerprint,
+		APIBaseURL:       token.APIBaseURL,
+		Mode:             effectiveAuthMode(token.Mode),
+		ConfigGeneration: token.ConfigGeneration,
+		ExpiresAt:        cacheNow.Add(cfg.modelCacheTTL()),
+		Models:           cloneUpstreamModels(inventory),
 	}
+	pruneModelCache(s.modelEntries, cacheNow)
 	s.modelMu.Unlock()
-	return cleaned, token, nil
+	s.configMu.RUnlock()
+	return inventory, token, nil
 }
 
-func (s *Service) endpointForModel(ctx context.Context, callbackID, authID string, storage authStorage, modelID string) (string, copilotTokenEntry, error) {
+func (s *Service) endpointForModel(ctx context.Context, callbackID, authID string, storage authStorage, modelID, sourceFormat string) (string, upstreamModel, copilotTokenEntry, error) {
 	modelID = strings.TrimSpace(modelID)
 	if modelID == "" {
-		return "", copilotTokenEntry{}, statusError("invalid_request", "model is required", http.StatusBadRequest)
+		return "", upstreamModel{}, copilotTokenEntry{}, statusError("invalid_request", "model is required", http.StatusBadRequest)
+	}
+	if endpoint := s.endpointOverride(modelID); endpoint != "" {
+		models, token, errModels := s.models(ctx, callbackID, authID, storage, false)
+		if errModels != nil {
+			return "", upstreamModel{}, copilotTokenEntry{}, errModels
+		}
+		for _, model := range models {
+			if strings.EqualFold(model.ID, modelID) {
+				if !modelPolicyAllowsUse(model.Policy) {
+					return "", upstreamModel{}, token, statusError("model_not_found", "Copilot model is not present in the authenticated model catalog", http.StatusNotFound)
+				}
+				return endpoint, model, token, nil
+			}
+		}
+		return endpoint, upstreamModel{}, token, nil
 	}
 	models, token, errModels := s.models(ctx, callbackID, authID, storage, false)
 	if errModels != nil {
-		if endpoint, ok := specialResponsesModel(modelID); ok {
-			token, errToken := s.copilotToken(ctx, callbackID, authID, storage)
-			return endpoint, token, errToken
-		}
-		return "", copilotTokenEntry{}, errModels
+		return "", upstreamModel{}, copilotTokenEntry{}, errModels
 	}
-	for _, model := range models {
+	for _, model := range availableModels(models) {
 		if strings.EqualFold(model.ID, modelID) {
-			endpoint, errEndpoint := selectEndpoint(model)
-			return endpoint, token, errEndpoint
+			endpoint, errEndpoint := selectEndpoint(model, sourceFormat)
+			return endpoint, model, token, errEndpoint
 		}
 	}
-	if endpoint, ok := specialResponsesModel(modelID); ok {
-		return endpoint, token, nil
-	}
-	return "", token, statusError("model_not_found", "Copilot model is not present in the authenticated model catalog", http.StatusNotFound)
+	return "", upstreamModel{}, token, statusError("model_not_found", "Copilot model is not present in the authenticated model catalog", http.StatusNotFound)
 }
 
-func selectEndpoint(model upstreamModel) (string, error) {
-	if endpoint, ok := specialResponsesModel(model.ID); ok {
-		return endpoint, nil
+func (s *Service) endpointForModelWithPayload(ctx context.Context, callbackID, authID string, storage authStorage, modelID, sourceFormat string, payload []byte) (string, upstreamModel, copilotTokenEntry, error) {
+	endpoint, model, token, err := s.endpointForModel(ctx, callbackID, authID, storage, modelID, sourceFormat)
+	if err != nil || s.endpointOverride(modelID) != "" || !model.Capabilities.Supports.Vision {
+		return endpoint, model, token, err
+	}
+	var detailErr *translate.UnsupportedImageDetailError
+	if err := translate.ValidateRequestAttachmentsForEndpoint(sourceFormat, endpoint, payload); !errors.As(err, &detailErr) {
+		return endpoint, model, token, nil
 	}
 	endpoints := normalizeEndpoints(model.SupportedEndpoints)
-	for _, preferred := range []string{translate.EndpointResponses, translate.EndpointChatCompletions, translate.EndpointMessages} {
+	for _, candidate := range endpointPreferences(model, sourceFormat) {
+		if candidate == endpoint || !contains(endpoints, candidate) {
+			continue
+		}
+		if err := translate.ValidateRequestAttachmentsForEndpoint(sourceFormat, candidate, payload); err == nil {
+			return candidate, model, token, nil
+		}
+	}
+	return endpoint, model, token, nil
+}
+
+func availableModels(models []upstreamModel) []upstreamModel {
+	out := make([]upstreamModel, 0, len(models))
+	for _, model := range models {
+		if !modelAvailable(model) {
+			continue
+		}
+		out = append(out, model)
+	}
+	return out
+}
+
+func modelAvailable(model upstreamModel) bool {
+	if !modelPolicyAllowsUse(model.Policy) || model.ModelPickerEnabled != nil && !*model.ModelPickerEnabled {
+		return false
+	}
+	if modelType := strings.TrimSpace(model.Capabilities.Type); modelType != "" && !strings.EqualFold(modelType, "chat") {
+		return false
+	}
+	return len(normalizeEndpoints(model.SupportedEndpoints)) > 0
+}
+
+func modelPolicyAllowsUse(policy *modelPolicy) bool {
+	return policy == nil || strings.EqualFold(strings.TrimSpace(policy.State), "enabled")
+}
+
+func (s *Service) endpointOverride(modelID string) string {
+	return s.Config().ModelEndpointOverrides[strings.ToLower(strings.TrimSpace(modelID))]
+}
+
+func selectEndpoint(model upstreamModel, sourceFormat string) (string, error) {
+	endpoints := normalizeEndpoints(model.SupportedEndpoints)
+	for _, preferred := range endpointPreferences(model, sourceFormat) {
 		for _, endpoint := range endpoints {
 			if endpoint == preferred {
 				return preferred, nil
@@ -198,13 +314,33 @@ func selectEndpoint(model upstreamModel) (string, error) {
 	return "", statusError("unsupported_model_endpoint", "Copilot model exposes no supported chat endpoint", http.StatusUnprocessableEntity)
 }
 
-func specialResponsesModel(modelID string) (string, bool) {
-	switch strings.ToLower(strings.TrimSpace(modelID)) {
-	case "gpt-5.6-sol", "gpt-5.6-terra":
-		return translate.EndpointResponses, true
+func endpointPreferences(model upstreamModel, sourceFormat string) []string {
+	switch normalizeRequestFormat(sourceFormat) {
+	case "claude":
+		return []string{translate.EndpointMessages, translate.EndpointResponses, translate.EndpointChatCompletions}
+	case "openai":
+		return []string{translate.EndpointChatCompletions, translate.EndpointResponses, translate.EndpointMessages}
+	case "openai-response":
+		if isClaudeFamilyModel(model) {
+			return []string{translate.EndpointResponses, translate.EndpointMessages, translate.EndpointChatCompletions}
+		}
+		return []string{translate.EndpointResponses, translate.EndpointChatCompletions, translate.EndpointMessages}
 	default:
-		return "", false
+		return []string{translate.EndpointResponses, translate.EndpointChatCompletions, translate.EndpointMessages}
 	}
+}
+
+func isClaudeFamilyModel(model upstreamModel) bool {
+	vendor := strings.ToLower(strings.TrimSpace(model.Vendor))
+	family := strings.ToLower(strings.TrimSpace(model.Capabilities.Family))
+	id := strings.ToLower(strings.TrimSpace(model.ID))
+	return vendor == "anthropic" || vendor == "claude" || strings.HasPrefix(family, "claude") || strings.HasPrefix(id, "claude-")
+}
+
+func isGemini3FamilyModel(model upstreamModel) bool {
+	family := strings.ToLower(strings.TrimSpace(model.Capabilities.Family))
+	id := strings.ToLower(strings.TrimSpace(model.ID))
+	return strings.Contains(family, "gemini-3") || strings.HasPrefix(id, "gemini-3")
 }
 
 func normalizeModels(models []upstreamModel) []upstreamModel {
@@ -225,35 +361,11 @@ func normalizeModels(models []upstreamModel) []upstreamModel {
 		model.Version = strings.TrimSpace(model.Version)
 		model.Object = strings.TrimSpace(model.Object)
 		model.SupportedEndpoints = normalizeEndpoints(model.SupportedEndpoints)
-		if endpoint, ok := specialResponsesModel(model.ID); ok && !contains(model.SupportedEndpoints, endpoint) {
-			model.SupportedEndpoints = append(model.SupportedEndpoints, endpoint)
-		}
 		out = append(out, model)
 	}
 	sort.SliceStable(out, func(i, j int) bool {
 		return strings.ToLower(out[i].ID) < strings.ToLower(out[j].ID)
 	})
-	return out
-}
-
-func filterModels(models []upstreamModel, excludedPrefixes []string) []upstreamModel {
-	if len(excludedPrefixes) == 0 {
-		return models
-	}
-	out := make([]upstreamModel, 0, len(models))
-	for _, model := range models {
-		modelID := strings.ToLower(model.ID)
-		excluded := false
-		for _, prefix := range excludedPrefixes {
-			if strings.HasPrefix(modelID, prefix) {
-				excluded = true
-				break
-			}
-		}
-		if !excluded {
-			out = append(out, model)
-		}
-	}
 	return out
 }
 
@@ -366,6 +478,14 @@ func cloneUpstreamModels(in []upstreamModel) []upstreamModel {
 		out[i].Capabilities.Supports.ReasoningEffort = append([]string(nil), in[i].Capabilities.Supports.ReasoningEffort...)
 		out[i].WarningMessages = append([]modelMessage(nil), in[i].WarningMessages...)
 		out[i].InformationMessages = append([]modelMessage(nil), in[i].InformationMessages...)
+		if in[i].ModelPickerEnabled != nil {
+			value := *in[i].ModelPickerEnabled
+			out[i].ModelPickerEnabled = &value
+		}
+		if in[i].Policy != nil {
+			policy := *in[i].Policy
+			out[i].Policy = &policy
+		}
 	}
 	return out
 }

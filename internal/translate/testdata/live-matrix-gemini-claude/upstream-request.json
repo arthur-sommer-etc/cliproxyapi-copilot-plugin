@@ -1,0 +1,1 @@
+{"model":"gemini-3.8-flash","messages":[{"role":"user","content":[{"type":"text","text":"Reply with exactly LIVE_MATRIX_OK."}]}],"stream":false,"max_tokens":512}

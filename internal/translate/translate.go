@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	sdktranslator "github.com/router-for-me/CLIProxyAPI/v7/sdk/translator"
-	"github.com/router-for-me/CLIProxyAPI/v7/sdk/translator/builtin"
+	sdktranslator "github.com/router-for-me/CLIProxyAPI/v8/sdk/translator"
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/translator/builtin"
+	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 )
 
 const (
@@ -36,8 +38,72 @@ func RequestForEndpointFrom(source, model string, body []byte, stream bool, endp
 	if err != nil {
 		return nil, err
 	}
+	if err := rejectMismatchedCopilotCarrier(from, to, model, body); err != nil {
+		return nil, err
+	}
+	if from == sdktranslator.FormatOpenAI && from != to {
+		root, err := decodeObject(body)
+		if err != nil {
+			return nil, fmt.Errorf("decode Chat request: %w", err)
+		}
+		if _, offered := root["web_search_options"]; offered {
+			return nil, fmt.Errorf("Chat hosted web search cannot be represented through %s: native hosted state, results and citations have no lossless Chat response/history representation", endpoint)
+		}
+	}
+	if from != to && from != sdktranslator.FormatOpenAIResponse {
+		if err := validateRequestAttachments(body, from, to); err != nil {
+			return nil, err
+		}
+	}
+	if from == sdktranslator.FormatOpenAIResponse && from != to {
+		if err := validateResponsesRequestForTarget(body, to); err != nil {
+			return nil, err
+		}
+	}
+	if from == to && to == sdktranslator.FormatOpenAIResponse && containsCacheControl(body) {
+		return nil, fmt.Errorf("Responses endpoint does not accept cache_control fields")
+	}
 	var out []byte
-	if from == to {
+	var opaqueSource []byte
+	if from == sdktranslator.FormatOpenAI && to == sdktranslator.FormatOpenAIResponse {
+		out, err = chatRequestToResponses(model, body, stream)
+	} else if from == sdktranslator.FormatOpenAI && to == sdktranslator.FormatClaude {
+		out, err = chatRequestToClaude(model, body, stream)
+	} else if from == sdktranslator.FormatClaude && to == sdktranslator.FormatOpenAI {
+		root, decodeErr := decodeObject(body)
+		if decodeErr != nil {
+			return nil, fmt.Errorf("decode Claude request: %w", decodeErr)
+		}
+		stopSequences, stopErr := claudeStopSequences(root)
+		if stopErr != nil {
+			return nil, stopErr
+		}
+		chatSource := body
+		if len(stopSequences) > 0 {
+			chatSource, err = sjson.DeleteBytes(body, "stop_sequences")
+			if err != nil {
+				return nil, fmt.Errorf("remove Claude stop sequences before Responses translation: %w", err)
+			}
+		}
+		var intermediate []byte
+		intermediate, err = claudeRequestToResponses(model, chatSource, stream)
+		if err == nil {
+			err = validateResponsesRequestForTarget(intermediate, to)
+			if err == nil {
+				out, err = requestFromResponsesToChat(model, intermediate, stream)
+			}
+			if err == nil && len(stopSequences) > 0 {
+				out, err = sjson.SetBytes(out, "stop", stopSequences)
+				if err != nil {
+					return nil, fmt.Errorf("set translated Chat stop sequences: %w", err)
+				}
+			}
+			opaqueSource = intermediate
+		}
+	} else if from == sdktranslator.FormatOpenAIResponse && to == sdktranslator.FormatOpenAI {
+		out, err = requestFromResponsesToChat(model, body, stream)
+		opaqueSource = body
+	} else if from == to {
 		out = append([]byte(nil), body...)
 	} else {
 		out, err = request(from, to, model, body, stream)
@@ -45,7 +111,60 @@ func RequestForEndpointFrom(source, model string, body []byte, stream bool, endp
 	if err != nil {
 		return nil, err
 	}
-	return setModelAndStream(out, model, stream)
+	if from != to {
+		out, err = restoreRequestAttachmentFields(body, out, from, to)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if from == sdktranslator.FormatClaude && to == sdktranslator.FormatOpenAIResponse {
+		out, err = stripCacheControlFields(out)
+		if err != nil {
+			return nil, err
+		}
+	}
+	out, err = setModelAndStream(out, model, stream)
+	if err != nil {
+		return nil, err
+	}
+	if opaqueSource != nil {
+		return restoreCopilotOpaqueToChat(out, opaqueSource, model)
+	}
+	return out, nil
+}
+
+func requestFromResponsesToChat(model string, body []byte, stream bool) ([]byte, error) {
+	if !json.Valid(body) {
+		return nil, fmt.Errorf("request body is not valid JSON")
+	}
+	if err := rejectOpaqueReasoningRequest(sdktranslator.FormatOpenAIResponse, sdktranslator.FormatOpenAI, body); err != nil {
+		return nil, err
+	}
+	carriedBody, orphaned, err := prepareOrphanResponsesToolOutputs(body)
+	if err != nil {
+		return nil, err
+	}
+	carriedBody, err = responsesRequestToChatToolIDs(carriedBody)
+	if err != nil {
+		return nil, err
+	}
+	carriedBody, files, err := prepareResponsesChatAttachments(carriedBody)
+	if err != nil {
+		return nil, err
+	}
+	out, err := translateSDKRequest(sdktranslator.FormatOpenAIResponse, sdktranslator.FormatOpenAI, model, carriedBody, stream)
+	if err != nil {
+		return nil, err
+	}
+	out, err = restoreChatAttachmentFiles(out, files)
+	if err != nil {
+		return nil, err
+	}
+	out, err = restoreOrphanResponsesToolOutputs(out, orphaned)
+	if err != nil {
+		return nil, err
+	}
+	return copyResponsesPromptCacheKey(out, body)
 }
 
 func ResponseToResponses(ctx context.Context, endpoint, model string, original, translated, body []byte) ([]byte, error) {
@@ -61,6 +180,9 @@ func ResponseFromEndpoint(ctx context.Context, endpoint, destination, model stri
 	if from == to {
 		if !json.Valid(body) {
 			return nil, fmt.Errorf("Copilot API returned invalid JSON")
+		}
+		if from == sdktranslator.FormatOpenAI {
+			return nativeChatResponseObject(body, "chat.completion")
 		}
 		return append([]byte(nil), body...), nil
 	}
@@ -78,9 +200,59 @@ func StreamFromEndpoint(ctx context.Context, endpoint, destination, model string
 	}
 	to := sdktranslator.FromString(destination)
 	if from == to {
+		if from == sdktranslator.FormatOpenAIResponse {
+			return nativeResponsesStream(frame, state, declaresNativeResponsesWebSearch(translated))
+		}
+		if from == sdktranslator.FormatOpenAI {
+			event, data, done, err := parseSSEFrame(frame)
+			if err != nil {
+				return nil, err
+			}
+			if !done && len(data) > 0 {
+				out, err := nativeChatResponseObject(data, "chat.completion.chunk")
+				if err != nil {
+					return nil, err
+				}
+				if !bytes.Equal(out, data) {
+					return [][]byte{responseSSEBytes(event, out)}, nil
+				}
+			}
+		}
 		return [][]byte{append([]byte(nil), frame...)}, nil
 	}
 	return stream(ctx, from, to, model, original, translated, frame, state)
+}
+
+func declaresNativeResponsesWebSearch(request []byte) bool {
+	containsSearch := func(tools gjson.Result) bool {
+		for _, tool := range tools.Array() {
+			switch tool.Get("type").String() {
+			case "web_search", "web_search_preview":
+				return true
+			}
+		}
+		return false
+	}
+	if containsSearch(gjson.GetBytes(request, "tools")) {
+		return true
+	}
+	for _, item := range gjson.GetBytes(request, "input").Array() {
+		if item.Get("type").String() == "additional_tools" && containsSearch(item.Get("tools")) {
+			return true
+		}
+	}
+	return false
+}
+
+func nativeChatResponseObject(body []byte, object string) ([]byte, error) {
+	if !gjson.GetBytes(body, "object").Exists() && gjson.GetBytes(body, "choices").IsArray() {
+		out, err := sjson.SetBytes(body, "object", object)
+		if err != nil {
+			return nil, fmt.Errorf("set Copilot Chat response object: %w", err)
+		}
+		return out, nil
+	}
+	return append([]byte(nil), body...), nil
 }
 
 func ResponsesSSEToClaude(ctx context.Context, model string, original, translated, frame []byte, state *any) ([][]byte, error) {
@@ -91,26 +263,48 @@ func request(from, to sdktranslator.Format, model string, body []byte, stream bo
 	if !json.Valid(body) {
 		return nil, fmt.Errorf("request body is not valid JSON")
 	}
+	if err := rejectOpaqueReasoningRequest(from, to, body); err != nil {
+		return nil, err
+	}
+	if from == sdktranslator.FormatOpenAIResponse && from != to {
+		if err := validateResponsesRequestForTarget(body, to); err != nil {
+			return nil, err
+		}
+	}
 	if from == sdktranslator.FormatClaude && to == sdktranslator.FormatOpenAIResponse {
 		return claudeRequestToResponses(model, body, stream)
+	}
+	if from == sdktranslator.FormatOpenAIResponse && to == sdktranslator.FormatClaude {
+		return responsesRequestToClaude(model, body, stream)
 	}
 	if from != to && !registry.HasRequestTransformer(from, to) {
 		intermediate, ok := intermediateFormat(from, to)
 		if !ok {
 			return nil, fmt.Errorf("official translator has no request route from %s to %s", from, to)
 		}
-		first := registry.TranslateRequest(from, intermediate, model, body, stream)
-		out := registry.TranslateRequest(intermediate, to, model, first, stream)
-		if len(out) == 0 || !json.Valid(out) {
-			return nil, fmt.Errorf("official two-hop request translation from %s to %s failed", from, to)
+		first, err := translateSDKRequest(from, intermediate, model, body, stream)
+		if err != nil {
+			return nil, err
 		}
-		return out, nil
+		return translateSDKRequest(intermediate, to, model, first, stream)
 	}
-	out := registry.TranslateRequest(from, to, model, body, stream)
-	if len(out) == 0 || !json.Valid(out) {
+	return translateSDKRequest(from, to, model, body, stream)
+}
+
+func translateSDKRequest(from, to sdktranslator.Format, model string, body []byte, stream bool) ([]byte, error) {
+	envelope := registry.TranslateRequestEnvelope(context.Background(), from, to, sdktranslator.RequestEnvelope{
+		Format: from,
+		Model:  model,
+		Stream: stream,
+		Body:   body,
+	})
+	if envelope.Err != nil {
+		return nil, fmt.Errorf("official request translation from %s to %s refused the request: %w", from, to, envelope.Err)
+	}
+	if len(envelope.Body) == 0 || !json.Valid(envelope.Body) {
 		return nil, fmt.Errorf("official request translation from %s to %s failed", from, to)
 	}
-	return out, nil
+	return envelope.Body, nil
 }
 
 func response(ctx context.Context, from, to sdktranslator.Format, model string, original, translated, body []byte) ([]byte, error) {
@@ -120,12 +314,41 @@ func response(ctx context.Context, from, to sdktranslator.Format, model string, 
 	if from == sdktranslator.FormatOpenAIResponse && to == sdktranslator.FormatClaude {
 		return responsesResponseToClaude(model, body)
 	}
-	if from != to && !registry.HasNonStreamResponseTransformer(to, from) {
+	if from == sdktranslator.FormatOpenAIResponse && to == sdktranslator.FormatOpenAI {
+		return responsesResponseToChat(ctx, model, original, translated, body)
+	}
+	if from == sdktranslator.FormatOpenAI && to == sdktranslator.FormatOpenAIResponse {
+		return chatResponseToResponses(ctx, model, original, translated, body)
+	}
+	if from == sdktranslator.FormatOpenAI && to == sdktranslator.FormatClaude {
+		responses, err := chatResponseToResponses(ctx, model, original, translated, body)
+		if err != nil {
+			return nil, err
+		}
+		return responsesResponseToClaude(model, responses)
+	}
+	if from == sdktranslator.FormatClaude && to == sdktranslator.FormatOpenAIResponse {
+		return claudeMessageResponseToResponses(ctx, model, original, translated, body)
+	}
+	if from == sdktranslator.FormatClaude && to == sdktranslator.FormatOpenAI {
+		responses, err := claudeMessageResponseToResponses(ctx, model, original, translated, body)
+		if err != nil {
+			return nil, err
+		}
+		return responsesResponseToChat(ctx, model, original, translated, responses)
+	}
+	if err := rejectOpaqueReasoningResponse(from, to, body); err != nil {
+		return nil, err
+	}
+	if from != to && !registry.HasNonStreamResponseTransformer(from, to) {
 		intermediate, ok := intermediateFormat(to, from)
 		if !ok {
 			return nil, fmt.Errorf("official translator has no response route from %s to %s", from, to)
 		}
-		intermediateRequest := registry.TranslateRequest(to, intermediate, model, original, false)
+		intermediateRequest, err := translateSDKRequest(to, intermediate, model, original, false)
+		if err != nil {
+			return nil, err
+		}
 		first := registry.TranslateNonStream(ctx, from, intermediate, model, intermediateRequest, translated, body, nil)
 		out := registry.TranslateNonStream(ctx, intermediate, to, model, original, intermediateRequest, first, nil)
 		if len(out) == 0 || !json.Valid(out) {
@@ -140,11 +363,92 @@ func response(ctx context.Context, from, to sdktranslator.Format, model string, 
 	return out, nil
 }
 
+func chatResponseToResponses(ctx context.Context, model string, original, translated, body []byte) ([]byte, error) {
+	if err := chatResponseFailure(body); err != nil {
+		return nil, err
+	}
+	out := registry.TranslateNonStream(ctx, sdktranslator.FormatOpenAI, sdktranslator.FormatOpenAIResponse, model, original, translated, body, nil)
+	if len(out) == 0 || !json.Valid(out) {
+		return nil, fmt.Errorf("official Chat-to-Responses response translation failed")
+	}
+	carrier, exists, err := copilotOpaqueFromChatResponse(body, translated, model)
+	if err == nil && exists {
+		return insertOpaqueReasoning(out, carrier)
+	}
+	return out, err
+}
+
+func chatResponseFailure(body []byte) error {
+	for _, choice := range gjson.GetBytes(body, "choices").Array() {
+		if choice.Get("finish_reason").String() == "error" {
+			return fmt.Errorf("Copilot Chat request failed")
+		}
+	}
+	return nil
+}
+
 func stream(ctx context.Context, from, to sdktranslator.Format, model string, original, translated, frame []byte, state *any) ([][]byte, error) {
+	if from == sdktranslator.FormatOpenAIResponse && from != to {
+		if err := validateResponsesStreamFrame(frame, to); err != nil {
+			return nil, err
+		}
+	}
 	if from == sdktranslator.FormatOpenAIResponse && to == sdktranslator.FormatClaude {
 		return responsesStreamToClaude(model, frame, state)
 	}
-	if from != to && !registry.HasStreamResponseTransformer(to, from) {
+	if from == sdktranslator.FormatOpenAIResponse && to == sdktranslator.FormatOpenAI {
+		return responsesStreamToChat(ctx, model, original, translated, frame, state)
+	}
+	if from == sdktranslator.FormatClaude && to == sdktranslator.FormatOpenAI {
+		return claudeStreamToChat(ctx, model, original, translated, frame, state)
+	}
+	if from == sdktranslator.FormatClaude && to == sdktranslator.FormatOpenAIResponse {
+		return claudeStreamToResponses(ctx, model, original, translated, frame, state)
+	}
+	if from == sdktranslator.FormatOpenAI && (to == sdktranslator.FormatOpenAIResponse || to == sdktranslator.FormatClaude) {
+		if state == nil {
+			return nil, fmt.Errorf("Chat opaque reasoning stream translation requires state")
+		}
+		streamState, ok := (*state).(*chatOpaqueStreamState)
+		if !ok {
+			streamState = &chatOpaqueStreamState{Model: model, LastSequence: -1}
+			*state = streamState
+		}
+		if streamState.Failure != nil {
+			return nil, streamState.Failure
+		}
+		if streamState.Model != model {
+			return nil, fmt.Errorf("Chat opaque reasoning stream model changed")
+		}
+		_, data, _, err := parseSSEFrame(frame)
+		if err != nil {
+			return nil, err
+		}
+		if err := chatResponseFailure(data); err != nil {
+			streamState.Failure = err
+			return nil, err
+		}
+		if err := streamState.observe(frame, translated, model); err != nil {
+			return nil, err
+		}
+		responsesFrames, err := chatToResponsesStream(ctx, model, original, translated, frame, streamState)
+		if err == nil && to == sdktranslator.FormatClaude {
+			var out [][]byte
+			for _, responsesFrame := range responsesFrames {
+				claudeFrames, err := responsesStreamToClaude(model, responsesFrame, &streamState.Claude)
+				if err != nil {
+					return nil, err
+				}
+				out = append(out, claudeFrames...)
+			}
+			return out, nil
+		}
+		return responsesFrames, err
+	}
+	if err := rejectOpaqueReasoningStream(from, to, frame); err != nil {
+		return nil, err
+	}
+	if from != to && !registry.HasStreamResponseTransformer(from, to) {
 		intermediate, ok := intermediateFormat(to, from)
 		if !ok {
 			return nil, fmt.Errorf("official translator has no stream route from %s to %s", from, to)
@@ -157,7 +461,10 @@ func stream(ctx context.Context, from, to sdktranslator.Format, model string, or
 			hopState = &twoHopStreamState{}
 			*state = hopState
 		}
-		intermediateRequest := registry.TranslateRequest(to, intermediate, model, original, true)
+		intermediateRequest, err := translateSDKRequest(to, intermediate, model, original, true)
+		if err != nil {
+			return nil, err
+		}
 		first := registry.TranslateStream(ctx, from, intermediate, model, intermediateRequest, translated, frame, &hopState.First)
 		var out [][]byte
 		for _, firstFrame := range first {
@@ -206,15 +513,13 @@ func endpointFormat(endpoint string) (sdktranslator.Format, error) {
 }
 
 func setModelAndStream(body []byte, model string, streamEnabled bool) ([]byte, error) {
-	var value map[string]any
-	if errUnmarshal := json.Unmarshal(body, &value); errUnmarshal != nil {
-		return nil, fmt.Errorf("decode translated request: %w", errUnmarshal)
+	out, err := sjson.SetBytes(body, "model", model)
+	if err != nil {
+		return nil, fmt.Errorf("set translated request model: %w", err)
 	}
-	value["model"] = model
-	value["stream"] = streamEnabled
-	out, errMarshal := json.Marshal(value)
-	if errMarshal != nil {
-		return nil, fmt.Errorf("encode translated request: %w", errMarshal)
+	out, err = sjson.SetBytes(out, "stream", streamEnabled)
+	if err != nil {
+		return nil, fmt.Errorf("set translated request stream flag: %w", err)
 	}
 	return out, nil
 }

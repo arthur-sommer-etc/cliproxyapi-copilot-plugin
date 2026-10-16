@@ -1,0 +1,113 @@
+{
+  "model": "gpt-6-luna",
+  "input": [
+    {
+      "role": "system",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "SANITIZED_INSTRUCTION_001",
+          "prompt_cache_breakpoint": {
+            "mode": "explicit"
+          }
+        },
+        {
+          "type": "input_text",
+          "text": "SANITIZED_INSTRUCTION_008",
+          "prompt_cache_breakpoint": {
+            "mode": "explicit"
+          }
+        }
+      ],
+      "type": "message"
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "<current_datetime>2026-10-10T01:18:40.030+09:00</current_datetime>\n\nUse the built-in view tool to read the attached PDF and report its unique marker.\n\n\n\n<tagged_files>\n* /sanitized/native-attachments/SANITIZED_FILE_001.pdf (34 lines)\n</tagged_files>"
+        }
+      ],
+      "type": "message"
+    },
+    {
+      "type": "function_call",
+      "id": "SANITIZED_ID_100",
+      "name": "view",
+      "arguments": "{\"path\":\"/sanitized/native-attachments/SANITIZED_FILE_001.pdf\"}",
+      "call_id": "SANITIZED_ID_003",
+      "status": "completed"
+    },
+    {
+      "type": "function_call_output",
+      "call_id": "SANITIZED_ID_003",
+      "output": "%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 300 200] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n5 0 obj\n<< /Length 80 >>\nstream\nBT /F1 24 Tf 40 140 Td (Document canary: Q7B9) Tj ET\n0 0 1 rg 40 40 100 50 re f\nendstream\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000241 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n440\n%%EOF\n"
+    },
+    {
+      "type": "message",
+      "id": "SANITIZED_ID_125",
+      "role": "assistant",
+      "content": [
+        {
+          "annotations": [],
+          "type": "output_text",
+          "text": "The unique marker is **Q7B9**."
+        }
+      ],
+      "status": "completed",
+      "phase": "final_answer"
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "<current_datetime>2026-10-10T02:54:28.666+09:00</current_datetime>\n\nWhat unique marker did you read from the PDF earlier in this session? Answer only the marker."
+        }
+      ],
+      "type": "message"
+    }
+  ],
+  "tools": [
+    {
+      "name": "view",
+      "description": "SANITIZED_INSTRUCTION_003",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "SANITIZED_INSTRUCTION_004"
+          },
+          "view_range": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "SANITIZED_INSTRUCTION_005"
+          },
+          "forceReadLargeFiles": {
+            "type": "boolean",
+            "description": "SANITIZED_INSTRUCTION_006"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "strict": false,
+      "type": "function"
+    }
+  ],
+  "reasoning": {
+    "effort": "medium",
+    "summary": "auto"
+  },
+  "store": false,
+  "stream": true,
+  "include": [
+    "reasoning.encrypted_content"
+  ],
+  "parallel_tool_calls": true
+}

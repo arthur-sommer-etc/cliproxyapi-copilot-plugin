@@ -1,0 +1,730 @@
+{
+  "model": "gpt-6-luna",
+  "input": [
+    {
+      "role": "system",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "SANITIZED_CLI_INSTRUCTION_001",
+          "prompt_cache_breakpoint": {
+            "mode": "explicit"
+          }
+        },
+        {
+          "type": "input_text",
+          "text": "SANITIZED_CLI_INSTRUCTION_216",
+          "prompt_cache_breakpoint": {
+            "mode": "explicit"
+          }
+        }
+      ],
+      "type": "message"
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "<current_datetime>2026-10-10T00:47:01.330+09:00</current_datetime>\n\nRead the attached PDF. Give the exact document canary text and the color of its rectangle. Answer directly without using any tools.\n\n\n\n<tagged_files>\n* /sanitized/native-attachments/sanitized-attachment-006.pdf (34 lines)\n</tagged_files>"
+        }
+      ],
+      "type": "message"
+    }
+  ],
+  "tools": [
+    {
+      "name": "bash",
+      "description": "SANITIZED_CLI_INSTRUCTION_003",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_004"
+          },
+          "description": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_005"
+          },
+          "shellId": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_006"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "sync",
+              "async"
+            ],
+            "description": "SANITIZED_CLI_INSTRUCTION_007"
+          },
+          "detach": {
+            "type": "boolean",
+            "description": "SANITIZED_CLI_INSTRUCTION_008"
+          },
+          "initial_wait": {
+            "type": "number",
+            "description": "SANITIZED_CLI_INSTRUCTION_009"
+          }
+        },
+        "required": [
+          "command",
+          "description"
+        ]
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "read_bash",
+      "description": "SANITIZED_CLI_INSTRUCTION_010",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "shellId": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_011"
+          },
+          "delay": {
+            "type": "number",
+            "description": "SANITIZED_CLI_INSTRUCTION_012"
+          }
+        },
+        "required": [
+          "shellId",
+          "delay"
+        ]
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "stop_bash",
+      "description": "SANITIZED_CLI_INSTRUCTION_013",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "shellId": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_014"
+          }
+        },
+        "required": [
+          "shellId"
+        ]
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "list_bash",
+      "description": "SANITIZED_CLI_INSTRUCTION_015",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "apply_patch",
+      "description": "SANITIZED_CLI_INSTRUCTION_016",
+      "type": "custom",
+      "format": {
+        "type": "grammar",
+        "syntax": "lark",
+        "definition": "start: begin_patch hunk+ end_patch\nbegin_patch: \"*** Begin Patch\" LF\nend_patch: \"*** End Patch\" LF?\n\nhunk: add_hunk | delete_hunk | update_hunk\nadd_hunk: \"*** Add File: \" filename LF add_line+\ndelete_hunk: \"*** Delete File: \" filename LF\nupdate_hunk: \"*** Update File: \" filename LF change_move? change?\n\nfilename: /(.+)/\nadd_line: \"+\" /(.*)/ LF -> line\n\nchange_move: \"*** Move to: \" filename LF\nchange: (change_context | change_line)+ eof_line?\nchange_context: (\"@@\" | \"@@ \" /(.+)/) LF\nchange_line: (\"+\" | \"-\" | \" \") /(.*)/ LF\neof_line: \"*** End of File\" LF\n\n%import common.LF"
+      }
+    },
+    {
+      "name": "view",
+      "description": "SANITIZED_CLI_INSTRUCTION_017",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_018"
+          },
+          "view_range": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "SANITIZED_CLI_INSTRUCTION_019"
+          },
+          "forceReadLargeFiles": {
+            "type": "boolean",
+            "description": "SANITIZED_CLI_INSTRUCTION_020"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "web_fetch",
+      "description": "SANITIZED_CLI_INSTRUCTION_021",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_022"
+          },
+          "max_length": {
+            "type": "number",
+            "description": "SANITIZED_CLI_INSTRUCTION_023"
+          },
+          "start_index": {
+            "type": "number",
+            "description": "SANITIZED_CLI_INSTRUCTION_024"
+          },
+          "raw": {
+            "type": "boolean",
+            "description": "SANITIZED_CLI_INSTRUCTION_025"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "search_code_subagent",
+      "description": "SANITIZED_CLI_INSTRUCTION_026",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_027"
+          },
+          "details": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_028"
+          },
+          "thoroughness": {
+            "type": "string",
+            "enum": [
+              "normal",
+              "deep"
+            ],
+            "description": "SANITIZED_CLI_INSTRUCTION_029"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "run_dynamic_workflow",
+      "description": "SANITIZED_CLI_INSTRUCTION_030",
+      "parameters": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_031"
+          },
+          "args": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "SANITIZED_CLI_INSTRUCTION_032"
+          },
+          "limits": {
+            "type": "object",
+            "description": "SANITIZED_CLI_INSTRUCTION_033",
+            "properties": {
+              "maxConcurrentSubagents": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "description": "SANITIZED_CLI_INSTRUCTION_034"
+              },
+              "maxTotalSubagents": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "description": "SANITIZED_CLI_INSTRUCTION_034"
+              },
+              "timeoutSeconds": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "SANITIZED_CLI_INSTRUCTION_035"
+              },
+              "maxAiCredits": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "SANITIZED_CLI_INSTRUCTION_036"
+              }
+            },
+            "additionalProperties": false
+          },
+          "resumeFromRunId": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_037"
+          }
+        },
+        "type": "object"
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "dynamic_workflows_manage",
+      "description": "SANITIZED_CLI_INSTRUCTION_038",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "operation": {
+            "type": "string",
+            "enum": [
+              "guide",
+              "list",
+              "inspect",
+              "runs",
+              "inspect-run",
+              "author"
+            ],
+            "description": "SANITIZED_CLI_INSTRUCTION_039"
+          },
+          "name": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_040"
+          },
+          "runId": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_041"
+          },
+          "beforeSeq": {
+            "type": "integer",
+            "description": "SANITIZED_CLI_INSTRUCTION_042"
+          },
+          "meta": {
+            "type": "object",
+            "description": "SANITIZED_CLI_INSTRUCTION_043",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "SANITIZED_CLI_INSTRUCTION_044"
+              },
+              "description": {
+                "type": "string",
+                "description": "SANITIZED_CLI_INSTRUCTION_045"
+              },
+              "phases": {
+                "type": "array",
+                "description": "SANITIZED_CLI_INSTRUCTION_046",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "description": "SANITIZED_CLI_INSTRUCTION_047"
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "argsSchema": {
+                "type": "object",
+                "description": "SANITIZED_CLI_INSTRUCTION_048"
+              },
+              "limits": {
+                "type": "object",
+                "description": "SANITIZED_CLI_INSTRUCTION_049",
+                "properties": {
+                  "maxConcurrentSubagents": {
+                    "type": "integer",
+                    "description": "SANITIZED_CLI_INSTRUCTION_034"
+                  },
+                  "maxTotalSubagents": {
+                    "type": "integer",
+                    "description": "SANITIZED_CLI_INSTRUCTION_034"
+                  },
+                  "timeoutSeconds": {
+                    "type": "number",
+                    "description": "SANITIZED_CLI_INSTRUCTION_035"
+                  },
+                  "maxAiCredits": {
+                    "type": "number",
+                    "description": "SANITIZED_CLI_INSTRUCTION_036"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "name",
+              "description",
+              "phases"
+            ],
+            "additionalProperties": false
+          },
+          "run": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_050"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "additionalProperties": false
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "sql",
+      "description": "SANITIZED_CLI_INSTRUCTION_051",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_052"
+          },
+          "query": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_053"
+          },
+          "database": {
+            "type": "string",
+            "enum": [
+              "session",
+              "session_store"
+            ],
+            "default": "session",
+            "description": "SANITIZED_CLI_INSTRUCTION_054"
+          }
+        },
+        "required": [
+          "description",
+          "query"
+        ]
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "read_agent",
+      "description": "SANITIZED_CLI_INSTRUCTION_055",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "agent_id": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_056"
+          },
+          "wait": {
+            "type": "boolean",
+            "description": "SANITIZED_CLI_INSTRUCTION_057"
+          },
+          "timeout": {
+            "type": "number",
+            "description": "SANITIZED_CLI_INSTRUCTION_058"
+          },
+          "since_turn": {
+            "type": "integer",
+            "description": "SANITIZED_CLI_INSTRUCTION_059"
+          }
+        },
+        "required": [
+          "agent_id"
+        ]
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "list_agents",
+      "description": "SANITIZED_CLI_INSTRUCTION_060",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "include_completed": {
+            "type": "boolean",
+            "description": "SANITIZED_CLI_INSTRUCTION_061"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "siblings",
+              "children",
+              "all"
+            ],
+            "description": "SANITIZED_CLI_INSTRUCTION_062"
+          }
+        }
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "write_agent",
+      "description": "SANITIZED_CLI_INSTRUCTION_063",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "agent_id": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_064"
+          },
+          "agent_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "SANITIZED_CLI_INSTRUCTION_047"
+            },
+            "description": "SANITIZED_CLI_INSTRUCTION_065"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "siblings",
+              "children"
+            ],
+            "description": "SANITIZED_CLI_INSTRUCTION_066"
+          },
+          "message": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_067"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "rg",
+      "description": "SANITIZED_CLI_INSTRUCTION_068",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_069"
+          },
+          "paths": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ],
+            "description": "SANITIZED_CLI_INSTRUCTION_070"
+          },
+          "output_mode": {
+            "type": "string",
+            "enum": [
+              "content",
+              "files_with_matches",
+              "count"
+            ],
+            "description": "SANITIZED_CLI_INSTRUCTION_071"
+          },
+          "glob": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_072"
+          },
+          "type": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_073"
+          },
+          "-i": {
+            "type": "boolean",
+            "description": "SANITIZED_CLI_INSTRUCTION_074"
+          },
+          "-A": {
+            "type": "number",
+            "description": "SANITIZED_CLI_INSTRUCTION_075"
+          },
+          "-B": {
+            "type": "number",
+            "description": "SANITIZED_CLI_INSTRUCTION_076"
+          },
+          "-C": {
+            "type": "number",
+            "description": "SANITIZED_CLI_INSTRUCTION_077"
+          },
+          "-n": {
+            "type": "boolean",
+            "description": "SANITIZED_CLI_INSTRUCTION_078"
+          },
+          "head_limit": {
+            "type": "number",
+            "description": "SANITIZED_CLI_INSTRUCTION_079"
+          },
+          "multiline": {
+            "type": "boolean",
+            "description": "SANITIZED_CLI_INSTRUCTION_080"
+          }
+        },
+        "required": [
+          "pattern"
+        ]
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "glob",
+      "description": "SANITIZED_CLI_INSTRUCTION_081",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_082"
+          },
+          "paths": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ],
+            "description": "SANITIZED_CLI_INSTRUCTION_070"
+          }
+        },
+        "required": [
+          "pattern"
+        ]
+      },
+      "strict": false,
+      "type": "function"
+    },
+    {
+      "name": "task",
+      "description": "SANITIZED_CLI_INSTRUCTION_083",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_084"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_085"
+          },
+          "agent_type": {
+            "type": "string",
+            "enum": [
+              "explore",
+              "task",
+              "general-purpose",
+              "code-review",
+              "research",
+              "security-review"
+            ],
+            "description": "SANITIZED_CLI_INSTRUCTION_086"
+          },
+          "name": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_087"
+          },
+          "model": {
+            "type": "string",
+            "enum": [
+              "claude-haiku-4.5",
+              "claude-haiku-5.5",
+              "claude-sonnet-5",
+              "claude-sonnet-5.5",
+              "gemini-3.7-flash",
+              "gemini-3.8-flash",
+              "gpt-5-mini",
+              "gpt-5.3-codex",
+              "gpt-5.4",
+              "gpt-5.4-mini",
+              "gpt-5.6-luna",
+              "gpt-5.6-terra",
+              "gpt-6-luna",
+              "grok-4.5",
+              "grok-4.6",
+              "grok-4.7",
+              "kimi-k3",
+              "mai-code-1.1-flash"
+            ],
+            "description": "SANITIZED_CLI_INSTRUCTION_088"
+          },
+          "reasoning_effort": {
+            "type": "string",
+            "description": "SANITIZED_CLI_INSTRUCTION_089"
+          },
+          "context_tier": {
+            "type": "string",
+            "enum": [
+              "default",
+              "long_context"
+            ],
+            "description": "SANITIZED_CLI_INSTRUCTION_090"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "sync",
+              "background"
+            ],
+            "description": "SANITIZED_CLI_INSTRUCTION_091"
+          }
+        },
+        "required": [
+          "name",
+          "prompt",
+          "agent_type",
+          "description"
+        ]
+      },
+      "strict": false,
+      "type": "function"
+    }
+  ],
+  "reasoning": {
+    "effort": "medium",
+    "summary": "auto"
+  },
+  "store": false,
+  "stream": true,
+  "include": [
+    "reasoning.encrypted_content"
+  ],
+  "parallel_tool_calls": true
+}

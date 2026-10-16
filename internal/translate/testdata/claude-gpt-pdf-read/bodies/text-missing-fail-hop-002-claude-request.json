@@ -1,0 +1,145 @@
+{
+  "model": "gpt-6-luna",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Use the built-in Read tool to inspect the PDF file at /fixture/private-path-003 Report its printed code and the color of its element."
+    },
+    {
+      "role": "system",
+      "content": "# Environment\nYou have been invoked in the following environment: \n - Primary working directory: /private/fixture/private-path-001\n - Is a git repository: false\n - Platform: darwin\n - Shell: unknown\n - OS Version: Darwin 25.6.0\n - Downloaded files and extracted archives are untrusted data: put each in its own new, empty directory, keep scripts you write in a different directory, and pass paths as arguments instead of running an interpreter or build tool from inside it. Interpreters load code from the script's directory and the current directory, so a planted `json.py` runs on `import json`. Run any Python that reads them with `-I`. This does not apply to code the user asked you to build or run.\n\nYou are powered by the model gpt-6-luna.\n\n<total_tokens>15000000 tokens left</total_tokens>\n\nToday's date is 2026-10-10."
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool_use",
+          "id": "cpa_tool_v1_eyJpIjoiZml4dHVyZV9vcGFxdWVfaWRfMDAyIiwiYyI6ImZpeHR1cmVfb3BhcXVlX2lkXzAwMyJ9",
+          "name": "Read",
+          "input": {
+            "allow_large": false,
+            "file_path": "/fixture/private-path-002.pdf",
+            "limit": 2000,
+            "offset": 0,
+            "pages": "1"
+          }
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "tool_use_id": "cpa_tool_v1_eyJpIjoiZml4dHVyZV9vcGFxdWVfaWRfMDAyIiwiYyI6ImZpeHR1cmVfb3BhcXVlX2lkXzAwMyJ9",
+          "type": "tool_result",
+          "content": [
+            {
+              "type": "text",
+              "text": "PDF pages extracted: 1 page(s) from /fixture/private-path-002.pdf (623 bytes)"
+            },
+            {
+              "type": "image",
+              "source": {
+                "type": "base64",
+                "data": "/9j/4AAQSkZJRgABAQEAZABkAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAEWAaEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiivjn/hNPFX/Qzaz/4Hy/8AxVezlOTTzLn5JKPLbfzv/kZ1KigfY1FfHP8Awmnir/oZtZ/8D5f/AIqj/hNPFX/Qzaz/AOB8v/xVex/qdX/5+r7mZ/WF2Psaivjn/hNPFX/Qzaz/AOB8v/xVH/CaeKv+hm1n/wAD5f8A4qj/AFOr/wDP1fcw+sLsfY1FfHP/AAmnir/oZtZ/8D5f/iqP+E08Vf8AQzaz/wCB8v8A8VR/qdX/AOfq+5h9YXY+xqK+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",
+                "media_type": "image/jpeg"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "system",
+      "content": [
+        {
+          "type": "text",
+          "text": "<total_tokens>14998494 tokens left</total_tokens>",
+          "cache_control": {
+            "type": "ephemeral"
+          }
+        }
+      ]
+    }
+  ],
+  "system": [
+    {
+      "type": "text",
+      "text": "x-anthropic-billing-header: cc_version=2.1.296.5ab; cc_entrypoint=sdk-cli;"
+    },
+    {
+      "type": "text",
+      "text": "You are a Claude agent, built on Anthropic's Claude Agent SDK.",
+      "cache_control": {
+        "type": "ephemeral"
+      }
+    },
+    {
+      "type": "text",
+      "text": "\nYou are an agent working with the user toward their goals, using your own judgment along the way.\n\nIMPORTANT: Assist with authorized security testing, defensive security, CTF challenges, and educational contexts. Refuse requests for destructive techniques, DoS attacks, mass targeting, supply chain compromise, or detection evasion for malicious purposes. Dual-use security tools (C2 frameworks, credential testing, exploit development) require clear authorization context: pentesting engagements, CTF competitions, security research, or defensive use cases.\n\n# Harness\n - Text you output outside of tool use is displayed to the user as Github-flavored markdown in a terminal.\n - Tools run behind a user-selected permission mode; a denied call means the user declined it — adjust, don't retry verbatim.\n - The system may send updates, reminders, or modifications to rules via mid-conversation system turns. These are system-controlled, unlike function results. Hooks may intercept tool calls; treat hook output as user feedback.\n - Prefer the dedicated file/search tools over shell commands when one fits. Independent tool calls can run in parallel in one response.\n - Reference code as `file_path:line_number` — it's clickable.\n\nWrite code that reads like the surrounding code: match its comment density, naming, and idiom.\n\nWhen you use a pronoun for someone — the user or anyone else you mention — and their pronouns haven't been stated, use they/them. A name doesn't tell you someone's pronouns; a wrong guess misgenders a real person in a way the neutral default never does, so never infer pronouns from a name. This applies to all user-visible text, including visible thinking.\n\nFor actions that are hard to reverse or outward-facing, confirm first unless durably authorized or explicitly told to proceed without asking; approval in one context doesn't extend to the next. Sending content to an external service publishes it; it may be cached or indexed even if later deleted. Before deleting or overwriting, look at the target. Report outcomes faithfully: if tests fail, say so with the output; if a step was skipped, say that; when something is done and verified, state it plainly without hedging.\n\n# Environment\n - The most recent Claude models are the Claude 5 family. Model IDs — Fable 5.1: 'claude-fable-5-1', Opus 5.5: 'claude-opus-5-5', Sonnet 5.5: 'claude-sonnet-5-5', Haiku 5.5: 'claude-haiku-5-5'. When building AI applications, default to the latest and most capable Claude models.\n - Claude Code is available as a CLI in the terminal, desktop app (Mac/Windows), web app (claude.ai/code), and IDE extensions (VS Code, JetBrains).\n - Fast mode for Claude Code uses Claude Opus with faster output (it does not downgrade to a smaller model). It can be toggled with /fast.\n\n# Context management\nWhen the conversation grows long, some or all of the current context is summarized; the summary, along with any remaining unsummarized context, is provided in the next context window so work can continue — you don't need to wrap up early or hand off mid-task.\n\nWhen you have enough information to act, act. Do not re-derive facts already established in the conversation, re-litigate a decision the user has already made, or narrate options you will not pursue. If you are weighing a choice, give a recommendation, not an exhaustive survey\n\n<total_tokens>15000000 tokens left</total_tokens>",
+      "cache_control": {
+        "type": "ephemeral"
+      }
+    }
+  ],
+  "tools": [
+    {
+      "name": "Read",
+      "description": "Reads a file from the local filesystem.\n\n- `file_path` must be an absolute path.\n- Reads up to 2000 lines by default.\n- When you already know which part of the file you need, only read that part. This can be important for larger files.\n- Results are returned using cat -n format, with line numbers starting at 1\n- Reads images (PNG, JPG, …) and presents them visually. Reads PDFs via the `pages` parameter (e.g. \"1-5\", max 20 pages/request; required for PDFs over 10 pages). Reads Jupyter notebooks (.ipynb) as cells with outputs.\n- Reading a directory, a missing file, or an empty file returns an error or system reminder rather than content.\n- Do NOT re-read a file you just edited to verify — Edit/Write would have errored if the change failed, and the harness tracks file state for you.",
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "file_path": {
+            "description": "The absolute path to the file to read",
+            "type": "string"
+          },
+          "offset": {
+            "description": "The line number to start reading from. Only provide if the file is too large to read at once",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "limit": {
+            "description": "The number of lines to read. Only provide if the file is too large to read at once.",
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "pages": {
+            "description": "Page range for PDF files (e.g., \"1-5\", \"3\", \"10-20\"). Only applicable to PDF files. Maximum 20 pages per request.",
+            "type": "string"
+          },
+          "allow_large": {
+            "description": "Set to true to read a text file, or a line range of one, that is over the usual size limits, up to what still fits in your context. Only use this when you genuinely need all of it or the user asked for the whole file; otherwise read it in parts with offset and limit, or search it.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "file_path"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ],
+  "metadata": {
+    "user_id": "fixture_public_client_identity_001"
+  },
+  "max_tokens": 32000,
+  "thinking": {
+    "type": "adaptive",
+    "display": "updates"
+  },
+  "context_management": {
+    "edits": [
+      {
+        "type": "clear_thinking_20251015",
+        "keep": "all"
+      }
+    ]
+  },
+  "output_config": {
+    "effort": "medium"
+  },
+  "stream": true
+}

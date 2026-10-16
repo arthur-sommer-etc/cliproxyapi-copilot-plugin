@@ -1,0 +1,9 @@
+# Claude-to-GPT PDF Read capture fixtures
+
+This body-only fixture set retains two actual Claude Messages-to-GPT Responses PDF Read cycles. Each includes the original Claude request and local SSE response for hops 001/002, paired with the actual public Responses requests and provider SSE responses from gates 003/004. The full recursive body fields, scalar values, numeric/null/empty values, array positions, SSE event order, and framing are retained. Headers, authorization, host/transport metadata, gate 001/002 bodies, and test-hop wrappers are excluded.
+
+The earlier capture remains the original text-missing FAIL with pages value 1. The later capture uses the actual pages value 1-20 argument on the one-page PDF, returns a real JPEG image with matching decoded bytes in the Claude tool result and Responses function output, and the captured final text reports Q7B9 and blue. Both historical records remain accepted=false with their original unclassified error class. A separate reviewed zero-dispatch source-body replay is recorded independently and does not overwrite historical acceptance.
+
+Privacy replacements are deterministic, type-preserving strings shared across all 16 bodies: opaque IDs, encrypted ciphertext/signatures, absolute private paths, account/client identity markers, prompt-cache keys, and safety identifiers. Canonical cpa_tool_v1_ carriers preserve their wrapper and use the same global map for embedded item/call IDs. Longest full paths are replaced before directory prefixes. Raw private paths, identities, credentials, headers, and local source roots are omitted.
+
+The local PDF file is not present in the approved request/response body captures, so no source-PDF byte hash is claimed. Actual JPEG bytes remain intact and are checked by decoded SHA-256 across the existing converter and captured output. Source-body hashes and recursive shape manifests tie fixtures to their source without exposing private values.

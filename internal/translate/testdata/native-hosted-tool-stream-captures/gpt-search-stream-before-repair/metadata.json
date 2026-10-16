@@ -1,0 +1,25 @@
+{
+  "cell": "S/gpt-responses-search",
+  "endpoint_path": "/responses",
+  "fixture_sha256": {
+    "request": "20c7c7b202117f931069ceffaab223caf3e04151765cefb8cd947b2a07337575",
+    "response": "a33d652471875280912d58a34e9c48ac3631ab9d1b2f8ce1902c1e328e23fc87"
+  },
+  "http_status": 200,
+  "native_model": "gpt-6-luna",
+  "original_shape_sha256": {
+    "request": "d8170340f55205704a6c5922cdfb7336087c8a6f12b308cf0ffb5bf8b674a14f",
+    "response": "7739ff605521b008454aa6f9d7ecd1ed76952d331c8239b0cbdc68480ea74a5d"
+  },
+  "response_format": "sse",
+  "response_storage": "json_string",
+  "sanitized_source_sha256": {
+    "request": "20c7c7b202117f931069ceffaab223caf3e04151765cefb8cd947b2a07337575",
+    "response": "74af3fa007a6640b9b48a62e868b13f53df4d767acc6d07b5dec10ef34a6e105"
+  },
+  "source_body_sha256": {
+    "request": "d5c6b5ce2bb510cab3d8264a22cfb7dc9a3c9a866284bb997ac696625882fd4b",
+    "response": "80dfcb0a2bddf2a621e4c88aed2d723cd0c08ce99fed46abc03a40ccf40d8d2f"
+  },
+  "source_outcome": "native stream identity inconsistency retained"
+}

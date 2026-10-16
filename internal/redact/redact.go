@@ -6,7 +6,7 @@ import (
 )
 
 var tokenPatterns = []*regexp.Regexp{
-	regexp.MustCompile(`(?i)(authorization\s*[:=]\s*(?:bearer|token)\s+)[^\s,;"']+`),
+	regexp.MustCompile(`(?i)(authorization\s*[:=]\s*(?:bearer|token)\s+)[^\s,"']+`),
 	regexp.MustCompile(`(?i)("(?:access_token|refresh_token|github_access_token|github_refresh_token|token)"\s*:\s*")[^"]+(")`),
 	regexp.MustCompile(`\b(?:gh[opurs]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})\b`),
 }
@@ -26,9 +26,9 @@ func Text(value string, secrets ...string) string {
 
 func ErrorBody(body []byte, secrets ...string) string {
 	const maxErrorBody = 2048
-	text := strings.TrimSpace(string(body))
+	text := Text(strings.TrimSpace(string(body)), secrets...)
 	if len(text) > maxErrorBody {
 		text = text[:maxErrorBody] + "…"
 	}
-	return Text(text, secrets...)
+	return text
 }

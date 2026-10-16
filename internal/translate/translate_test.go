@@ -22,6 +22,7 @@ func TestClaudeRequestToResponsesPreservesCoreContent(t *testing.T) {
 			]},
 			{"role":"assistant","content":[
 				{"type":"thinking","thinking":"inspect first","signature":"sig"},
+				{"type":"redacted_thinking","data":"opaque-redacted"},
 				{"type":"tool_use","id":"call_1","name":"lookup","input":{"q":"x"}}
 			]},
 			{"role":"user","content":[{"type":"tool_result","tool_use_id":"call_1","content":"found"}]}
@@ -54,6 +55,12 @@ func TestClaudeRequestToResponsesPreservesCoreContent(t *testing.T) {
 		if !strings.Contains(text, needle) {
 			t.Fatalf("translated request omits %q: %s", needle, out)
 		}
+	}
+	if got := data.Get("input.1.encrypted_content").String(); got != "sig" {
+		t.Fatalf("thinking signature = %q; request=%s", got, out)
+	}
+	if got := data.Get("input.2.encrypted_content").String(); got != redactedThinkingPrefix+"opaque-redacted" {
+		t.Fatalf("redacted thinking data = %q; request=%s", got, out)
 	}
 }
 
@@ -100,6 +107,163 @@ func TestChatNonStreamResponseToResponses(t *testing.T) {
 	}
 	if got := data.Get("usage.total_tokens").Int(); got != 3 {
 		t.Fatalf("total tokens = %d; response=%s", got, out)
+	}
+}
+
+func TestChatRequestToResponsesPreservesToolIDsThinkingAndCacheKey(t *testing.T) {
+	t.Parallel()
+	const model = "gpt-6-luna"
+	request := []byte(`{"model":"ignored","prompt_cache_key":"chat-cache-key","reasoning_effort":"low","messages":[{"role":"user","content":"inspect this"},{"role":"assistant","tool_calls":[{"id":"chat-call/+opaque-1","type":"function","function":{"name":"inspect","arguments":"{\"query\":\"value\"}"}}]},{"role":"tool","tool_call_id":"chat-call/+opaque-1","content":"found"},{"role":"user","content":"continue"}],"tools":[{"type":"function","function":{"name":"inspect","parameters":{"type":"object","properties":{"query":{"type":"string"}}}}}]}`)
+	out, err := RequestForEndpointFrom("openai", model, request, false, EndpointResponses)
+	if err != nil {
+		t.Fatalf("translate Chat request: %v", err)
+	}
+	if got := gjson.GetBytes(out, "prompt_cache_key").String(); got != "chat-cache-key" {
+		t.Fatalf("prompt_cache_key = %q; request=%s", got, out)
+	}
+	if got := gjson.GetBytes(out, "reasoning.effort").String(); got != "low" {
+		t.Fatalf("reasoning.effort = %q; request=%s", got, out)
+	}
+	if got := gjson.GetBytes(out, "input.#(type==function_call).call_id").String(); got != "chat-call/+opaque-1" {
+		t.Fatalf("function call ID = %q; request=%s", got, out)
+	}
+	if got := gjson.GetBytes(out, "input.#(type==function_call_output).call_id").String(); got != "chat-call/+opaque-1" {
+		t.Fatalf("function output ID = %q; request=%s", got, out)
+	}
+	if got := gjson.GetBytes(out, "input.#(type==function_call).arguments").String(); got != `{"query":"value"}` {
+		t.Fatalf("function arguments = %q; request=%s", got, out)
+	}
+}
+
+func TestResponsesResponseToChatPreservesOpaqueReasoningAndCallIDs(t *testing.T) {
+	t.Parallel()
+	const model = "gpt-6-luna"
+	itemID := strings.Repeat("i", 424)
+	callID := "call_1/+"
+	original := []byte(`{"model":"` + model + `","messages":[{"role":"user","content":"inspect this"}],"tools":[{"type":"function","function":{"name":"inspect","parameters":{"type":"object"}}}]}`)
+	translated := []byte(`{"model":"` + model + `","input":[{"type":"message","role":"user","content":[{"type":"input_text","text":"inspect this"}]}]}`)
+	reasoning := []byte(`{"id":"rs_opaque/+1","type":"reasoning","status":"completed","summary":[{"type":"summary_text","text":"private summary"}],"encrypted_content":"signature/+ exact"}`)
+	response := []byte(`{"id":"resp_1","object":"response","status":"completed","model":"` + model + `","output":[` + string(reasoning) + `,{"id":"msg_1","type":"message","status":"completed","role":"assistant","content":[{"type":"output_text","text":"pong"}]},{"id":"` + itemID + `","type":"function_call","call_id":"` + callID + `","name":"inspect","arguments":"{\"query\":\"x\"}"}],"usage":{"input_tokens":2,"output_tokens":1,"total_tokens":3}}`)
+	out, err := ResponseFromEndpoint(context.Background(), EndpointResponses, "openai", model, original, translated, response)
+	if err != nil {
+		t.Fatalf("translate Responses response: %v", err)
+	}
+	chatToolID := gjson.GetBytes(out, "choices.0.message.tool_calls.0.id").String()
+	gotItemID, gotCallID, encoded := DecodeClaudeToolIDs(chatToolID)
+	if !encoded || gotItemID != itemID || gotCallID != callID {
+		t.Fatalf("tool call ID %q decoded as (%q, %q, %v); want (%q, %q)", chatToolID, gotItemID, gotCallID, encoded, itemID, callID)
+	}
+	carrier := gjson.GetBytes(out, "choices.0.message.reasoning_opaque").String()
+	decoded, err := decodeCopilotOpaque(carrier, model)
+	if err != nil {
+		t.Fatalf("decode Chat reasoning carrier: %v", err)
+	}
+	if string(decoded.Raw) != `[`+string(reasoning)+`]` {
+		t.Fatalf("reasoning items changed: got %s, want [%s]", decoded.Raw, reasoning)
+	}
+}
+
+func TestChatRequestToResponsesRestoresOpaqueReasoningHistory(t *testing.T) {
+	t.Parallel()
+	const model = "gpt-6-luna"
+	itemID := strings.Repeat("i", 424)
+	callID := "call_1/+"
+	original := []byte(`{"model":"` + model + `","messages":[{"role":"user","content":"inspect this"}],"tools":[{"type":"function","function":{"name":"inspect","parameters":{"type":"object"}}}]}`)
+	translated := []byte(`{"model":"` + model + `","input":[{"type":"message","role":"user","content":[{"type":"input_text","text":"inspect this"}]}]}`)
+	reasoning := []byte(`{"id":"rs_opaque/+1","type":"reasoning","status":"completed","summary":[{"type":"summary_text","text":"private summary"}],"encrypted_content":"signature/+ exact"}`)
+	response := []byte(`{"id":"resp_1","object":"response","status":"completed","model":"` + model + `","output":[` + string(reasoning) + `,{"id":"msg_1","type":"message","status":"completed","role":"assistant","content":[{"type":"output_text","text":""}]},{"id":"` + itemID + `","type":"function_call","call_id":"` + callID + `","name":"inspect","arguments":"{\"query\":\"x\"}"}],"usage":{"input_tokens":2,"output_tokens":1,"total_tokens":3}}`)
+	chatResponse, err := ResponseFromEndpoint(context.Background(), EndpointResponses, "openai", model, original, translated, response)
+	if err != nil {
+		t.Fatalf("translate Responses response: %v", err)
+	}
+	assistant := gjson.GetBytes(chatResponse, "choices.0.message").Raw
+	chatToolID := gjson.GetBytes(chatResponse, "choices.0.message.tool_calls.0.id").String()
+	gotItemID, gotCallID, encoded := DecodeClaudeToolIDs(chatToolID)
+	if !encoded || gotItemID != itemID || gotCallID != callID {
+		t.Fatalf("tool call ID %q decoded as (%q, %q, %v); want (%q, %q)", chatToolID, gotItemID, gotCallID, encoded, itemID, callID)
+	}
+	followup := []byte(`{"model":"` + model + `","prompt_cache_key":"cache-1","messages":[{"role":"user","content":"inspect this"},` + assistant + `,{"role":"tool","tool_call_id":"` + chatToolID + `","content":"found"},{"role":"user","content":"continue"}],"tools":[{"type":"function","function":{"name":"inspect","parameters":{"type":"object"}}}]}`)
+	out, err := RequestForEndpointFrom("openai", model, followup, false, EndpointResponses)
+	if err != nil {
+		t.Fatalf("translate Chat follow-up: %v", err)
+	}
+	reasoningItem := gjson.GetBytes(out, "input.#(type==reasoning)")
+	if !reasoningItem.Exists() || reasoningItem.Raw != string(reasoning) {
+		t.Fatalf("replayed reasoning item = %s, want %s; request=%s", reasoningItem.Raw, reasoning, out)
+	}
+	if got := gjson.GetBytes(out, "input.#(type==function_call).call_id").String(); got != callID {
+		t.Fatalf("replayed call ID = %q, want %q; request=%s", got, callID, out)
+	}
+	if got := gjson.GetBytes(out, "input.#(type==function_call).id").String(); got != itemID {
+		t.Fatalf("replayed item ID = %q, want %q; request=%s", got, itemID, out)
+	}
+	if got := gjson.GetBytes(out, "input.#(type==function_call_output).call_id").String(); got != callID {
+		t.Fatalf("replayed tool-result ID = %q, want %q; request=%s", got, callID, out)
+	}
+}
+
+func TestChatRequestToResponsesMapsDuplicateAssistantTextInOrder(t *testing.T) {
+	t.Parallel()
+	const model = "gpt-6-luna"
+	first := []byte(`{"id":"reasoning-first","type":"reasoning","summary":[],"encrypted_content":"signature-first"}`)
+	second := []byte(`{"id":"reasoning-second","type":"reasoning","summary":[],"encrypted_content":"signature-second"}`)
+	firstCarrier, err := encodeCopilotOpaque(rawJSONArray([][]byte{first}), model, copilotOpaqueAnchor{ContentSHA256: digest([]byte("same answer")), PriorUserSHA256: digest([]byte("first question"))})
+	if err != nil {
+		t.Fatalf("encode first opaque carrier: %v", err)
+	}
+	secondCarrier, err := encodeCopilotOpaque(rawJSONArray([][]byte{second}), model, copilotOpaqueAnchor{ContentSHA256: digest([]byte("same answer")), PriorUserSHA256: digest([]byte("second question"))})
+	if err != nil {
+		t.Fatalf("encode second opaque carrier: %v", err)
+	}
+	request := []byte(`{"model":"` + model + `","messages":[{"role":"user","content":"first question"},{"role":"assistant","content":"same answer","reasoning_opaque":"` + firstCarrier + `"},{"role":"user","content":"second question"},{"role":"assistant","content":"same answer","reasoning_opaque":"` + secondCarrier + `"}]}`)
+	out, err := RequestForEndpointFrom("openai", model, request, false, EndpointResponses)
+	if err != nil {
+		t.Fatalf("translate duplicate-text history: %v", err)
+	}
+	items := gjson.GetBytes(out, "input").Array()
+	var signatures []string
+	for _, item := range items {
+		if item.Get("type").String() == "reasoning" {
+			signatures = append(signatures, item.Get("encrypted_content").String())
+		}
+	}
+	if len(signatures) != 2 || signatures[0] != "signature-first" || signatures[1] != "signature-second" {
+		t.Fatalf("reasoning order = %v; request=%s", signatures, out)
+	}
+	firstAssistantIndex, secondAssistantIndex := -1, -1
+	for index, item := range items {
+		if item.Get("type").String() == "message" && item.Get("role").String() == "assistant" && item.Get("content.0.text").String() == "same answer" {
+			if firstAssistantIndex < 0 {
+				firstAssistantIndex = index
+			} else {
+				secondAssistantIndex = index
+			}
+		}
+	}
+	firstReasoningIndex, secondReasoningIndex := -1, -1
+	for index, item := range items {
+		if item.Get("type").String() == "reasoning" {
+			if firstReasoningIndex < 0 {
+				firstReasoningIndex = index
+			} else {
+				secondReasoningIndex = index
+			}
+		}
+	}
+	if firstAssistantIndex < 0 || secondAssistantIndex <= firstAssistantIndex || firstReasoningIndex >= firstAssistantIndex || secondReasoningIndex <= firstAssistantIndex || secondReasoningIndex >= secondAssistantIndex {
+		t.Fatalf("reasoning blocks were attached to the wrong assistant turns: %s", out)
+	}
+}
+
+func TestChatRequestToResponsesRejectsUnsupportedBlocks(t *testing.T) {
+	t.Parallel()
+	for _, request := range []string{
+		`{"messages":[{"role":"user","content":[{"type":"input_audio","input_audio":{"data":"YWJj"}}]}]}`,
+		`{"messages":[{"role":"assistant","tool_calls":[{"id":"call-1","type":"custom","custom":{"name":"run","input":"x"}}]}]}`,
+	} {
+		if _, err := RequestForEndpointFrom("openai", "gpt-6-luna", []byte(request), false, EndpointResponses); err == nil {
+			t.Fatalf("accepted a Chat block that native translation drops: %s", request)
+		}
 	}
 }
 

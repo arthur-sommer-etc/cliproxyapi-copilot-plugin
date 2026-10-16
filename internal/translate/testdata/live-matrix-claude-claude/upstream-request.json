@@ -1,0 +1,1 @@
+{"max_tokens":512,"messages":[{"content":"Reply with exactly LIVE_MATRIX_OK.","role":"user"}],"model":"claude-haiku-5.5","stream":false}

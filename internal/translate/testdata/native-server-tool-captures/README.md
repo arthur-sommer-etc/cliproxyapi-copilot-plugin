@@ -1,0 +1,11 @@
+# Complete native server-tool capture fixtures
+
+These five body-only pairs are extracted from the actual B provider POST gates. Every request and response body field is retained. Request/response JSON includes the original array ordering, numbers, null and empty values, usage, instructions, timestamps, diagnostics, stop/finish fields, results, errors, and citation data. Only transport headers and gateway test-hop wrappers are outside the fixture scope.
+
+The only value replacements are opaque IDs, persistent prompt-cache/safety identifiers, and encrypted ciphertext fields. Each is replaced in place with a deterministic string sentinel, preserving the original key and JSON type. Repeated opaque IDs use the same sentinel within a capture, including call/result IDs. Prompt-cache and safety identifiers, plus each encrypted field, use deterministic field-tagged sentinels; repeated values within the same field retain the same sentinel. `encrypted_content` and `encrypted_index` sentinels are fixture-only placeholders; they are not usable provider tokens or continuation credentials.
+
+Per-capture `request.shape.json` and `response.shape.json` are recursively derived from the full original bodies and preserve every field name, array position/count, and primitive type. Metadata records original source-body SHA-256 hashes, sanitized-source/fixture byte hashes, and original-shape SHA-256 hashes. Tests compare each fixture recursively to its source-derived complete shape, verify the shape digest, check every present privacy field uses its declared sentinel form, and check fixture bytes against the sanitized-source digest.
+
+All public NASA search result URLs, snippets, titles, action sources, and URL-citation values remain unchanged, including public source contact details. Private account identity is represented only by deterministic sentinel values.
+
+The outcomes remain exactly as captured: Gemini Chat search returned HTTP 200 with `finish_reason=error` and empty assistant content; GPT Responses search completed with actual results and a URL citation; Claude WebFetch returned HTTP 400; Claude Messages code execution returned a paired `bash_code_execution` call/result with return code zero; GPT `code_interpreter` returned HTTP 400 `unsupported_value`.

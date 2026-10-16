@@ -1,0 +1,6 @@
+{
+  "error": {
+    "message": "rejected tool(s): web_fetch",
+    "code": "invalid_request_body"
+  }
+}

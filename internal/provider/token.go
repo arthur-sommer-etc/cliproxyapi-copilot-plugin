@@ -22,17 +22,26 @@ type copilotTokenResponse struct {
 	TokenError string            `json:"error"`
 }
 
+type copilotUserEndpointsResponse struct {
+	Endpoints map[string]string `json:"endpoints"`
+}
+
 type copilotTokenEntry struct {
-	Token       string
-	APIBaseURL  string
-	ExpiresAt   time.Time
-	Fingerprint string
+	Token            string
+	APIBaseURL       string
+	Mode             string
+	ExpiresAt        time.Time
+	ContextExpiresAt time.Time
+	Fingerprint      string
+	ConfigGeneration uint64
 }
 
 type tokenFlight struct {
-	done  chan struct{}
-	entry copilotTokenEntry
-	err   error
+	done        chan struct{}
+	entry       copilotTokenEntry
+	err         error
+	fingerprint string
+	generation  uint64
 }
 
 func (s *Service) copilotToken(ctx context.Context, callbackID, authID string, storage authStorage) (copilotTokenEntry, error) {
@@ -41,46 +50,125 @@ func (s *Service) copilotToken(ctx context.Context, callbackID, authID string, s
 	if key == "" {
 		key = fingerprint
 	}
-	cfg := s.Config()
+	cfg, generation := s.configSnapshot()
 	now := s.now()
-
 	s.tokenMu.Lock()
-	if cached, ok := s.tokenEntries[key]; ok &&
-		cached.Fingerprint == fingerprint &&
-		cached.ExpiresAt.After(now.Add(cfg.tokenExpiryBuffer())) {
-		s.tokenMu.Unlock()
-		return cached, nil
+	if cached, ok := s.tokenEntries[key]; ok && cached.Fingerprint == fingerprint && effectiveAuthMode(cached.Mode) == authModeDirectOAuth && cfg.AuthMode == authModeDirectOAuth {
+		cached.ExpiresAt = storageCredentialExpiry(storage)
+		s.tokenEntries[key] = cached
 	}
-	if flight := s.tokenInflight[key]; flight != nil {
+	pruneTokenCache(s.tokenEntries, cfg, now)
+	if cached, ok := s.tokenEntries[key]; ok && cached.Fingerprint == fingerprint && cached.ConfigGeneration == generation && effectiveAuthMode(cached.Mode) == cfg.AuthMode {
+		if copilotTokenEntryValid(cached, cfg, now) {
+			s.tokenEntries[key] = cached
+			s.tokenMu.Unlock()
+			return cached, nil
+		}
+	}
+	flightKey := tokenFlightKey(key, fingerprint, generation)
+	if flight := s.tokenInflight[flightKey]; flight != nil {
 		done := flight.done
 		s.tokenMu.Unlock()
 		select {
 		case <-ctx.Done():
 			return copilotTokenEntry{}, ctx.Err()
 		case <-done:
-			return flight.entry, flight.err
+			_, currentGeneration := s.configSnapshot()
+			if currentGeneration != generation {
+				return copilotTokenEntry{}, fmt.Errorf("Copilot configuration changed during token exchange")
+			}
+			if flight.err != nil {
+				return flight.entry, flight.err
+			}
+			if flight.fingerprint != fingerprint || flight.entry.Fingerprint != fingerprint || effectiveAuthMode(flight.entry.Mode) != cfg.AuthMode {
+				return copilotTokenEntry{}, fmt.Errorf("Copilot token credential changed during token exchange")
+			}
+			entry := flight.entry
+			if cfg.AuthMode == authModeDirectOAuth {
+				entry.ExpiresAt = storageCredentialExpiry(storage)
+				if !directOAuthEntryUsable(entry, s.now()) {
+					return copilotTokenEntry{}, statusError("auth_state_refresh_required", "Refresh Copilot authentication before making this request", http.StatusConflict)
+				}
+			}
+			return entry, nil
 		}
 	}
-	flight := &tokenFlight{done: make(chan struct{})}
-	s.tokenInflight[key] = flight
+	if cfg.AuthMode == authModeDirectOAuth && !cachedCredentialExpiryValid(storage, now) {
+		s.tokenMu.Unlock()
+		return copilotTokenEntry{}, statusError("auth_state_refresh_required", "Refresh Copilot authentication before making this request", http.StatusConflict)
+	}
+	flight := &tokenFlight{done: make(chan struct{}), fingerprint: fingerprint, generation: generation}
+	s.tokenInflight[flightKey] = flight
 	s.tokenMu.Unlock()
 
-	entry, errExchange := s.exchangeCopilotToken(ctx, callbackID, fingerprint, storage.GitHubAccessToken)
+	var entry copilotTokenEntry
+	var errExchange error
+	if cfg.AuthMode == authModeDirectOAuth {
+		entry, errExchange = s.discoverCopilotAPI(ctx, callbackID, fingerprint, storage, cfg)
+	} else {
+		entry, errExchange = s.exchangeCopilotToken(ctx, callbackID, fingerprint, storage.GitHubAccessToken, cfg)
+	}
+	entry.ConfigGeneration = generation
+	if errExchange == nil && cfg.AuthMode == authModeDirectOAuth {
+		entry.ExpiresAt = storageCredentialExpiry(storage)
+		if !directOAuthEntryUsable(entry, s.now()) {
+			errExchange = statusError("auth_state_refresh_required", "Refresh Copilot authentication before making this request", http.StatusConflict)
+		}
+	}
 
+	s.configMu.RLock()
+	if s.configGeneration != generation {
+		errExchange = fmt.Errorf("Copilot configuration changed during token exchange")
+	}
 	s.tokenMu.Lock()
 	flight.entry = entry
 	flight.err = errExchange
-	if errExchange == nil {
+	if errExchange == nil && entry.Fingerprint == fingerprint {
 		s.tokenEntries[key] = entry
+		pruneTokenCache(s.tokenEntries, cfg, s.now())
 	}
-	delete(s.tokenInflight, key)
+	delete(s.tokenInflight, flightKey)
 	close(flight.done)
 	s.tokenMu.Unlock()
+	s.configMu.RUnlock()
 	return entry, errExchange
 }
 
-func (s *Service) exchangeCopilotToken(ctx context.Context, callbackID, fingerprint, githubToken string) (copilotTokenEntry, error) {
-	cfg := s.Config()
+func effectiveAuthMode(mode string) string {
+	if mode == "" {
+		return authModeTokenExchange
+	}
+	return mode
+}
+
+func copilotTokenEntryValid(entry copilotTokenEntry, cfg Config, now time.Time) bool {
+	if effectiveAuthMode(entry.Mode) == authModeDirectOAuth {
+		return entry.ContextExpiresAt.After(now) && (entry.ExpiresAt.IsZero() || entry.ExpiresAt.After(now.Add(cfg.tokenExpiryBuffer())))
+	}
+	return entry.ExpiresAt.After(now.Add(cfg.tokenExpiryBuffer()))
+}
+
+func storageCredentialExpiry(storage authStorage) time.Time {
+	if storage.ExpiresAt <= 0 {
+		return time.Time{}
+	}
+	return time.Unix(storage.ExpiresAt, 0)
+}
+
+func cachedCredentialExpiryValid(storage authStorage, now time.Time) bool {
+	expiresAt := storageCredentialExpiry(storage)
+	return expiresAt.IsZero() || expiresAt.After(now)
+}
+
+func directOAuthEntryUsable(entry copilotTokenEntry, now time.Time) bool {
+	return entry.ContextExpiresAt.After(now) && (entry.ExpiresAt.IsZero() || entry.ExpiresAt.After(now))
+}
+
+func tokenFlightKey(authID, fingerprint string, generation uint64) string {
+	return strings.Join([]string{authID, fingerprint, strconv.FormatUint(generation, 10)}, "\x00")
+}
+
+func (s *Service) exchangeCopilotToken(ctx context.Context, callbackID, fingerprint, githubToken string, cfg Config) (copilotTokenEntry, error) {
 	resp, errDo := s.host.Do(ctx, callbackID, transport.Request{
 		Method: http.MethodGet,
 		URL:    cfg.GitHubAPIURL + "/copilot_internal/v2/token",
@@ -113,8 +201,44 @@ func (s *Service) exchangeCopilotToken(ctx context.Context, callbackID, fingerpr
 	return copilotTokenEntry{
 		Token:       token.Token,
 		APIBaseURL:  apiBase,
+		Mode:        authModeTokenExchange,
 		ExpiresAt:   expiresAt,
 		Fingerprint: fingerprint,
+	}, nil
+}
+
+func (s *Service) discoverCopilotAPI(ctx context.Context, callbackID, fingerprint string, storage authStorage, cfg Config) (copilotTokenEntry, error) {
+	headers := http.Header{}
+	headers.Set("Accept", "application/json")
+	headers.Set("Authorization", "Bearer "+storage.GitHubAccessToken)
+	headers.Set("User-Agent", userAgent())
+	headers.Set("X-GitHub-Api-Version", copilotAPIVersion)
+	resp, errDo := s.host.Do(ctx, callbackID, transport.Request{
+		Method:  http.MethodGet,
+		URL:     cfg.GitHubAPIURL + "/copilot_internal/user",
+		Headers: headers,
+	})
+	if errDo != nil {
+		return copilotTokenEntry{}, fmt.Errorf("discover Copilot API from GitHub account: %w", errDo)
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return copilotTokenEntry{}, upstreamStatusError(resp.StatusCode, redact.ErrorBody(resp.Body, storage.GitHubAccessToken))
+	}
+	var account copilotUserEndpointsResponse
+	if errUnmarshal := json.Unmarshal(resp.Body, &account); errUnmarshal != nil {
+		return copilotTokenEntry{}, fmt.Errorf("decode GitHub Copilot account response: %w", errUnmarshal)
+	}
+	apiBase, errBase := copilotAPIBaseFromDirectOAuth(account.Endpoints, cfg)
+	if errBase != nil {
+		return copilotTokenEntry{}, errBase
+	}
+	return copilotTokenEntry{
+		Token:            storage.GitHubAccessToken,
+		APIBaseURL:       apiBase,
+		Mode:             authModeDirectOAuth,
+		ExpiresAt:        storageCredentialExpiry(storage),
+		ContextExpiresAt: s.now().Add(cfg.modelCacheTTL()),
+		Fingerprint:      fingerprint,
 	}, nil
 }
 
@@ -143,9 +267,21 @@ func copilotAPIBase(endpoints map[string]string, cfg Config) (string, error) {
 	if raw == "" {
 		raw = cfg.CopilotAPIURL
 	}
+	return validateCopilotAPIBase(raw, cfg, "Copilot token")
+}
+
+func copilotAPIBaseFromDirectOAuth(endpoints map[string]string, cfg Config) (string, error) {
+	raw := strings.TrimRight(strings.TrimSpace(endpoints["api"]), "/")
+	if raw == "" {
+		return "", fmt.Errorf("GitHub Copilot account response has no API endpoint")
+	}
+	return validateCopilotAPIBase(raw, cfg, "GitHub Copilot account response")
+}
+
+func validateCopilotAPIBase(raw string, cfg Config, source string) (string, error) {
 	parsed, errParse := url.Parse(raw)
-	if errParse != nil || parsed.Hostname() == "" {
-		return "", fmt.Errorf("Copilot token returned an invalid API endpoint")
+	if errParse != nil || parsed.Hostname() == "" || parsed.User != nil {
+		return "", fmt.Errorf("%s returned an invalid API endpoint", source)
 	}
 	if parsed.Scheme != "https" && !(cfg.AllowInsecureBaseURLs && parsed.Scheme == "http") {
 		return "", fmt.Errorf("Copilot API endpoint must use HTTPS")
@@ -156,16 +292,33 @@ func copilotAPIBase(endpoints map[string]string, cfg Config) (string, error) {
 	return raw, nil
 }
 
+func (s *Service) invalidateAuthForCredential(authID, fingerprint string) {
+	key := strings.TrimSpace(authID)
+	if key == "" {
+		key = fingerprint
+	}
+	s.tokenMu.Lock()
+	if entry, ok := s.tokenEntries[key]; ok && entry.Fingerprint == fingerprint {
+		clearTokenCacheEntry(s.tokenEntries, key)
+	}
+	s.tokenMu.Unlock()
+	s.modelMu.Lock()
+	if entry, ok := s.modelEntries[key]; ok && entry.Fingerprint == fingerprint {
+		clearModelCacheEntry(s.modelEntries, key)
+	}
+	s.modelMu.Unlock()
+}
+
 func (s *Service) invalidateAuth(authID string) {
 	authID = strings.TrimSpace(authID)
 	s.tokenMu.Lock()
 	if authID != "" {
-		delete(s.tokenEntries, authID)
+		clearTokenCacheEntry(s.tokenEntries, authID)
 	}
 	s.tokenMu.Unlock()
 	s.modelMu.Lock()
 	if authID != "" {
-		delete(s.modelEntries, authID)
+		clearModelCacheEntry(s.modelEntries, authID)
 	}
 	s.modelMu.Unlock()
 }

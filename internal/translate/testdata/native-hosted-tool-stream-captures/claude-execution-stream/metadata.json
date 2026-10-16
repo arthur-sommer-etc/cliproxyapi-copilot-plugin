@@ -1,0 +1,25 @@
+{
+  "cell": "S/claude-code-execution",
+  "endpoint_path": "/v1/messages",
+  "fixture_sha256": {
+    "request": "91ebc7bdb5889ab301dbe3b7176be40f20596686b1b86fe9523649c3f506b064",
+    "response": "8240abf68f41dc616c0743547d13069b2a76effe4c7650e3c235765198c6b6f9"
+  },
+  "http_status": 200,
+  "native_model": "claude-haiku-5.5",
+  "original_shape_sha256": {
+    "request": "7d2be9c99fac688c8d6f01cc65df3d63db43f67f0f5125ac5b8161f957cfefe1",
+    "response": "0caf48dc6fc4b2171dd361e0c9a763acaf780568949c01d627a009b71713799d"
+  },
+  "response_format": "sse",
+  "response_storage": "json_string",
+  "sanitized_source_sha256": {
+    "request": "91ebc7bdb5889ab301dbe3b7176be40f20596686b1b86fe9523649c3f506b064",
+    "response": "cbbaa2c3936b3cfacfde4004c2908da69efd1f58ddd0dddd620746cb8f83c13e"
+  },
+  "source_body_sha256": {
+    "request": "c087e5fd4422c01da8adec7f38e092edbe60567fd693a1b817b2072922f1432e",
+    "response": "e0707271a6105012b2c7c59a79a0cb28f385687bb4fc856a7a13804154b9aef1"
+  },
+  "source_outcome": "native hosted execution stream accepted"
+}

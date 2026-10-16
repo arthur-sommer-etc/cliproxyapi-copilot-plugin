@@ -1,0 +1,139 @@
+{
+  "fields": {
+    "max_tokens": {
+      "type": "number"
+    },
+    "messages": {
+      "items": [
+        {
+          "fields": {
+            "content": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        {
+          "fields": {
+            "content": {
+              "items": [
+                {
+                  "fields": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "input": {
+                      "fields": {
+                        "command": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "content": {
+                      "fields": {
+                        "content": {
+                          "items": [],
+                          "length": 0,
+                          "type": "array"
+                        },
+                        "return_code": {
+                          "type": "number"
+                        },
+                        "stderr": {
+                          "type": "string"
+                        },
+                        "stdout": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "tool_use_id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "text": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              ],
+              "length": 3,
+              "type": "array"
+            },
+            "role": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        {
+          "fields": {
+            "content": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      ],
+      "length": 3,
+      "type": "array"
+    },
+    "model": {
+      "type": "string"
+    },
+    "stream": {
+      "type": "boolean"
+    },
+    "tools": {
+      "items": [
+        {
+          "fields": {
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      ],
+      "length": 1,
+      "type": "array"
+    }
+  },
+  "type": "object"
+}

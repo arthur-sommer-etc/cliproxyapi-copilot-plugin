@@ -1,0 +1,4844 @@
+{
+  "type": "sse",
+  "frame_count": 114,
+  "frames": [
+    {
+      "index": 0,
+      "event": "response.created",
+      "data_type": "response.created",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "response": {
+            "type": "object",
+            "fields": {
+              "access_programs": {
+                "type": "null"
+              },
+              "background": {
+                "type": "boolean"
+              },
+              "completed_at": {
+                "type": "null"
+              },
+              "created_at": {
+                "type": "number"
+              },
+              "error": {
+                "type": "null"
+              },
+              "frequency_penalty": {
+                "type": "number"
+              },
+              "id": {
+                "type": "string"
+              },
+              "incomplete_details": {
+                "type": "null"
+              },
+              "instructions": {
+                "type": "null"
+              },
+              "max_output_tokens": {
+                "type": "number"
+              },
+              "max_tool_calls": {
+                "type": "null"
+              },
+              "metadata": {
+                "type": "object",
+                "fields": {}
+              },
+              "model": {
+                "type": "string"
+              },
+              "moderation": {
+                "type": "null"
+              },
+              "object": {
+                "type": "string"
+              },
+              "output": {
+                "type": "array",
+                "length": 0,
+                "items": []
+              },
+              "parallel_tool_calls": {
+                "type": "boolean"
+              },
+              "presence_penalty": {
+                "type": "number"
+              },
+              "previous_response_id": {
+                "type": "null"
+              },
+              "prompt_cache_retention": {
+                "type": "string"
+              },
+              "reasoning": {
+                "type": "object",
+                "fields": {
+                  "context": {
+                    "type": "string"
+                  },
+                  "effort": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                }
+              },
+              "safety_identifier": {
+                "type": "string"
+              },
+              "service_tier": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "store": {
+                "type": "boolean"
+              },
+              "temperature": {
+                "type": "number"
+              },
+              "text": {
+                "type": "object",
+                "fields": {
+                  "format": {
+                    "type": "object",
+                    "fields": {
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "verbosity": {
+                    "type": "string"
+                  }
+                }
+              },
+              "tool_choice": {
+                "type": "string"
+              },
+              "tool_usage": {
+                "type": "object",
+                "fields": {
+                  "image_gen": {
+                    "type": "object",
+                    "fields": {
+                      "input_tokens": {
+                        "type": "number"
+                      },
+                      "input_tokens_details": {
+                        "type": "object",
+                        "fields": {
+                          "image_tokens": {
+                            "type": "number"
+                          },
+                          "text_tokens": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "output_tokens": {
+                        "type": "number"
+                      },
+                      "output_tokens_details": {
+                        "type": "object",
+                        "fields": {
+                          "image_tokens": {
+                            "type": "number"
+                          },
+                          "text_tokens": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "total_tokens": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "web_search": {
+                    "type": "object",
+                    "fields": {
+                      "num_requests": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              },
+              "tools": {
+                "type": "array",
+                "length": 1,
+                "items": [
+                  {
+                    "type": "object",
+                    "fields": {
+                      "description": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "output_schema": {
+                        "type": "null"
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "fields": {
+                          "$schema": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {
+                            "type": "boolean"
+                          },
+                          "properties": {
+                            "type": "object",
+                            "fields": {
+                              "allow_large": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "file_path": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "limit": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "exclusiveMinimum": {
+                                    "type": "number"
+                                  },
+                                  "maximum": {
+                                    "type": "number"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "offset": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "maximum": {
+                                    "type": "number"
+                                  },
+                                  "minimum": {
+                                    "type": "number"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "pages": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "required": {
+                            "type": "array",
+                            "length": 5,
+                            "items": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "strict": {
+                        "type": "boolean"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "top_logprobs": {
+                "type": "number"
+              },
+              "top_p": {
+                "type": "number"
+              },
+              "truncation": {
+                "type": "string"
+              },
+              "usage": {
+                "type": "null"
+              },
+              "user": {
+                "type": "null"
+              }
+            }
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 1,
+      "event": "response.in_progress",
+      "data_type": "response.in_progress",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "response": {
+            "type": "object",
+            "fields": {
+              "access_programs": {
+                "type": "null"
+              },
+              "background": {
+                "type": "boolean"
+              },
+              "completed_at": {
+                "type": "null"
+              },
+              "created_at": {
+                "type": "number"
+              },
+              "error": {
+                "type": "null"
+              },
+              "frequency_penalty": {
+                "type": "number"
+              },
+              "id": {
+                "type": "string"
+              },
+              "incomplete_details": {
+                "type": "null"
+              },
+              "instructions": {
+                "type": "null"
+              },
+              "max_output_tokens": {
+                "type": "number"
+              },
+              "max_tool_calls": {
+                "type": "null"
+              },
+              "metadata": {
+                "type": "object",
+                "fields": {}
+              },
+              "model": {
+                "type": "string"
+              },
+              "moderation": {
+                "type": "null"
+              },
+              "object": {
+                "type": "string"
+              },
+              "output": {
+                "type": "array",
+                "length": 0,
+                "items": []
+              },
+              "parallel_tool_calls": {
+                "type": "boolean"
+              },
+              "presence_penalty": {
+                "type": "number"
+              },
+              "previous_response_id": {
+                "type": "null"
+              },
+              "prompt_cache_retention": {
+                "type": "string"
+              },
+              "reasoning": {
+                "type": "object",
+                "fields": {
+                  "context": {
+                    "type": "string"
+                  },
+                  "effort": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                }
+              },
+              "safety_identifier": {
+                "type": "string"
+              },
+              "service_tier": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "store": {
+                "type": "boolean"
+              },
+              "temperature": {
+                "type": "number"
+              },
+              "text": {
+                "type": "object",
+                "fields": {
+                  "format": {
+                    "type": "object",
+                    "fields": {
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "verbosity": {
+                    "type": "string"
+                  }
+                }
+              },
+              "tool_choice": {
+                "type": "string"
+              },
+              "tool_usage": {
+                "type": "object",
+                "fields": {
+                  "image_gen": {
+                    "type": "object",
+                    "fields": {
+                      "input_tokens": {
+                        "type": "number"
+                      },
+                      "input_tokens_details": {
+                        "type": "object",
+                        "fields": {
+                          "image_tokens": {
+                            "type": "number"
+                          },
+                          "text_tokens": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "output_tokens": {
+                        "type": "number"
+                      },
+                      "output_tokens_details": {
+                        "type": "object",
+                        "fields": {
+                          "image_tokens": {
+                            "type": "number"
+                          },
+                          "text_tokens": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "total_tokens": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "web_search": {
+                    "type": "object",
+                    "fields": {
+                      "num_requests": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              },
+              "tools": {
+                "type": "array",
+                "length": 1,
+                "items": [
+                  {
+                    "type": "object",
+                    "fields": {
+                      "description": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "output_schema": {
+                        "type": "null"
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "fields": {
+                          "$schema": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {
+                            "type": "boolean"
+                          },
+                          "properties": {
+                            "type": "object",
+                            "fields": {
+                              "allow_large": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "file_path": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "limit": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "exclusiveMinimum": {
+                                    "type": "number"
+                                  },
+                                  "maximum": {
+                                    "type": "number"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "offset": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "maximum": {
+                                    "type": "number"
+                                  },
+                                  "minimum": {
+                                    "type": "number"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "pages": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "required": {
+                            "type": "array",
+                            "length": 5,
+                            "items": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "strict": {
+                        "type": "boolean"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "top_logprobs": {
+                "type": "number"
+              },
+              "top_p": {
+                "type": "number"
+              },
+              "truncation": {
+                "type": "string"
+              },
+              "usage": {
+                "type": "null"
+              },
+              "user": {
+                "type": "null"
+              }
+            }
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 2,
+      "event": "response.output_item.added",
+      "data_type": "response.output_item.added",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "item": {
+            "type": "object",
+            "fields": {
+              "content": {
+                "type": "array",
+                "length": 0,
+                "items": []
+              },
+              "encrypted_content": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "array",
+                "length": 0,
+                "items": []
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 3,
+      "event": "response.reasoning_summary_part.added",
+      "data_type": "response.reasoning_summary_part.added",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "item_id": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "part": {
+            "type": "object",
+            "fields": {
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 4,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 5,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 6,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 7,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 8,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 9,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 10,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 11,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 12,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 13,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 14,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 15,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 16,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 17,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 18,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 19,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 20,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 21,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 22,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 23,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 24,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 25,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 26,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 27,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 28,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 29,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 30,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 31,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 32,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 33,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 34,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 35,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 36,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 37,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 38,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 39,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 40,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 41,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 42,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 43,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 44,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 45,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 46,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 47,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 48,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 49,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 50,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 51,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 52,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 53,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 54,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 55,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 56,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 57,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 58,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 59,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 60,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 61,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 62,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 63,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 64,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 65,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 66,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 67,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 68,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 69,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 70,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 71,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 72,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 73,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 74,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 75,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 76,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 77,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 78,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 79,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 80,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 81,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 82,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 83,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 84,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 85,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 86,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 87,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 88,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 89,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 90,
+      "event": "response.reasoning_summary_text.delta",
+      "data_type": "response.reasoning_summary_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 91,
+      "event": "response.reasoning_summary_text.done",
+      "data_type": "response.reasoning_summary_text.done",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "item_id": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "text": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 92,
+      "event": "response.reasoning_summary_part.done",
+      "data_type": "response.reasoning_summary_part.done",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "item_id": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "part": {
+            "type": "object",
+            "fields": {
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "summary_index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 93,
+      "event": "response.output_item.done",
+      "data_type": "response.output_item.done",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "item": {
+            "type": "object",
+            "fields": {
+              "content": {
+                "type": "array",
+                "length": 0,
+                "items": []
+              },
+              "encrypted_content": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "array",
+                "length": 1,
+                "items": [
+                  {
+                    "type": "object",
+                    "fields": {
+                      "text": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 94,
+      "event": "response.output_item.added",
+      "data_type": "response.output_item.added",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "item": {
+            "type": "object",
+            "fields": {
+              "content": {
+                "type": "array",
+                "length": 0,
+                "items": []
+              },
+              "id": {
+                "type": "string"
+              },
+              "phase": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 95,
+      "event": "response.content_part.added",
+      "data_type": "response.content_part.added",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "part": {
+            "type": "object",
+            "fields": {
+              "annotations": {
+                "type": "array",
+                "length": 0,
+                "items": []
+              },
+              "logprobs": {
+                "type": "array",
+                "length": 0,
+                "items": []
+              },
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 96,
+      "event": "response.output_text.delta",
+      "data_type": "response.output_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 97,
+      "event": "response.output_text.delta",
+      "data_type": "response.output_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 98,
+      "event": "response.output_text.delta",
+      "data_type": "response.output_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 99,
+      "event": "response.output_text.delta",
+      "data_type": "response.output_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 100,
+      "event": "response.output_text.delta",
+      "data_type": "response.output_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 101,
+      "event": "response.output_text.delta",
+      "data_type": "response.output_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 102,
+      "event": "response.output_text.delta",
+      "data_type": "response.output_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 103,
+      "event": "response.output_text.delta",
+      "data_type": "response.output_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 104,
+      "event": "response.output_text.delta",
+      "data_type": "response.output_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 105,
+      "event": "response.output_text.delta",
+      "data_type": "response.output_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 106,
+      "event": "response.output_text.delta",
+      "data_type": "response.output_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 107,
+      "event": "response.output_text.delta",
+      "data_type": "response.output_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 108,
+      "event": "response.output_text.delta",
+      "data_type": "response.output_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 109,
+      "event": "response.output_text.delta",
+      "data_type": "response.output_text.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 110,
+      "event": "response.output_text.done",
+      "data_type": "response.output_text.done",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "logprobs": {
+            "type": "array",
+            "length": 0,
+            "items": []
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "text": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 111,
+      "event": "response.content_part.done",
+      "data_type": "response.content_part.done",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_index": {
+            "type": "number"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "part": {
+            "type": "object",
+            "fields": {
+              "annotations": {
+                "type": "array",
+                "length": 0,
+                "items": []
+              },
+              "logprobs": {
+                "type": "array",
+                "length": 0,
+                "items": []
+              },
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 112,
+      "event": "response.output_item.done",
+      "data_type": "response.output_item.done",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "item": {
+            "type": "object",
+            "fields": {
+              "content": {
+                "type": "array",
+                "length": 1,
+                "items": [
+                  {
+                    "type": "object",
+                    "fields": {
+                      "annotations": {
+                        "type": "array",
+                        "length": 0,
+                        "items": []
+                      },
+                      "logprobs": {
+                        "type": "array",
+                        "length": 0,
+                        "items": []
+                      },
+                      "text": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "id": {
+                "type": "string"
+              },
+              "phase": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 113,
+      "event": "response.completed",
+      "data_type": "response.completed",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "copilot_usage": {
+            "type": "object",
+            "fields": {
+              "token_details": {
+                "type": "array",
+                "length": 4,
+                "items": [
+                  {
+                    "type": "object",
+                    "fields": {
+                      "batch_size": {
+                        "type": "number"
+                      },
+                      "cost_per_batch": {
+                        "type": "number"
+                      },
+                      "model": {
+                        "type": "string"
+                      },
+                      "token_count": {
+                        "type": "number"
+                      },
+                      "token_type": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "fields": {
+                      "batch_size": {
+                        "type": "number"
+                      },
+                      "cost_per_batch": {
+                        "type": "number"
+                      },
+                      "model": {
+                        "type": "string"
+                      },
+                      "token_count": {
+                        "type": "number"
+                      },
+                      "token_type": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "fields": {
+                      "batch_size": {
+                        "type": "number"
+                      },
+                      "cost_per_batch": {
+                        "type": "number"
+                      },
+                      "model": {
+                        "type": "string"
+                      },
+                      "token_count": {
+                        "type": "number"
+                      },
+                      "token_type": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "fields": {
+                      "batch_size": {
+                        "type": "number"
+                      },
+                      "cost_per_batch": {
+                        "type": "number"
+                      },
+                      "model": {
+                        "type": "string"
+                      },
+                      "token_count": {
+                        "type": "number"
+                      },
+                      "token_type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "total_nano_aiu": {
+                "type": "number"
+              }
+            }
+          },
+          "response": {
+            "type": "object",
+            "fields": {
+              "access_programs": {
+                "type": "null"
+              },
+              "background": {
+                "type": "boolean"
+              },
+              "completed_at": {
+                "type": "number"
+              },
+              "created_at": {
+                "type": "number"
+              },
+              "error": {
+                "type": "null"
+              },
+              "frequency_penalty": {
+                "type": "number"
+              },
+              "id": {
+                "type": "string"
+              },
+              "incomplete_details": {
+                "type": "null"
+              },
+              "instructions": {
+                "type": "null"
+              },
+              "max_output_tokens": {
+                "type": "number"
+              },
+              "max_tool_calls": {
+                "type": "null"
+              },
+              "metadata": {
+                "type": "object",
+                "fields": {}
+              },
+              "model": {
+                "type": "string"
+              },
+              "moderation": {
+                "type": "null"
+              },
+              "object": {
+                "type": "string"
+              },
+              "output": {
+                "type": "array",
+                "length": 2,
+                "items": [
+                  {
+                    "type": "object",
+                    "fields": {
+                      "content": {
+                        "type": "array",
+                        "length": 0,
+                        "items": []
+                      },
+                      "encrypted_content": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "summary": {
+                        "type": "array",
+                        "length": 1,
+                        "items": [
+                          {
+                            "type": "object",
+                            "fields": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "fields": {
+                      "content": {
+                        "type": "array",
+                        "length": 1,
+                        "items": [
+                          {
+                            "type": "object",
+                            "fields": {
+                              "annotations": {
+                                "type": "array",
+                                "length": 0,
+                                "items": []
+                              },
+                              "logprobs": {
+                                "type": "array",
+                                "length": 0,
+                                "items": []
+                              },
+                              "text": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "phase": {
+                        "type": "string"
+                      },
+                      "role": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "parallel_tool_calls": {
+                "type": "boolean"
+              },
+              "presence_penalty": {
+                "type": "number"
+              },
+              "previous_response_id": {
+                "type": "null"
+              },
+              "prompt_cache_retention": {
+                "type": "string"
+              },
+              "reasoning": {
+                "type": "object",
+                "fields": {
+                  "context": {
+                    "type": "string"
+                  },
+                  "effort": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                }
+              },
+              "safety_identifier": {
+                "type": "string"
+              },
+              "service_tier": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "store": {
+                "type": "boolean"
+              },
+              "temperature": {
+                "type": "number"
+              },
+              "text": {
+                "type": "object",
+                "fields": {
+                  "format": {
+                    "type": "object",
+                    "fields": {
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "verbosity": {
+                    "type": "string"
+                  }
+                }
+              },
+              "tool_choice": {
+                "type": "string"
+              },
+              "tool_usage": {
+                "type": "object",
+                "fields": {
+                  "image_gen": {
+                    "type": "object",
+                    "fields": {
+                      "input_tokens": {
+                        "type": "number"
+                      },
+                      "input_tokens_details": {
+                        "type": "object",
+                        "fields": {
+                          "image_tokens": {
+                            "type": "number"
+                          },
+                          "text_tokens": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "output_tokens": {
+                        "type": "number"
+                      },
+                      "output_tokens_details": {
+                        "type": "object",
+                        "fields": {
+                          "image_tokens": {
+                            "type": "number"
+                          },
+                          "text_tokens": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "total_tokens": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "web_search": {
+                    "type": "object",
+                    "fields": {
+                      "num_requests": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              },
+              "tools": {
+                "type": "array",
+                "length": 1,
+                "items": [
+                  {
+                    "type": "object",
+                    "fields": {
+                      "description": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "output_schema": {
+                        "type": "null"
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "fields": {
+                          "$schema": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {
+                            "type": "boolean"
+                          },
+                          "properties": {
+                            "type": "object",
+                            "fields": {
+                              "allow_large": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "file_path": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "limit": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "exclusiveMinimum": {
+                                    "type": "number"
+                                  },
+                                  "maximum": {
+                                    "type": "number"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "offset": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "maximum": {
+                                    "type": "number"
+                                  },
+                                  "minimum": {
+                                    "type": "number"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "pages": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "required": {
+                            "type": "array",
+                            "length": 5,
+                            "items": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "strict": {
+                        "type": "boolean"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "top_logprobs": {
+                "type": "number"
+              },
+              "top_p": {
+                "type": "number"
+              },
+              "truncation": {
+                "type": "string"
+              },
+              "usage": {
+                "type": "object",
+                "fields": {
+                  "input_tokens": {
+                    "type": "number"
+                  },
+                  "input_tokens_details": {
+                    "type": "object",
+                    "fields": {
+                      "cache_write_tokens": {
+                        "type": "number"
+                      },
+                      "cached_tokens": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "output_tokens": {
+                    "type": "number"
+                  },
+                  "output_tokens_details": {
+                    "type": "object",
+                    "fields": {
+                      "reasoning_tokens": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "total_tokens": {
+                    "type": "number"
+                  }
+                }
+              },
+              "user": {
+                "type": "null"
+              }
+            }
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}

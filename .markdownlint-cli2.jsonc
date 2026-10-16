@@ -1,0 +1,12 @@
+{
+  "config": {
+    "line-length": false,
+    "table-column-style": {
+      "style": "compact"
+    }
+  },
+  "gitignore": true,
+  "globs": [
+    "**/*.md"
+  ]
+}
