@@ -603,7 +603,6 @@ func previousUserFingerprint(messages [][]byte, before int) string {
 		if ok && content != "" {
 			return digest([]byte(content))
 		}
-		return ""
 	}
 	return ""
 }

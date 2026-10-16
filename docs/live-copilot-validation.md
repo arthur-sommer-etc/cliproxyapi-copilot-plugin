@@ -1,6 +1,39 @@
 # Live Copilot compatibility validation
 
-## Current validation (2026-10-11)
+## Current validation (2026-10-16)
+
+The dependency and original-client checks use CLIProxyAPI SDK v8.0.30 with the same matched-host `replace` from `go.mod` and Go 1.27.2.
+Claude Code 2.1.300 and Codex CLI 0.162.1 ran directly in isolated task-owned homes against the matched host.
+The runs used a minimal task-private enabled copy of the Copilot auth record; the original auth record stayed read-only and untouched.
+Refresh activity, when it occurred, was isolated to the copy.
+All captures, ledgers and rejected bodies remain private; only verdicts and classifications appear here.
+
+All 18 protocol matrix cells passed across JSON and SSE with the task-local enabled profile, Gemini first.
+
+| Model | Chat | Responses | Messages |
+| --- | --- | --- | --- |
+| `gemini-3.8-flash` | JSON and SSE: PASS | JSON and SSE: PASS | JSON and SSE: PASS |
+| `gpt-6-luna` | JSON and SSE: PASS | JSON and SSE: PASS | JSON and SSE: PASS |
+| `claude-haiku-5.5` | JSON and SSE: PASS | JSON and SSE: PASS | JSON and SSE: PASS |
+
+| Client | Baseline | Web search | Delegation |
+| --- | --- | --- | --- |
+| Claude Code 2.1.300 | PASS | FAIL: Copilot returned HTTP 400 `unsupported_value` for the web search tool; unchanged external limit | Real Agent subdelegation: PASS |
+| Codex CLI 0.162.1 | PASS | PASS with a genuine native `web_search` invocation and meaningful results | Real child spawn, wait and handback: PASS, including attributed-answer phrasings and encrypted handback carriers |
+
+The original-client attachment packet added seven cross-client image and PDF cells with Claude Code 2.1.300 and Codex CLI 0.162.1 for `gemini-3.8-flash`, `gpt-6-luna` and `claude-haiku-5.5`.
+Its harness initially misclassified two things and both were corrected with retained evidence: Messages-style `tool_use` stream terminals were not recognized as ingress completion confirmations, and replay-time prior-user fingerprinting stopped at image-bearing user turns while seal-time fingerprinting skipped them.
+The replay fix lets sealed reasoning restore onto the SDK-coalesced assistant turn after an image-bearing user message, verified by an offline regression that fails with the old asymmetric fingerprint.
+The upstream rejection evidence recorder now retains a redacted, header-allowlisted private record of non-2xx Copilot inference responses when explicitly enabled; client-visible errors still never include provider response text.
+The cross-client attachment packet ended with one ACTUAL pass and a precisely named upstream blocker.
+`codex-claude-png` passed for real with Codex CLI 0.162.1 and `claude-haiku-5.5`: correct red-top/blue-bottom answer from the actual image bytes with `detail: high` preserved on the advertised Chat route.
+The remaining cells could not dispatch after the two harness/plugin corrections were verified: every inference dispatch to `/chat/completions` returned HTTP 429 `{"error":{"code":"gate_dispatch_denied"}}` with no `Retry-After` and no `x-ratelimit-*` headers, identically at 11:57, 12:13 and 12:58.
+That signature is not the documented Copilot throttling response and is not quota exhaustion; the identical request format was served HTTP 200 earlier the same day.
+The named blocker is an upstream inference dispatch gate denial requiring a changed upstream condition; no reset timing was supplied, so no further retry was made.
+Final labels: `codex-claude-png` ACTUAL PASS; `claude-gemini-png` FAILED on that upstream denial with the corrected harness and plugin in place (the earlier local failures it also hit are fixed and regression-tested offline); `claude-gemini-pdf`, `codex-gemini-png`, `claude-gpt-png`, `claude-gpt-pdf` and `codex-claude-pdf` BLOCKED by the same upstream denial; `codex-gemini-pdf` NOT RUN because the harness defines no cell for that client/model/media pair.
+The Claude Code `unrecognized_model` stderr line observed on these cells is a generic client failure surface, not the cause; the actual response classification above comes from the retained private upstream evidence.
+
+## Historical validation (2026-10-11)
 
 The latest dependency and original-client checks use CLIProxyAPI SDK v8.0.30.
 The matched host used `replace github.com/router-for-me/CLIProxyAPI/v8 => github.com/ririnto/CLIProxyAPI/v8 v8.0.0-20261010040012-c48c64443575` from `go.mod` and Go 1.27.2.

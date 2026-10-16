@@ -12,6 +12,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"image"
+	"image/color"
+	"image/jpeg"
 	"math"
 	"net/http"
 	"net/http/httptest"
@@ -110,6 +113,9 @@ func liveAttachmentCases() []liveAttachmentCase {
 		{cell: "claude-gpt-pdf", client: "claude", model: "gpt-6-luna", media: "pdf", fixture: attachmentPDF, modelPath: "/responses"},
 		{cell: "codex-claude-png", client: "codex", model: "claude-haiku-5.5", media: "png", fixture: attachmentPNG, modelPath: "/chat/completions", imageDetail: "high"},
 		{cell: "codex-claude-pdf", client: "codex", model: "claude-haiku-5.5", media: "pdf", fixture: attachmentPDF, modelPath: "/chat/completions", imageDetail: "high"},
+		{cell: "claude-gemini-png", client: "claude", model: "gemini-3.8-flash", media: "png", fixture: attachmentPNG, modelPath: "/chat/completions"},
+		{cell: "claude-gemini-pdf", client: "claude", model: "gemini-3.8-flash", media: "pdf", fixture: attachmentPDF, modelPath: "/chat/completions"},
+		{cell: "codex-gemini-png", client: "codex", model: "gemini-3.8-flash", media: "png", fixture: attachmentPNG, modelPath: "/chat/completions", imageDetail: "high"},
 	}
 }
 
@@ -123,6 +129,12 @@ func liveAttachmentPrompt(candidate liveAttachmentCase) string {
 		return "Inspect the attached image and describe its top and bottom colors."
 	case "codex-claude-pdf":
 		return "Inspect the PDF at " + candidate.fixture + " using installed pdftoppm -png to render it into the current working directory, then use the built-in view_image tool on the rendered page. Report the printed code and element color."
+	case "claude-gemini-png":
+		return "Use the built-in Read tool to inspect the PNG file at " + candidate.fixture + ". Describe its top and bottom colors."
+	case "claude-gemini-pdf":
+		return "Use the built-in Read tool to inspect the PDF file at " + candidate.fixture + ". Report its printed code and the color of its element."
+	case "codex-gemini-png":
+		return "Inspect the attached image and describe its top and bottom colors."
 	default:
 		return ""
 	}
@@ -150,8 +162,8 @@ func liveAttachmentArgs(candidate liveAttachmentCase, root string) ([]string, er
 	return append(args, prompt), nil
 }
 
-func liveAttachmentCodexConfiguration(base string) string {
-	return fmt.Sprintf("model = \"claude-haiku-5.5\"\nmodel_provider = \"task_proxy\"\nweb_search = \"cached\"\n[model_providers.task_proxy]\nname = \"Task proxy\"\nbase_url = %q\nenv_key = \"TASK_PROXY_API_KEY\"\nwire_api = \"responses\"\nsupports_websockets = false\nrequest_max_retries = 0\nstream_max_retries = 0\n", base+"/v1")
+func liveAttachmentCodexConfiguration(base, model string) string {
+	return fmt.Sprintf("model = %q\nmodel_provider = \"task_proxy\"\nweb_search = \"cached\"\n[model_providers.task_proxy]\nname = \"Task proxy\"\nbase_url = %q\nenv_key = \"TASK_PROXY_API_KEY\"\nwire_api = \"responses\"\nsupports_websockets = false\nrequest_max_retries = 0\nstream_max_retries = 0\n", model, base+"/v1")
 }
 
 func liveAttachmentOperationCell(candidate liveAttachmentCase, attempt string) (string, error) {
@@ -299,7 +311,7 @@ func liveAttachmentRunCLIIsolated(t *testing.T, candidate liveAttachmentCase, ba
 		t.Fatal(err)
 	}
 	if candidate.client == "codex" {
-		if err := os.WriteFile(filepath.Join(home, "config.toml"), []byte(liveAttachmentCodexConfiguration(base)), 0600); err != nil {
+		if err := os.WriteFile(filepath.Join(home, "config.toml"), []byte(liveAttachmentCodexConfiguration(base, candidate.model)), 0600); err != nil {
 			t.Fatal("could not write isolated Codex config")
 		}
 	}
@@ -445,11 +457,120 @@ func liveAttachmentPopplerPreflight(t *testing.T, candidate liveAttachmentCase, 
 	if err := os.Chmod(page, 0600); err != nil {
 		t.Fatal("could not protect task-owned renderer preflight page")
 	}
-	pageHash := sha256.Sum256(pageBytes)
-	if hex.EncodeToString(pageHash[:]) != attachmentExpectedReadablePDFPageSHA256 {
-		t.Fatal("task-owned PDF renderer no longer produces the visually verified printed code and blue element")
+	if !attachmentPDFPageReadable(pageBytes) {
+		t.Fatal("task-owned PDF renderer did not produce the readable printed code and blue element")
 	}
 	return livePacketFileSHA256(t, attachmentMaintainedPoppler)
+}
+
+// attachmentPDFPageReadable reports whether a rendered fixture page shows the
+// printed canary text line and the solid blue element, independent of the
+// specific renderer build that produced the page.
+func attachmentPDFPageReadable(page []byte) bool {
+	decoded, _, err := image.Decode(bytes.NewReader(page))
+	if err != nil {
+		return false
+	}
+	bounds := decoded.Bounds()
+	width, height := bounds.Dx(), bounds.Dy()
+	if width < 100 || height < 60 {
+		return false
+	}
+	textLeft, textRight, textTop, textBottom, textInk := width, 0, height/2, 0, 0
+	blueLeft, blueRight, blueTop, blueBottom, blueFill := width, 0, height, 0, 0
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			red, green, blue, _ := decoded.At(x, y).RGBA()
+			red, green, blue = red>>8, green>>8, blue>>8
+			if red+green+blue < 240 && y < bounds.Min.Y+height/2 {
+				textInk++
+				if x < textLeft {
+					textLeft = x
+				}
+				if x > textRight {
+					textRight = x
+				}
+				if y < textTop {
+					textTop = y
+				}
+				if y > textBottom {
+					textBottom = y
+				}
+			}
+			if blue >= 140 && blue-red >= 60 && blue-green >= 60 {
+				blueFill++
+				if x < blueLeft {
+					blueLeft = x
+				}
+				if x > blueRight {
+					blueRight = x
+				}
+				if y < blueTop {
+					blueTop = y
+				}
+				if y > blueBottom {
+					blueBottom = y
+				}
+			}
+		}
+	}
+	if textInk < width*height/250 {
+		return false
+	}
+	textWidth, textHeight := textRight-textLeft+1, textBottom-textTop+1
+	if textTop > bounds.Min.Y+height/4 || textWidth < width/2 || textHeight < height/20 || textHeight > height/4 {
+		return false
+	}
+	blueWidth, blueHeight := blueRight-blueLeft+1, blueBottom-blueTop+1
+	if blueFill < width*height/50 || blueWidth < width/4 || blueHeight < height/10 || blueWidth < blueHeight || blueWidth > blueHeight*3 {
+		return false
+	}
+	return true
+}
+
+func TestAttachmentPDFPageReadableOracle(t *testing.T) {
+	render := func(textInk, blueElement bool) []byte {
+		imageBuffer := &bytes.Buffer{}
+		page := image.NewRGBA(image.Rect(0, 0, 417, 278))
+		for y := 0; y < 278; y++ {
+			for x := 0; x < 417; x++ {
+				page.Set(x, y, color.RGBA{R: 255, G: 255, B: 255, A: 255})
+			}
+		}
+		if textInk {
+			for y := 59; y < 90; y++ {
+				for x := 58; x < 417; x += 2 {
+					page.Set(x, y, color.RGBA{A: 255})
+				}
+			}
+		}
+		if blueElement {
+			for y := 144; y < 224; y++ {
+				for x := 48; x < 208; x++ {
+					page.Set(x, y, color.RGBA{B: 255, A: 255})
+				}
+			}
+		}
+		if err := jpeg.Encode(imageBuffer, page, nil); err != nil {
+			t.Fatal(err)
+		}
+		return imageBuffer.Bytes()
+	}
+	if !attachmentPDFPageReadable(render(true, true)) {
+		t.Fatal("readable canary page with text line and blue element was rejected")
+	}
+	for name, page := range map[string][]byte{
+		"missing text":    render(false, true),
+		"missing blue":    render(true, false),
+		"blank page":      render(false, false),
+		"truncated bytes": render(true, true)[:32],
+	} {
+		t.Run(name, func(t *testing.T) {
+			if attachmentPDFPageReadable(page) {
+				t.Fatal("unreadable page was accepted")
+			}
+		})
+	}
 }
 
 func liveAttachmentCaptureCLI(t *testing.T, directory string, candidate liveAttachmentCase, result liveAttachmentCLI) {
@@ -496,7 +617,7 @@ func TestLiveCrossClientAttachmentsPacket(t *testing.T) {
 			t.Fatal(err)
 		}
 		rendererHashes[candidate.cell] = liveAttachmentPopplerPreflight(t, candidate, packetDirectory)
-		if candidate.cell == "claude-gpt-pdf" {
+		if candidate.client == "claude" && candidate.media == "pdf" {
 			rendererPageHashes[candidate.cell] = livePacketFileSHA256(t, filepath.Join(packetDirectory, "offline-render-probe", "page-1.jpg"))
 		}
 	}
@@ -676,7 +797,7 @@ func liveAttachmentMediaPrepared(candidate liveAttachmentCase, evidence liveAtta
 	if candidate.client == "codex" && candidate.media == "pdf" {
 		return true
 	}
-	return candidate.cell == "claude-gpt-pdf" && evidence.NativePDFPage && evidence.ClientMediaSHA256 != "" && evidence.ClientMediaSHA256 == evidence.IngressMediaSHA256 && evidence.SourceSHA256 != evidence.IngressMediaSHA256 && evidence.ClientMediaCount == 1 && evidence.IngressMediaCount == 1 && evidence.PublicMediaCount == 1 && evidence.ClientReadCount == 1 && evidence.IngressReadCount == 1 && evidence.PublicReadCount == 1 && evidence.ClientReadArgsSHA256 != "" && evidence.ClientReadArgsSHA256 == evidence.IngressReadArgsSHA256 && evidence.IngressReadArgsSHA256 == evidence.PublicReadArgsSHA256
+	return candidate.client == "claude" && candidate.media == "pdf" && evidence.NativePDFPage && evidence.ClientMediaSHA256 != "" && evidence.ClientMediaSHA256 == evidence.IngressMediaSHA256 && evidence.SourceSHA256 != evidence.IngressMediaSHA256 && evidence.ClientMediaCount == 1 && evidence.IngressMediaCount == 1 && evidence.PublicMediaCount == 1 && evidence.ClientReadCount == 1 && evidence.IngressReadCount == 1 && evidence.PublicReadCount == 1 && evidence.ClientReadArgsSHA256 != "" && evidence.ClientReadArgsSHA256 == evidence.IngressReadArgsSHA256 && evidence.IngressReadArgsSHA256 == evidence.PublicReadArgsSHA256
 }
 
 func liveAttachmentNativePDFPageOne(pages string) bool {
@@ -817,6 +938,9 @@ func inspectLiveAttachmentEvidence(t *testing.T, gate *liveServerToolGate, candi
 					publicMediaDetailConflict = true
 				}
 				publicMediaDetails[image.SHA256] = image.Detail
+				if candidate.client == "claude" && candidate.media == "pdf" {
+					evidence.PublicMediaCount++
+				}
 			}
 			for _, result := range chatRequest.ToolResults {
 				id := result.ID
@@ -829,6 +953,7 @@ func inspectLiveAttachmentEvidence(t *testing.T, gate *liveServerToolGate, candi
 				requestCommandSuccess[id] = success
 				requestHadPriorToolResult = requestHadPriorToolResult || callName != "" && success
 				requestHadRequiredToolResult = requestHadRequiredToolResult || candidate.client == "codex" && candidate.media == "pdf" && callName == "view_image" && success
+				requestHadRequiredToolResult = requestHadRequiredToolResult || candidate.client == "claude" && candidate.modelPath == "/chat/completions" && callName == "Read" && success
 			}
 		}
 		walkAttachmentJSON(request, func(item map[string]any) {
@@ -848,7 +973,7 @@ func inspectLiveAttachmentEvidence(t *testing.T, gate *liveServerToolGate, candi
 				if ok {
 					hash := sha256.Sum256(mediaBytes)
 					publicMediaHashes[hex.EncodeToString(hash[:])] = true
-					if candidate.cell == "claude-gpt-pdf" {
+					if candidate.client == "claude" && candidate.media == "pdf" {
 						evidence.PublicMediaCount++
 					}
 				}
@@ -874,7 +999,7 @@ func inspectLiveAttachmentEvidence(t *testing.T, gate *liveServerToolGate, candi
 					if call.Name == "Read" || call.Name == "view_image" || call.Name == "exec_command" || call.Name == "shell_command" {
 						evidence.PublicToolCall = true
 					}
-					if candidate.cell == "claude-gpt-pdf" && call.Name == "Read" {
+					if candidate.client == "claude" && candidate.media == "pdf" && call.Name == "Read" {
 						publicReadArguments[call.ID] = liveAttachmentArgumentSHA256(call.Arguments)
 					}
 				}
@@ -904,7 +1029,7 @@ func inspectLiveAttachmentEvidence(t *testing.T, gate *liveServerToolGate, candi
 						if name == "Read" || name == "view_image" || name == "exec_command" || name == "shell_command" {
 							evidence.PublicToolCall = true
 						}
-						if candidate.cell == "claude-gpt-pdf" && name == "Read" {
+						if candidate.client == "claude" && candidate.media == "pdf" && name == "Read" {
 							publicReadArguments[id] = liveAttachmentArgumentSHA256(toolInputs[id])
 						}
 					}
@@ -928,7 +1053,7 @@ func inspectLiveAttachmentEvidence(t *testing.T, gate *liveServerToolGate, candi
 			evidence.PublicToolResult = true
 		}
 	}
-	if candidate.cell == "claude-gpt-pdf" {
+	if candidate.client == "claude" && candidate.media == "pdf" {
 		evidence.PublicReadCount = len(publicReadArguments)
 		for id, hash := range publicReadArguments {
 			if requestResults[id] {
@@ -1152,6 +1277,40 @@ func liveCompleteMessagesTerminal(body []byte, expectedModel string) bool {
 		}
 	}
 	return started && delta && stopped && meaningful
+}
+
+// liveCompleteMessagesFunctionCallTerminal reports whether a complete Claude
+// Messages terminal carried at least one tool_use block.
+func liveCompleteMessagesFunctionCallTerminal(body []byte, expectedModel string) bool {
+	if !liveCompleteMessagesTerminal(body, expectedModel) {
+		return false
+	}
+	normalized := bytes.ReplaceAll(body, []byte("\r\n"), []byte("\n"))
+	for _, frame := range bytes.Split(normalized, []byte("\n\n")) {
+		var event map[string]any
+		data := ""
+		for _, line := range bytes.Split(frame, []byte("\n")) {
+			if bytes.HasPrefix(line, []byte("data:")) {
+				data = strings.TrimSpace(string(bytes.TrimPrefix(line, []byte("data:"))))
+			}
+		}
+		if data == "" || json.Unmarshal([]byte(data), &event) != nil {
+			continue
+		}
+		if block, ok := event["content_block"].(map[string]any); ok && block["type"] == "tool_use" {
+			return true
+		}
+		if message, ok := event["message"].(map[string]any); ok {
+			if content, ok := message["content"].([]any); ok {
+				for _, raw := range content {
+					if block, ok := raw.(map[string]any); ok && block["type"] == "tool_use" {
+						return true
+					}
+				}
+			}
+		}
+	}
+	return false
 }
 
 func liveMessagesBlockIndex(event map[string]any) (int, bool) {
@@ -1480,7 +1639,7 @@ func inspectLiveOriginalClientAttachment(candidate liveAttachmentCase, captures 
 					}
 					mediaDetails[digest] = detail
 				}
-				if candidate.cell == "claude-gpt-pdf" {
+				if candidate.client == "claude" && candidate.media == "pdf" {
 					evidence.IngressMediaCount++
 				}
 				if media == "jpeg" {
@@ -1706,9 +1865,12 @@ func TestAttachmentPacketOriginalClientCommands(t *testing.T) {
 			}
 		}
 	}
-	configuration := liveAttachmentCodexConfiguration("http://127.0.0.1:1000")
+	configuration := liveAttachmentCodexConfiguration("http://127.0.0.1:1000", "claude-haiku-5.5")
 	if strings.Contains(configuration, "gpt-6-luna") || strings.Contains(configuration, "model_catalog_json") || !strings.Contains(configuration, `model = "claude-haiku-5.5"`) || !strings.Contains(configuration, "request_max_retries = 0") {
 		t.Fatal("Codex cross-model profile reused GPT metadata or enabled transport retries")
+	}
+	if gemini := liveAttachmentCodexConfiguration("http://127.0.0.1:1000", "gemini-3.8-flash"); !strings.Contains(gemini, `model = "gemini-3.8-flash"`) || strings.Contains(gemini, "claude-haiku-5.5") {
+		t.Fatal("Codex Gemini profile did not select the exact requested model")
 	}
 }
 

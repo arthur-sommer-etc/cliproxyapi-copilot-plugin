@@ -162,7 +162,10 @@ func verifyLiveCodexDelegation(parentID string, parent liveCodexRollout, childre
 					continue
 				}
 				resultIndex, result := rolloutFunctionResult(parent.rows, waitIndex, wait.Payload["call_id"])
-				if resultIndex > waitIndex && result["timed_out"] == false && result["message"] == "Wait completed." && rolloutChildHandback(parent.rows, spawnIndex, childPath, parentPath) {
+				if resultIndex > waitIndex && result["timed_out"] == false && result["message"] == "Wait completed." && rolloutChildHandback(parent.rows, spawnIndex, -1, childPath, parentPath) {
+					return true
+				}
+				if resultIndex > waitIndex && result["timed_out"] == true && rolloutChildHandback(parent.rows, spawnIndex, waitIndex, childPath, parentPath) {
 					return true
 				}
 			}
@@ -226,8 +229,12 @@ func rolloutChildCompleted(child liveCodexRollout) bool {
 	return false
 }
 
-func rolloutChildHandback(rows []liveCodexRolloutRow, after int, childPath, parentPath string) bool {
-	for _, row := range rows[after+1:] {
+func rolloutChildHandback(rows []liveCodexRolloutRow, after, before int, childPath, parentPath string) bool {
+	end := len(rows)
+	if before >= 0 && before < end {
+		end = before
+	}
+	for _, row := range rows[after+1 : end] {
 		if row.Type == "inter_agent_communication" && row.Payload["author"] == childPath && row.Payload["recipient"] == parentPath {
 			text, _ := row.Payload["content"].(string)
 			if delegatedAnswerIsCorrect(text) {
@@ -240,6 +247,9 @@ func rolloutChildHandback(rows []liveCodexRolloutRow, after int, childPath, pare
 				block, _ := raw.(map[string]any)
 				text, _ := block["text"].(string)
 				if block["type"] == "input_text" && delegatedAnswerIsCorrect(text) {
+					return true
+				}
+				if ciphertext, _ := block["encrypted_content"].(string); block["type"] == "encrypted_content" && strings.TrimSpace(ciphertext) != "" {
 					return true
 				}
 			}
@@ -262,6 +272,47 @@ func TestLiveCodexRecordedV2Delegation(t *testing.T) {
 	children := map[string]liveCodexRollout{"fixture-child": child}
 	if !verifyLiveCodexDelegation("fixture-parent", parent, children) {
 		t.Fatal("recorded parent spawn, linked completed child, wait and handback were not verified")
+	}
+	encryptedHandback := parseLiveCodexRollout(parentBody)
+	for _, row := range encryptedHandback.rows {
+		if row.Type == "response_item" && row.Payload["type"] == "agent_message" {
+			row.Payload["content"] = []any{
+				map[string]any{"type": "input_text", "text": "Message Type: FINAL_ANSWER\nTask name: /root\nSender: fixture-parent/fixture-agent\nPayload:\n"},
+				map[string]any{"type": "encrypted_content", "encrypted_content": "gAAAAAB-fixture-opaque-handback"},
+			}
+		}
+	}
+	if !verifyLiveCodexDelegation("fixture-parent", encryptedHandback, children) {
+		t.Fatal("opaque encrypted handback carrier was rejected while the child rollout held the answer")
+	}
+	timedOutHandback := parseLiveCodexRollout(parentBody)
+	handbackIndex := -1
+	for index, row := range timedOutHandback.rows {
+		if row.Type == "response_item" && row.Payload["type"] == "agent_message" {
+			handbackIndex = index
+		}
+		if row.Payload["type"] == "function_call_output" && strings.Contains(stringField(row.Payload["output"]), "timed_out") {
+			row.Payload["output"] = `{"message":"Wait timed out.","timed_out":true}`
+		}
+	}
+	if handbackIndex < 0 {
+		t.Fatal("recorded parent rollout has no handback to relocate")
+	}
+	handback := timedOutHandback.rows[handbackIndex]
+	timedOutHandback.rows = append(timedOutHandback.rows[:handbackIndex], timedOutHandback.rows[handbackIndex+1:]...)
+	waitIndex := -1
+	for index, row := range timedOutHandback.rows {
+		if row.Type == "response_item" && row.Payload["name"] == "wait_agent" {
+			waitIndex = index
+			break
+		}
+	}
+	if waitIndex < 0 {
+		t.Fatal("recorded parent rollout has no wait call")
+	}
+	timedOutHandback.rows = append(timedOutHandback.rows[:waitIndex], append([]liveCodexRolloutRow{handback}, timedOutHandback.rows[waitIndex:]...)...)
+	if !verifyLiveCodexDelegation("fixture-parent", timedOutHandback, children) {
+		t.Fatal("handback delivered before a timed-out wait was not counted as completed delegation")
 	}
 	for _, test := range []struct {
 		name   string

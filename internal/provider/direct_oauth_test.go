@@ -713,7 +713,7 @@ func TestDirectOAuthLateUnauthorizedRequestPreservesRotatedCache(t *testing.T) {
 	}
 	requestResult := make(chan error, 1)
 	go func() {
-		_, _, err := service.doModelRequest(context.Background(), "callback", "auth-id", storageA, entryA, "/responses", []byte(`{}`), false)
+		_, _, err := service.doModelRequest(context.Background(), "callback", "auth-id", storageA, entryA, "/responses", []byte(`{}`), false, false)
 		requestResult <- err
 	}()
 	<-host.responseEntered

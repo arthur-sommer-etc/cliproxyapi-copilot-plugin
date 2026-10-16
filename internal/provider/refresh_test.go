@@ -266,7 +266,7 @@ func TestModelEndpoint401RetriesAreBounded(t *testing.T) {
 			var err error
 			if test.operation == "stream" {
 				host.streamStatuses = append([]int(nil), test.statuses...)
-				stream, _, errOpen := service.openModelStream(context.Background(), "callback", "auth-id", storage, token, "/responses", []byte(`{}`))
+				stream, _, errOpen := service.openModelStream(context.Background(), "callback", "auth-id", storage, token, "/responses", []byte(`{}`), false)
 				err = errOpen
 				gotStatus = stream.StatusCode
 			} else {
@@ -281,7 +281,7 @@ func TestModelEndpoint401RetriesAreBounded(t *testing.T) {
 						}
 					}
 				} else {
-					response, _, errRequest := service.doModelRequest(context.Background(), "callback", "auth-id", storage, token, "/responses", []byte(`{}`), false)
+					response, _, errRequest := service.doModelRequest(context.Background(), "callback", "auth-id", storage, token, "/responses", []byte(`{}`), false, false)
 					err = errRequest
 					gotStatus = response.StatusCode
 				}
@@ -334,7 +334,7 @@ func TestModelEndpoint401RejectsChangedAPIBaseAndUsesItOnFreshRequest(t *testing
 			payload := []byte(`{"prompt":"body-secret"}`)
 			if operation == "stream" {
 				host.streamStatuses = []int{http.StatusUnauthorized, http.StatusOK}
-				_, _, err := service.openModelStream(context.Background(), "callback", "auth-id", storage, initial, "/responses", payload)
+				_, _, err := service.openModelStream(context.Background(), "callback", "auth-id", storage, initial, "/responses", payload, false)
 				assertChangedOriginError(t, err)
 				host.mu.Lock()
 				firstRequests := append([]transport.Request(nil), host.streamRequests...)
@@ -354,7 +354,7 @@ func TestModelEndpoint401RejectsChangedAPIBaseAndUsesItOnFreshRequest(t *testing
 				if err != nil || fresh.APIBaseURL != "https://new-api.example" {
 					t.Fatalf("cached refreshed token = %#v, err=%v", fresh, err)
 				}
-				stream, _, err := service.openModelStream(context.Background(), "callback", "auth-id", storage, fresh, "/responses", payload)
+				stream, _, err := service.openModelStream(context.Background(), "callback", "auth-id", storage, fresh, "/responses", payload, false)
 				if err != nil || stream.StatusCode != http.StatusOK {
 					t.Fatalf("fresh stream request = %#v, err=%v", stream, err)
 				}
@@ -368,7 +368,7 @@ func TestModelEndpoint401RejectsChangedAPIBaseAndUsesItOnFreshRequest(t *testing
 				return
 			}
 			host.modelStatuses = []int{http.StatusUnauthorized, http.StatusOK}
-			_, refreshed, err := service.doModelRequest(context.Background(), "callback", "auth-id", storage, initial, "/responses", payload, false)
+			_, refreshed, err := service.doModelRequest(context.Background(), "callback", "auth-id", storage, initial, "/responses", payload, false, false)
 			assertChangedOriginError(t, err)
 			host.mu.Lock()
 			firstRequests := append([]transport.Request(nil), host.modelRequests...)
@@ -384,7 +384,7 @@ func TestModelEndpoint401RejectsChangedAPIBaseAndUsesItOnFreshRequest(t *testing
 			if err != nil || fresh.APIBaseURL != "https://new-api.example" {
 				t.Fatalf("cached refreshed token = %#v, err=%v", fresh, err)
 			}
-			response, _, err := service.doModelRequest(context.Background(), "callback", "auth-id", storage, fresh, "/responses", payload, false)
+			response, _, err := service.doModelRequest(context.Background(), "callback", "auth-id", storage, fresh, "/responses", payload, false, false)
 			if err != nil || response.StatusCode != http.StatusOK {
 				t.Fatalf("fresh model request = %#v, err=%v", response, err)
 			}

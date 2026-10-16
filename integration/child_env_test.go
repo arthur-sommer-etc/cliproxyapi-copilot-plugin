@@ -11,7 +11,7 @@ func filteredChildEnvironment(environment []string) []string {
 	for _, entry := range environment {
 		name, _, _ := strings.Cut(entry, "=")
 		switch strings.ToUpper(name) {
-		case "PATH", "HOME", "SYSTEMROOT", "WINDIR", "TMP", "TEMP", "TMPDIR", "LANG", "LC_ALL", "TZ":
+		case "PATH", "HOME", "SYSTEMROOT", "WINDIR", "TMP", "TEMP", "TMPDIR", "LANG", "LC_ALL", "TZ", "CPA_COPILOT_UPSTREAM_EVIDENCE_FILE":
 			filtered = append(filtered, entry)
 		}
 	}
@@ -30,6 +30,7 @@ func TestFilteredChildEnvironment(t *testing.T) {
 		"LANG=C.UTF-8",
 		"LC_ALL=C.UTF-8",
 		"TZ=UTC",
+		"CPA_COPILOT_UPSTREAM_EVIDENCE_FILE=/fixture/private/upstream-rejections.jsonl",
 		"PGSTORE_URL=fixture-value",
 		"pgstore_password=fixture-value",
 		"GITSTORE_TOKEN=fixture-value",
@@ -61,6 +62,7 @@ func TestFilteredChildEnvironment(t *testing.T) {
 		"LANG=C.UTF-8",
 		"LC_ALL=C.UTF-8",
 		"TZ=UTC",
+		"CPA_COPILOT_UPSTREAM_EVIDENCE_FILE=/fixture/private/upstream-rejections.jsonl",
 	}
 	if got := filteredChildEnvironment(environment); !slices.Equal(got, want) {
 		t.Fatalf("filtered child environment = %q, want %q", got, want)

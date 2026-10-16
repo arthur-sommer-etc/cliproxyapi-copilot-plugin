@@ -217,3 +217,46 @@ func appendChatMessages(t *testing.T, request []byte, added ...[]byte) []byte {
 	}
 	return updated
 }
+
+func TestResponsesChatReplayCoalescesSplitAssistantOpaqueAnchor(t *testing.T) {
+	t.Parallel()
+	const model = "gemini-3.8-flash"
+	originalAssistant := `{"role":"assistant","content":"I'll inspect the image.","tool_calls":[{"id":"call-gemini-1","type":"function","function":{"name":"exec_command","arguments":"{\"cmd\":\"identify\"}"}}]}`
+	history := []byte(`{"model":"` + model + `","messages":[{"role":"user","content":"environment context text"},{"role":"user","content":[{"type":"text","text":"Inspect the attached image."},{"type":"image_url","image_url":{"url":"data:image/png;base64,aW1hZ2U=","detail":"high"}}]},` + originalAssistant + `,{"role":"tool","tool_call_id":"call-gemini-1","content":"top red bottom blue"}]}`)
+	assistant := chatAssistantWithOpaque(t, model, history, []byte(originalAssistant), []byte(`[{"type":"reasoning","summary":[],"encrypted_content":"gemini-sealed-state"}]`))
+	carrier := gjson.GetBytes(assistant, "reasoning_opaque").String()
+	responses := []byte(`{"model":"` + model + `","stream":true,"input":[` +
+		`{"type":"message","id":"msg_1","role":"user","content":[{"type":"input_text","text":"environment context text"}]},` +
+		`{"type":"message","id":"msg_2","role":"user","content":[{"type":"input_text","text":"Inspect the attached image."},{"type":"input_image","image_url":"data:image/png;base64,aW1hZ2U=","detail":"high"}]},` +
+		`{"type":"message","id":"msg_3","role":"assistant","content":[{"type":"output_text","text":"I'll inspect the image."}]},` +
+		`{"type":"function_call","id":"fc_call-gemini-1","call_id":"call-gemini-1","name":"exec_command","arguments":"{\"cmd\":\"identify\"}"},` +
+		`{"type":"reasoning","id":"rs_1","summary":[],"content":null,"encrypted_content":"` + carrier + `"},` +
+		`{"type":"function_call_output","id":"fco_1","call_id":"call-gemini-1","output":"top red bottom blue"}` +
+		`]}`)
+	translated, err := RequestForEndpointFrom("openai-response", model, responses, true, EndpointChatCompletions)
+	if err != nil {
+		t.Fatalf("translate split Responses continuation to Chat: %v", err)
+	}
+	messages := gjson.GetBytes(translated, "messages").Array()
+	coalesced := false
+	for _, message := range messages {
+		if message.Get("role").String() != "assistant" || len(message.Get("tool_calls").Array()) == 0 {
+			continue
+		}
+		if content, ok := chatContentFingerprint(message.Get("content")); !ok || content != "I'll inspect the image." {
+			t.Fatalf("coalesced assistant turn changed content: %s", translated)
+		}
+		encodedID := message.Get("tool_calls.0.id").String()
+		_, callID, encoded := DecodeClaudeToolIDs(encodedID)
+		if !encoded || callID != "call-gemini-1" {
+			t.Fatalf("coalesced assistant tool identity %q did not decode to the original call: %s", encodedID, translated)
+		}
+		if message.Get("reasoning_opaque.0.encrypted_content").String() != "gemini-sealed-state" {
+			t.Fatalf("sealed reasoning was not restored on the coalesced assistant turn: %s", translated)
+		}
+		coalesced = true
+	}
+	if !coalesced {
+		t.Fatalf("split assistant text and tool-call messages were not coalesced: %s", translated)
+	}
+}

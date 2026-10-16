@@ -523,12 +523,18 @@ func liveChatAttachmentImages(value any) ([]liveChatAttachmentImage, bool) {
 			return
 		}
 		dataURL := attachmentString(imageURL, "url")
-		if !strings.HasPrefix(dataURL, "data:image/png;base64,") {
+		prefix, isPNG, isJPEG := "", false, false
+		switch {
+		case strings.HasPrefix(dataURL, "data:image/png;base64,"):
+			prefix, isPNG = "data:image/png;base64,", true
+		case strings.HasPrefix(dataURL, "data:image/jpeg;base64,"):
+			prefix, isJPEG = "data:image/jpeg;base64,", true
+		default:
 			valid = false
 			return
 		}
-		data, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(dataURL, "data:image/png;base64,"))
-		if err != nil || !bytes.HasPrefix(data, []byte("\x89PNG\r\n\x1a\n")) {
+		data, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(dataURL, prefix))
+		if err != nil || isPNG && !bytes.HasPrefix(data, []byte("\x89PNG\r\n\x1a\n")) || isJPEG && (len(data) <= 4 || !bytes.HasPrefix(data, []byte("\xff\xd8\xff")) || !bytes.HasSuffix(data, []byte("\xff\xd9"))) {
 			valid = false
 			return
 		}
@@ -890,6 +896,77 @@ func TestLiveChatAttachmentRequestPreservesBytesDetailAndToolIDs(t *testing.T) {
 				t.Fatal("wrong model, effort, image bytes/detail, or role=tool ID was accepted")
 			}
 		})
+	}
+}
+
+func TestLiveChatAttachmentRequestAcceptsClaudePDFPageImage(t *testing.T) {
+	candidate := liveAttachmentCases()[5]
+	page := []byte{0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01, 0xFF, 0xD9}
+	request := map[string]any{
+		"model": candidate.model, "stream": true, "reasoning_effort": "medium", "tool_choice": "validated",
+		"messages": []any{
+			map[string]any{"role": "user", "content": []any{map[string]any{"type": "text", "text": "Use the built-in Read tool to inspect the PDF file."}}},
+			map[string]any{"role": "assistant", "tool_calls": []any{map[string]any{"id": "call-read", "type": "function", "function": map[string]any{"name": "Read", "arguments": `{"file_path":"document.pdf","pages":"1"}`}}}},
+			map[string]any{"role": "tool", "tool_call_id": "call-read", "content": []any{
+				map[string]any{"type": "text", "text": "page 1"},
+				map[string]any{"type": "image_url", "image_url": map[string]any{"url": "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(page)}},
+			}},
+		},
+	}
+	encoded, err := json.Marshal(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	evidence, ok := liveAttachmentChatRequest(encoded, candidate)
+	if !ok || evidence.Model != "gemini-3.8-flash" || evidence.Effort != "medium" || len(evidence.Images) != 1 || len(evidence.ToolCalls) != 1 || evidence.ToolCalls[0].Name != "Read" || len(evidence.ToolResults) != 1 || !evidence.ToolResults[0].HasImage {
+		t.Fatal("valid Claude PDF Read continuation with a JPEG page was rejected")
+	}
+	for name, alter := range map[string]func(map[string]any){
+		"native-pdf-carrier": func(value map[string]any) {
+			value["messages"].([]any)[2].(map[string]any)["content"].([]any)[1].(map[string]any)["image_url"].(map[string]any)["url"] = "data:application/pdf;base64," + base64.StdEncoding.EncodeToString([]byte("%PDF-trap"))
+		},
+		"corrupt-jpeg": func(value map[string]any) {
+			value["messages"].([]any)[2].(map[string]any)["content"].([]any)[1].(map[string]any)["image_url"].(map[string]any)["url"] = "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString([]byte("not-jpeg"))
+		},
+		"wrong-effort": func(value map[string]any) {
+			value["reasoning_effort"] = "low"
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			changed, err := json.Marshal(request)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var value map[string]any
+			if json.Unmarshal(changed, &value) != nil {
+				t.Fatal("test request did not decode")
+			}
+			alter(value)
+			changed, err = json.Marshal(value)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, ok := liveAttachmentChatRequest(changed, candidate); ok {
+				t.Fatal("PDF file carrier, corrupt JPEG, or wrong effort was accepted")
+			}
+		})
+	}
+	prepared := liveAttachmentEvidence{
+		NativePDFPage: true, ClientMediaSHA256: "digest", IngressMediaSHA256: "digest", SourceSHA256: "source",
+		ClientMediaCount: 1, IngressMediaCount: 1, PublicMediaCount: 1, ClientReadCount: 1, IngressReadCount: 1, PublicReadCount: 1,
+		ClientReadArgsSHA256: "args", IngressReadArgsSHA256: "args", PublicReadArgsSHA256: "args",
+	}
+	if !liveAttachmentMediaPrepared(candidate, prepared) {
+		t.Fatal("complete Claude PDF page evidence chain was not accepted")
+	}
+	prepared.PublicMediaCount = 0
+	if liveAttachmentMediaPrepared(candidate, prepared) {
+		t.Fatal("Claude PDF chain passed without exactly one public media part")
+	}
+	pngCase := liveAttachmentCases()[4]
+	pngEvidence := liveAttachmentEvidence{SourcePreparedEqual: true}
+	if !liveAttachmentMediaPrepared(pngCase, pngEvidence) {
+		t.Fatal("byte-identical Claude PNG fixture was not accepted")
 	}
 }
 

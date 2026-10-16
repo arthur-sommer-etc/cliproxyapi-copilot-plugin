@@ -216,6 +216,9 @@ func TestNativeHostToolAndSystemCompatibility(t *testing.T) {
 									wantChoice = map[string]any{"type": "function", "function": map[string]any{"name": "lookup"}}
 								}
 							}
+							if target.model == "gemini-3.8-flash" && choice.kind != "tool" {
+								wantChoice = "validated"
+							}
 							assertEqualJSON(t, captured["tool_choice"], wantChoice)
 							tools, ok := captured["tools"].([]any)
 							if !ok || len(tools) != 1 {

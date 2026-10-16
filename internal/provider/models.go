@@ -183,7 +183,9 @@ func (s *Service) models(ctx context.Context, callbackID, authID string, storage
 		}
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, copilotTokenEntry{}, upstreamStatusError(resp.StatusCode, redact.ErrorBody(resp.Body, token.Token, storage.GitHubAccessToken))
+		redactedBody := redact.ErrorBody(resp.Body, token.Token, storage.GitHubAccessToken)
+		recordUpstreamRejection(resp.StatusCode, "/models", resp.Headers, redactedBody)
+		return nil, copilotTokenEntry{}, upstreamStatusError(resp.StatusCode, redactedBody)
 	}
 	var list modelListResponse
 	if errUnmarshal := json.Unmarshal(resp.Body, &list); errUnmarshal != nil {
@@ -333,6 +335,12 @@ func isClaudeFamilyModel(model upstreamModel) bool {
 	family := strings.ToLower(strings.TrimSpace(model.Capabilities.Family))
 	id := strings.ToLower(strings.TrimSpace(model.ID))
 	return vendor == "anthropic" || vendor == "claude" || strings.HasPrefix(family, "claude") || strings.HasPrefix(id, "claude-")
+}
+
+func isGemini3FamilyModel(model upstreamModel) bool {
+	family := strings.ToLower(strings.TrimSpace(model.Capabilities.Family))
+	id := strings.ToLower(strings.TrimSpace(model.ID))
+	return strings.Contains(family, "gemini-3") || strings.HasPrefix(id, "gemini-3")
 }
 
 func normalizeModels(models []upstreamModel) []upstreamModel {

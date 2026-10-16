@@ -507,10 +507,19 @@ func TestDelegatedAnswerPredicatesRequireTheCorrectResult(t *testing.T) {
 		{text: "323", want: true},
 		{text: "The answer is 323.", want: true},
 		{text: "17 * 19 = 323", want: true},
+		{text: "The subagent returned 323 as the result of 17 multiplied by 19.", want: true},
+		{text: "The subagent returned 323 for 17 × 19.", want: true},
+		{text: "The subagent returned 323 for 17 multiplied by 19.", want: true},
+		{text: "The subagent returned 323 as the answer to 17 times 19.", want: true},
+		{text: "The spawned agent returned 323.", want: true},
+		{text: "The delegated agent returned 323.", want: true},
+		{text: "The delegated answer is 323.", want: true},
+		{text: "The answer from the spawned agent is 323.", want: true},
 		{text: "[Subagent hand-back] The report follows:\n  323\nagentId: fixture-child", want: true},
 		{text: "Message Type: FINAL_ANSWER\nTask name: fixture\nPayload:\n323", want: true},
 		{text: "The result is not 323, it is 322", want: false},
 		{text: "not 323", want: false},
+		{text: "The spawned agent returned 322.", want: false},
 		{text: "not 323\n323", want: false},
 		{text: "323\n322", want: false},
 		{text: "Message Type: FINAL_ANSWER\nTask name: fixture\nPayload:\nnot 323", want: false},
@@ -718,7 +727,7 @@ func delegatedAnswerIsCorrect(text string) bool {
 	return false
 }
 
-var delegatedAnswerPattern = regexp.MustCompile(`(?i)^(?:323|(?:the\s+)?(?:delegated\s+)?(?:answer|result)\s+(?:is|:)\s*323|(?:the\s+)?(?:subagent|agent)\s+(?:returned|reported)\s+323\s+as\s+(?:the\s+)?answer\s+to\s+17\s+(?:multiplied\s+by|times)\s+19|(?:(?:the\s+)?(?:subagent|agent)\s+)?(?:calculated\s+)?17\s*(?:\*|×|x)\s*19\s*=\s*323)[.!]?$`)
+var delegatedAnswerPattern = regexp.MustCompile(`(?i)^(?:323|(?:the\s+)?(?:delegated\s+)?(?:answer|result)\s+(?:is|:)\s*323|(?:(?:the\s+)?(?:subagent|agent)\s+)?(?:calculated\s+)?17\s*(?:\*|×|x)\s*19\s*=\s*323|(?:the\s+)?(?:(?:spawned|delegated)\s+)?(?:subagent|agent)\s+(?:returned|reported)\s+323(?:\s+(?:as\s+(?:the\s+)?(?:answer|result)\s+(?:to|of)|for)\s+17\s*(?:multiplied\s+by|times|\*|×|x)\s*19)?|(?:the\s+)?(?:delegated\s+answer|(?:answer|result)\s+from\s+the\s+(?:spawned\s+)?(?:subagent|agent))\s+(?:is|was|:)\s*323)[.!]?$`)
 
 func logLiveCLIResult(t *testing.T, client, task string, result liveCLIResult) {
 	t.Helper()

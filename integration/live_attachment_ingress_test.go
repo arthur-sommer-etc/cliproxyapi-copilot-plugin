@@ -300,6 +300,12 @@ func liveAttachmentIngressCompleteTerminal(body []byte, expectedModel string) (c
 	if liveCompleteResponseTextTerminal(body, expectedModel) {
 		return true, false
 	}
+	if liveCompleteMessagesFunctionCallTerminal(body, expectedModel) {
+		return true, true
+	}
+	if liveCompleteMessagesTerminal(body, expectedModel) {
+		return true, false
+	}
 	return false, false
 }
 
@@ -729,6 +735,56 @@ func TestAttachmentIngressContinuesAfterForwardedFunctionCallTerminalCancellatio
 	captures, captureErr = ingress.captures()
 	if captureErr != nil || len(captures) != 2 || !captures[1].Dispatched || !captures[1].BodyComplete || !captures[1].ResponseBodyComplete || captures[1].ErrorClass != "" {
 		t.Fatal("second original-client turn was not retained as a complete local-host response")
+	}
+}
+
+func TestAttachmentIngressCleanEOFRequiresCompleteMessagesTerminal(t *testing.T) {
+	terminalBody := "event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"type\":\"message\",\"role\":\"assistant\",\"model\":\"gemini-3.8-flash\",\"content\":[],\"usage\":{\"input_tokens\":1578,\"output_tokens\":0}}}\n\n" +
+		"event: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"tool_use\",\"id\":\"toolu-a\",\"name\":\"Read\",\"input\":{}}}\n\n" +
+		"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"input_json_delta\",\"partial_json\":\"{\\\"file_path\\\":\\\"visual.png\\\"}\"}}\n\n" +
+		"event: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":0}\n\n" +
+		"event: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"tool_use\",\"stop_sequence\":null},\"usage\":{\"input_tokens\":1578,\"output_tokens\":82}}\n\n" +
+		"event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n"
+	for _, test := range []struct {
+		name          string
+		body          string
+		wantCompleted bool
+	}{
+		{name: "tool use terminal", body: terminalBody, wantCompleted: true},
+		{name: "message delta without message stop", body: strings.Split(terminalBody, "event: message_stop")[0] + "\n\n"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			gate := newLiveServerToolGate(t, t.TempDir())
+			ingress := newLiveAttachmentIngress(t, gate, "http://127.0.0.1:1", t.TempDir(), "claude")
+			ingress.client.Transport = liveToolRoundTrip(func(*http.Request) (*http.Response, error) {
+				return &http.Response{StatusCode: http.StatusOK, Header: http.Header{"Content-Type": []string{"text/event-stream"}}, Body: io.NopCloser(strings.NewReader(test.body)), ContentLength: int64(len(test.body))}, nil
+			})
+			request, err := http.NewRequest(http.MethodPost, ingress.URL()+"/v1/messages", strings.NewReader(`{"model":"gemini-3.8-flash","stream":true}`))
+			if err != nil {
+				t.Fatal(err)
+			}
+			response, err := http.DefaultClient.Do(request)
+			if err != nil {
+				t.Fatal(err)
+			}
+			_, _ = io.Copy(io.Discard, response.Body)
+			_ = response.Body.Close()
+			captures, err := ingress.captures()
+			if err != nil || len(captures) != 1 {
+				t.Fatal("original-client response capture was unavailable")
+			}
+			capture := captures[0]
+			if capture.StreamTerminalComplete != test.wantCompleted || capture.StreamOutcome != map[bool]string{true: "clean_eof", false: "unconfirmed_stream_failure"}[test.wantCompleted] {
+				t.Fatalf("terminal complete=%t outcome=%q, want complete=%t", capture.StreamTerminalComplete, capture.StreamOutcome, test.wantCompleted)
+			}
+			if capture.StreamTerminalFunction != test.wantCompleted {
+				t.Fatalf("terminal function=%t, want completed=%t", capture.StreamTerminalFunction, test.wantCompleted)
+			}
+			_, failure := ingress.state()
+			if (failure == nil) != test.wantCompleted {
+				t.Fatalf("ingress failure=%v, want completed=%t", failure, test.wantCompleted)
+			}
+		})
 	}
 }
 
