@@ -111,6 +111,7 @@ func TestAttachmentOriginalClaudePDFReadOffline(t *testing.T) {
 	proof.ClientReadArgsSHA256 = clientEvidence.ClientReadArgsSHA256
 	proof.ClientReadCount = clientEvidence.ClientReadCount
 	proof.PublicMediaCount = 1
+	proof.PublicMediaSHA256 = ingressEvidence.IngressMediaSHA256
 	proof.PublicReadCount = 1
 	proof.PublicReadArgsSHA256 = ingressEvidence.IngressReadArgsSHA256
 	if !ingressEvidence.NativePDFPage || !ingressEvidence.IngressPrepared || ingressEvidence.SourcePreparedEqual || ingressEvidence.IngressMediaSHA256 != clientEvidence.ClientMediaSHA256 || !liveAttachmentMediaPrepared(candidate, proof) {

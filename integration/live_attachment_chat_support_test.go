@@ -104,11 +104,52 @@ func liveAttachmentOriginalResponsesToolCalls(captures []liveAttachmentIngressCa
 	return calls
 }
 
-func liveAttachmentChatHistoryCorrelations(request liveAttachmentChatRequestEvidence, originalCalls, messagesCalls map[string]liveAttachmentCapturedToolCall) (map[string]string, bool) {
-	if len(request.ToolCalls) != 2 || len(request.ToolResults) != 2 || len(originalCalls) != 2 || len(messagesCalls) != 2 {
+func liveAttachmentResponsesHistoryCorrelated(body string, originalCalls, publicCalls map[string]liveAttachmentCapturedToolCall) bool {
+	var root map[string]any
+	if json.Unmarshal([]byte(body), &root) != nil {
+		return false
+	}
+	items, ok := root["input"].([]any)
+	if !ok {
+		return false
+	}
+	seenCalls, seenResults := make(map[string]bool), make(map[string]bool)
+	for _, raw := range items {
+		item, ok := raw.(map[string]any)
+		if !ok {
+			return false
+		}
+		callID := attachmentString(item, "call_id")
+		switch item["type"] {
+		case "function_call":
+			original, originalOK := originalCalls[callID]
+			public, publicOK := publicCalls[callID]
+			var arguments map[string]any
+			if !originalOK || !publicOK || seenCalls[callID] || attachmentString(item, "id") != original.ItemID || original.ItemID != public.ItemID || attachmentString(item, "name") != original.Name || original.Name != public.Name || json.Unmarshal([]byte(attachmentString(item, "arguments")), &arguments) != nil || liveAttachmentArgumentSHA256(arguments) == "" || liveAttachmentArgumentSHA256(arguments) != liveAttachmentArgumentSHA256(original.Arguments) || liveAttachmentArgumentSHA256(arguments) != liveAttachmentArgumentSHA256(public.Arguments) {
+				return false
+			}
+			seenCalls[callID] = true
+		case "function_call_output":
+			if !seenCalls[callID] || seenResults[callID] {
+				return false
+			}
+			seenResults[callID] = true
+		}
+	}
+	return len(seenCalls) == len(seenResults)
+}
+
+func liveAttachmentChatHistoryCorrelations(request liveAttachmentChatRequestEvidence, originalCalls, messagesCalls map[string]liveAttachmentCapturedToolCall, requiredNames ...string) (map[string]string, bool) {
+	if len(requiredNames) == 0 {
+		requiredNames = []string{"exec_command", "view_image"}
+	}
+	if len(request.ToolCalls) != len(requiredNames) || len(request.ToolResults) != len(requiredNames) || len(originalCalls) < len(requiredNames) || len(messagesCalls) < len(requiredNames) {
 		return nil, false
 	}
-	acceptedNames := map[string]bool{"exec_command": false, "view_image": false}
+	acceptedNames := make(map[string]bool, len(requiredNames))
+	for _, name := range requiredNames {
+		acceptedNames[name] = false
+	}
 	carrierNames := make(map[string]string, len(request.ToolCalls))
 	seenCallIDs := make(map[string]bool, len(request.ToolCalls))
 	for _, call := range request.ToolCalls {
@@ -123,8 +164,10 @@ func liveAttachmentChatHistoryCorrelations(request liveAttachmentChatRequestEvid
 		acceptedNames[call.Name] = true
 		carrierNames[call.ID] = call.Name
 	}
-	if !acceptedNames["exec_command"] || !acceptedNames["view_image"] {
-		return nil, false
+	for _, seen := range acceptedNames {
+		if !seen {
+			return nil, false
+		}
 	}
 	seenResults := make(map[string]bool, len(request.ToolResults))
 	for _, result := range request.ToolResults {
@@ -292,7 +335,7 @@ func liveAttachmentChatRequest(body []byte, candidate liveAttachmentCase) (liveA
 				}
 			}
 		}
-		if !viewImageResult {
+		if !viewImageResult && !liveAttachmentChatPDFPreparation(request, evidence, candidate) {
 			return liveAttachmentChatRequestEvidence{}, false
 		}
 	}
@@ -317,6 +360,47 @@ func liveAttachmentChatRequest(body []byte, candidate liveAttachmentCase) (liveA
 		return liveAttachmentChatRequestEvidence{}, false
 	}
 	return evidence, true
+}
+
+func liveAttachmentChatPDFPreparation(request map[string]any, evidence liveAttachmentChatRequestEvidence, candidate liveAttachmentCase) bool {
+	if candidate.model != "gemini-3.8-flash" || len(evidence.Images) != 0 || !filepath.IsAbs(candidate.fixture) {
+		return false
+	}
+	tools, _ := request["tools"].([]any)
+	hasExec, hasView := false, false
+	for _, raw := range tools {
+		tool, _ := raw.(map[string]any)
+		function, _ := tool["function"].(map[string]any)
+		hasExec = hasExec || tool["type"] == "function" && function["name"] == "exec_command"
+		hasView = hasView || tool["type"] == "function" && function["name"] == "view_image"
+	}
+	messages, _ := request["messages"].([]any)
+	var userText strings.Builder
+	for _, raw := range messages {
+		message, _ := raw.(map[string]any)
+		if message["role"] == "user" {
+			text, valid := liveChatToolContent(message["content"])
+			if !valid {
+				return false
+			}
+			userText.WriteString(text)
+		}
+	}
+	if !hasExec || !hasView || !liveAttachmentMessagesSourcePrompt(userText.String(), candidate) {
+		return false
+	}
+	if len(evidence.ToolCalls) == 0 && len(evidence.ToolResults) == 0 {
+		return true
+	}
+	if len(evidence.ToolCalls) != 1 || len(evidence.ToolResults) != 1 {
+		return false
+	}
+	call, result := evidence.ToolCalls[0], evidence.ToolResults[0]
+	workdir := attachmentString(call.Arguments, "workdir")
+	if workdir == "" && strings.Contains(userText.String(), "<cwd>"+filepath.Dir(candidate.fixture)+"</cwd>") {
+		workdir = filepath.Dir(candidate.fixture)
+	}
+	return call.Name == "exec_command" && call.ID == result.ID && workdir == filepath.Dir(candidate.fixture) && !result.Failed && !result.HasImage && liveAttachmentPDFRenderCommand(attachmentString(call.Arguments, "cmd"), candidate.fixture) && liveAttachmentPDFRenderOutput(result.Content)
 }
 
 func liveAttachmentMessagesRequest(body []byte, candidate liveAttachmentCase) bool {
@@ -443,6 +527,9 @@ func liveAttachmentPDFRendererContinuation(messages []any, candidate liveAttachm
 			return false
 		}
 	}
+	if workdir == "" && strings.Contains(userText, "<cwd>"+filepath.Dir(candidate.fixture)+"</cwd>") {
+		workdir = filepath.Dir(candidate.fixture)
+	}
 	if callID == "" || workdir != filepath.Dir(candidate.fixture) || !liveAttachmentPDFRenderCommand(command, candidate.fixture) {
 		return false
 	}
@@ -461,10 +548,16 @@ func liveAttachmentPDFRendererContinuation(messages []any, candidate liveAttachm
 
 func liveAttachmentPDFRenderCommand(command, fixture string) bool {
 	parts := strings.Fields(command)
-	if len(parts) != 7 && len(parts) != 8 {
+	if len(parts) < 4 || parts[0] != "pdftoppm" || parts[1] != "-png" || parts[2] != fixture || parts[3] != "page" {
 		return false
 	}
-	return parts[0] == "pdftoppm" && parts[1] == "-png" && parts[2] == fixture && parts[3] == "page" && parts[4] == "&&" && parts[5] == "ls" && parts[6] == "-la" && (len(parts) == 7 || parts[7] == "page*")
+	if len(parts) == 4 {
+		return true
+	}
+	if len(parts) < 6 || parts[4] != "&&" || parts[5] != "ls" {
+		return false
+	}
+	return len(parts) == 6 || len(parts) == 7 && (parts[6] == "-la" || parts[6] == "page*") || len(parts) == 8 && parts[6] == "-la" && parts[7] == "page*"
 }
 
 func liveAttachmentPDFRenderOutput(output string) bool {
@@ -480,7 +573,7 @@ func liveAttachmentPDFRenderOutput(output string) bool {
 		if strings.HasPrefix(line, "Process exited with code ") && line != "Process exited with code 0" {
 			return false
 		}
-		if strings.HasSuffix(strings.TrimSpace(line), "page-1.png") && strings.HasPrefix(strings.TrimSpace(line), "-rw") {
+		if strings.TrimSpace(line) == "page-1.png" || strings.HasSuffix(strings.TrimSpace(line), "page-1.png") && strings.HasPrefix(strings.TrimSpace(line), "-rw") {
 			hasRenderedPage = true
 		}
 	}
@@ -620,6 +713,7 @@ func liveAttachmentCapturedResponseCompleted(body string, candidate liveAttachme
 	if candidate.client == "codex" && candidate.media == "pdf" && publicPath == "/v1/messages" {
 		return false
 	}
+	candidate.modelPath = publicPath
 	return attachmentResponseCompleted(body, candidate)
 }
 
@@ -692,10 +786,26 @@ func liveChatCompletionStream(body []byte, expectedModel string) (liveChatComple
 			prompt, promptOK := liveChatTokenValue(usage["prompt_tokens"])
 			completion, completionOK := liveChatTokenValue(usage["completion_tokens"])
 			total, totalOK := liveChatTokenValue(usage["total_tokens"])
-			if !promptOK || !completionOK || !totalOK || completion == 0 || total != prompt+completion || finishSeen && usageSeen && (prompt != usagePrompt || completion != usageCompletion || total != usageTotal) {
+			reasoning := int64(0)
+			if value, exists := usage["reasoning_tokens"]; exists {
+				var valid bool
+				reasoning, valid = liveChatTokenValue(value)
+				if !valid {
+					return evidence, false
+				}
+			}
+			authoritative := finishSeen
+			for _, rawChoice := range choices {
+				if choice, ok := rawChoice.(map[string]any); ok && choice["finish_reason"] != nil {
+					authoritative = true
+				}
+			}
+			if !promptOK || !completionOK || !totalOK || total != prompt+completion+reasoning || authoritative && completion == 0 || finishSeen && usageSeen && (prompt != usagePrompt || completion != usageCompletion || total != usageTotal) {
 				return evidence, false
 			}
-			usageSeen, usagePrompt, usageCompletion, usageTotal = true, prompt, completion, total
+			if authoritative {
+				usageSeen, usagePrompt, usageCompletion, usageTotal = true, prompt, completion, total
+			}
 		}
 		if len(choices) == 0 {
 			if !finishSeen || !usageSeen {
@@ -952,7 +1062,7 @@ func TestLiveChatAttachmentRequestAcceptsClaudePDFPageImage(t *testing.T) {
 		})
 	}
 	prepared := liveAttachmentEvidence{
-		NativePDFPage: true, ClientMediaSHA256: "digest", IngressMediaSHA256: "digest", SourceSHA256: "source",
+		NativePDFPage: true, ClientMediaSHA256: attachmentExpectedReadablePDFPageSHA256, IngressMediaSHA256: attachmentExpectedReadablePDFPageSHA256, PublicMediaSHA256: attachmentExpectedReadablePDFPageSHA256, SourceSHA256: "source",
 		ClientMediaCount: 1, IngressMediaCount: 1, PublicMediaCount: 1, ClientReadCount: 1, IngressReadCount: 1, PublicReadCount: 1,
 		ClientReadArgsSHA256: "args", IngressReadArgsSHA256: "args", PublicReadArgsSHA256: "args",
 	}
@@ -1056,13 +1166,24 @@ func TestLiveChatAttachmentStreamReconstructsCallsAndRejectsIncompleteResults(t 
 	if liveAttachmentCapturedResponseCompleted(callStream, liveAttachmentCases()[3], "/chat/completions") {
 		t.Fatal("a completed tool_calls response was mistaken for a final user-facing answer")
 	}
+	zeroUsage := liveChatTestFrame(t, map[string]any{"model": "claude-haiku-5.5", "choices": []any{map[string]any{"index": 0, "delta": map[string]any{}, "finish_reason": nil}}, "usage": map[string]any{"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}})
+	nativeReasoning := strings.ReplaceAll(callStream, `"total_tokens":15`, `"total_tokens":19,"reasoning_tokens":4`)
+	for name, valid := range map[string]string{"zero-interim": zeroUsage + callStream, "native-separate-reasoning": zeroUsage + nativeReasoning} {
+		if _, ok := liveChatCompletionStream([]byte(valid), "claude-haiku-5.5"); !ok {
+			t.Fatalf("native usage stream %s was rejected", name)
+		}
+	}
 	for name, invalid := range map[string]string{
-		"truncated":      strings.TrimSuffix(callStream, "data: [DONE]\n\n"),
-		"wrong-model":    strings.Replace(callStream, `"model":"claude-haiku-5.5"`, `"model":"claude-haiku-5.5-low"`, 1),
-		"missing-usage":  strings.ReplaceAll(callStream, `,"usage":{"completion_tokens":5,"prompt_tokens":10,"total_tokens":15}`, ""),
-		"bad-finish":     strings.Replace(callStream, `"finish_reason":"tool_calls"`, `"finish_reason":"length"`, 1),
-		"bad-arguments":  strings.Replace(callStream, `"arguments":"\"}"`, `"arguments":"not-json"`, 1),
-		"trailing-frame": callStream + "data: [DONE]\n\n",
+		"interim-is-not-terminal-usage": zeroUsage + strings.ReplaceAll(callStream, `,"usage":{"completion_tokens":5,"prompt_tokens":10,"total_tokens":15}`, ""),
+		"unexplained-total":             strings.ReplaceAll(callStream, `"total_tokens":15`, `"total_tokens":19`),
+		"negative-reasoning":            strings.ReplaceAll(callStream, `"total_tokens":15`, `"total_tokens":14,"reasoning_tokens":-1`),
+		"details-not-additive":          strings.ReplaceAll(callStream, `"total_tokens":15`, `"total_tokens":19,"completion_tokens_details":{"reasoning_tokens":4}`),
+		"truncated":                     strings.TrimSuffix(callStream, "data: [DONE]\n\n"),
+		"wrong-model":                   strings.Replace(callStream, `"model":"claude-haiku-5.5"`, `"model":"claude-haiku-5.5-low"`, 1),
+		"missing-usage":                 strings.ReplaceAll(callStream, `,"usage":{"completion_tokens":5,"prompt_tokens":10,"total_tokens":15}`, ""),
+		"bad-finish":                    strings.Replace(callStream, `"finish_reason":"tool_calls"`, `"finish_reason":"length"`, 1),
+		"bad-arguments":                 strings.Replace(callStream, `"arguments":"\"}"`, `"arguments":"not-json"`, 1),
+		"trailing-frame":                callStream + "data: [DONE]\n\n",
 	} {
 		t.Run(name, func(t *testing.T) {
 			if invalid == callStream {
@@ -1214,6 +1335,30 @@ func TestLiveChatAttachmentCapturedCodexPDFMessagesRenderContinuationIsContextua
 		t.Fatal("same-model medium-effort PDF renderer continuation with a correlated successful result was rejected")
 	}
 
+	for _, suffix := range []string{" && ls", " && ls -la", " && ls page*", " && ls -la page*"} {
+		t.Run("inherited-workdir"+suffix, func(t *testing.T) {
+			var changed map[string]any
+			if err := json.Unmarshal(encoded, &changed); err != nil {
+				t.Fatal(err)
+			}
+			input := changed["messages"].([]any)[1].(map[string]any)["content"].([]any)[2].(map[string]any)["input"].(map[string]any)
+			delete(input, "workdir")
+			input["cmd"] = "pdftoppm -png " + candidate.fixture + " page" + suffix
+			changed["messages"].([]any)[2].(map[string]any)["content"].([]any)[0].(map[string]any)["content"] = "Chunk ID: fixture\nWall time: 2.2 seconds\nProcess exited with code 0\nOutput:\npage-1.png\n"
+			body, err := json.Marshal(changed)
+			if err != nil || !liveAttachmentPreparedPublicRequestForFixture("X-fixture/"+candidate.cell, "/v1/messages", body, candidate.fixture) {
+				t.Fatal("bounded renderer command with inherited isolated cwd was denied")
+			}
+			changed["messages"].([]any)[0].(map[string]any)["content"].([]any)[0].(map[string]any)["text"] = "<environment_context><cwd>/other</cwd></environment_context>"
+			body, err = json.Marshal(changed)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if liveAttachmentPreparedPublicRequestForFixture("X-fixture/"+candidate.cell, "/v1/messages", body, candidate.fixture) {
+				t.Fatal("omitted workdir accepted without the matching isolated cwd")
+			}
+		})
+	}
 	for name, alter := range map[string]func(map[string]any){
 		"wrong-model": func(value map[string]any) { value["model"] = "claude-haiku-5.5-low" },
 		"wrong-effort": func(value map[string]any) {

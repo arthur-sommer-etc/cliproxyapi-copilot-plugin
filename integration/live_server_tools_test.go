@@ -76,11 +76,35 @@ type liveServerToolGate struct {
 }
 
 type liveDispatchLedger struct {
-	Counts    map[string]int  `json:"counts"`
-	Inference int             `json:"inference"`
-	Auth      int             `json:"auth"`
-	Catalog   int             `json:"catalog"`
-	Frozen    map[string]bool `json:"frozen"`
+	Counts    map[string]int                `json:"counts"`
+	Inference int                           `json:"inference"`
+	Auth      int                           `json:"auth"`
+	Catalog   int                           `json:"catalog"`
+	Frozen    map[string]bool               `json:"frozen"`
+	Budgets   map[string]liveDispatchBudget `json:"budgets,omitempty"`
+}
+
+type liveDispatchBudget struct {
+	Cells      map[string]int `json:"cells"`
+	Limit      int            `json:"limit"`
+	Provenance string         `json:"provenance"`
+}
+
+func liveDispatchBudgetAllows(ledger *liveDispatchLedger, cell string) bool {
+	for _, budget := range ledger.Budgets {
+		limit, applies := budget.Cells[cell]
+		if !applies {
+			continue
+		}
+		total := 0
+		for key := range budget.Cells {
+			total += ledger.Counts[key]
+		}
+		if limit <= 0 || budget.Limit <= 0 || ledger.Counts[cell] >= limit || total >= budget.Limit {
+			return false
+		}
+	}
+	return true
 }
 
 type liveServerToolCapture struct {
@@ -320,7 +344,7 @@ func (g *liveServerToolGate) reserve(path string) (string, string, string, bool)
 			if liveAttachmentGateCell(key) || liveDependencyMatrixCell(key) || liveOriginalCLIClaimCell(key) || liveOriginalInterruptCell(key) || liveOriginalHTTPSImageCell(key) {
 				configured = true
 			}
-			if configured && !ledger.Frozen[key] && g.publicAPI != nil {
+			if configured && !ledger.Frozen[key] && g.publicAPI != nil && liveDispatchBudgetAllows(ledger, key) {
 				ledger.Counts[key]++
 				ledger.Inference++
 				origin = g.publicAPI.Scheme + "://" + g.publicAPI.Host

@@ -29,10 +29,55 @@ The attachment qualification remains incomplete. The retained earlier packet has
 The later bounded attempts returned HTTP 429 with `error.code: gate_dispatch_denied`. Source inspection identifies this response as a **local test-harness refusal**, emitted by `liveServerToolGate.serveHTTP` when `reserve` denies a dispatch. The persistent ledger already froze the affected cell after the earlier failure; its physical inference count did not increase during these attempts. The requests did not establish a new Copilot inference response.
 Consequently these local refusals establish neither Copilot quota exhaustion, provider throttling, nor a provider routing/protocol error. No provider reset time is known. The CLI's `unrecognized_model` diagnostic is not proof of an unsupported model either.
 One changed-evidence qualification packet then used distinct attempt keys without clearing any frozen historical entries, in Gemini, Haiku and Luna order. It made six physical inference dispatches across five cells; both Luna cells were blocked before inference after the harness lost readiness. The local-denial attempts must not be counted as physical provider dispatches.
-That packet used the previously built plugin, not the final review-fixed artifact. The matched-host suite exposed the stale artifact by observing `validated` where the corrected mandatory-tool test expected `required`. Rebuilding the plugin before rerunning the native suite resolved all six leaf failures; the fresh native suite passed. No additional live packet was run against the final artifact.
+That packet used the previously built plugin, not the final review-fixed artifact. The matched-host suite exposed the stale artifact by observing `validated` where the corrected mandatory-tool test expected `required`. Rebuilding the plugin before rerunning the native suite resolved all six leaf failures; the fresh native suite passed. At that stage, no additional live packet had run against the final artifact.
 The changed packet re-passed Codex-to-Haiku PNG. Both Claude-to-Gemini image/PDF cells produced real Read calls and results but failed final completion and public carrier/terminal proofs. Codex-to-Gemini PNG returned the correct image answer with high detail preserved but failed the required public-terminal proof, so it remains FAILED, not accepted. Codex-to-Haiku PDF hit local HTTP 400 `attachment_request_unprepared` on a route the harness did not admit. These are unresolved qualification-harness failures, not established external provider blockers.
-`codex-gemini-pdf` is NOT RUN because no harness cell exists for that pair. Other missing client/model/media combinations and final-candidate original-format multi-turn reasoning acceptance remain incomplete. All earlier failed verdicts remain retained, and no further provider retries were made.
+In that earlier packet, `codex-gemini-pdf` was NOT RUN because its harness cell did not yet exist.
+The earlier missing combinations and original-format multi-turn reasoning acceptance remained incomplete.
+All earlier failed verdicts remain retained without rewriting them after later harness changes.
 The PDF preflight again requires the exact previously verified rendered-page SHA-256. The attempted pixel-density substitute was removed after review because it could accept unreadable glyph substitutes and misclassify unsigned color differences. JPEG carrier checks remain separate from printed-code and final-answer acceptance.
+
+### Final-artifact attachment packet
+
+The harness now defines all twelve original-client, exact-model and media combinations.
+Offline checks cover actual ingress and public-gate HTTP boundaries, persistent budgets, readiness failure, and original-format tool/reasoning replay.
+Review corrections require every tool-turn reasoning carrier at its own call/name/argument anchor.
+They also bind actual Claude PDF media to the verified JPEG hash and Codex PDF media to an exact-source offline PNG render.
+Native Responses must preserve image detail, assistant item/call identity, canonical arguments and paired results.
+
+Before traffic, the rebuilt plugin passed the matched native-host suite with 220 PASS markers and zero failures.
+The installed original clients and maintained renderer passed their offline preflights.
+One final-artifact packet then persisted twelve ordered cells, one attempt per cell, a per-cell cap of four and a total cap of 48 physical inference dispatches.
+Frozen historical counts remained unchanged.
+The order was Gemini, Haiku, then Luna.
+
+| Cell | Actual packet result | Physical inference dispatches |
+| --- | --- | --- |
+| `claude-gemini-png` | FAILED: original-client capture readiness was lost. | 1 |
+| `claude-gemini-pdf` | NOT RUN: packet stopped. | 0 |
+| `codex-gemini-png` | NOT RUN: packet stopped. | 0 |
+| `codex-gemini-pdf` | NOT RUN: packet stopped. | 0 |
+| `claude-claude-png` | NOT RUN: packet stopped. | 0 |
+| `claude-claude-pdf` | NOT RUN: packet stopped. | 0 |
+| `codex-claude-png` | NOT RUN: packet stopped. | 0 |
+| `codex-claude-pdf` | NOT RUN: packet stopped. | 0 |
+| `claude-gpt-png` | NOT RUN: packet stopped. | 0 |
+| `claude-gpt-pdf` | NOT RUN: packet stopped. | 0 |
+| `codex-gpt-png` | NOT RUN: packet stopped. | 0 |
+| `codex-gpt-pdf` | NOT RUN: packet stopped. | 0 |
+
+The provider returned a valid Chat tool-call stream for the first cell.
+The translated Messages stream included an empty `thinking` block with a nonempty signature carrier.
+The ingress validator rejected that representation and denied the next local client request before another provider dispatch.
+Systemic readiness stopping prevented requests for all eleven remaining cells.
+The packet made exactly one physical inference dispatch, increasing the retained ledger total from 13 to 14.
+This is a local qualification failure, not evidence of provider quota exhaustion or throttling.
+
+A subsequent offline regression reproduced the signature-only carrier failure through the actual ingress HTTP boundary.
+The validator now accepts that carrier alongside a meaningful tool/text block, while rejecting empty unsigned thinking.
+That correction passed offline tests and race checks, but received no additional live qualification.
+No packet restart, cell retry, ledger clearing or second final-artifact packet occurred.
+Final original-client attachment and multi-turn reasoning acceptance remains incomplete.
+Earlier protocol and client passes remain historical evidence rather than acceptance of these twelve cells.
 
 ## Historical validation (2026-10-11)
 

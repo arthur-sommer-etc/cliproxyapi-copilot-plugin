@@ -96,6 +96,11 @@ func (i *liveAttachmentIngress) fail(err error) {
 		i.failure = err
 	}
 	i.mu.Unlock()
+	i.gate.mu.Lock()
+	if i.gate.captureErr == nil {
+		i.gate.captureErr = errors.New("original-client capture readiness was lost")
+	}
+	i.gate.mu.Unlock()
 }
 
 func (i *liveAttachmentIngress) refuse(status int) {
@@ -993,6 +998,19 @@ func TestAttachmentIngressPersistenceFailureStopsLocalForward(t *testing.T) {
 	denials, failure := ingress.state()
 	if response.StatusCode != http.StatusBadGateway || forwarded != 0 || failure == nil || denials != 0 {
 		t.Fatal("undurable original-client request was forwarded")
+	}
+	if liveAttachmentReadinessError(gate) == nil {
+		t.Fatal("ingress capture failure did not stop packet readiness")
+	}
+	gate.publicAPI, err = url.Parse("https://copilot.example")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := gate.setPhaseCell("X-next", "codex-gemini-png"); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, _, allowed := gate.reserve("/chat/completions"); allowed {
+		t.Fatal("next packet cell dispatched after original-client capture failure")
 	}
 	secondRequest, err := http.NewRequestWithContext(context.Background(), http.MethodPost, ingress.URL()+"/v1/messages", strings.NewReader(`{"model":"gpt-6-luna"}`))
 	if err != nil {
