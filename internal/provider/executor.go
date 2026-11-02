@@ -1,9 +1,11 @@
 package provider
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -45,11 +47,11 @@ func (s *Service) Execute(ctx context.Context, req ExecuteRequest) (pluginapi.Ex
 	if errParse != nil {
 		return pluginapi.ExecutorResponse{}, errParse
 	}
-	endpoint, token, errEndpoint := s.endpointForModel(ctx, req.HostCallbackID, req.AuthID, storage, req.Model)
+	endpoint, token, errEndpoint := s.endpointForModel(ctx, req.HostCallbackID, req.AuthID, storage, req.Model, requestRouteFormat(sourceFormat, req))
 	if errEndpoint != nil {
 		return pluginapi.ExecutorResponse{}, errEndpoint
 	}
-	requestBody, errTranslate := translate.RequestForEndpointFrom(sourceFormat, req.Model, req.Payload, false, endpoint)
+	requestBody, errTranslate := translate.RequestForEndpointFrom(payloadFormat(sourceFormat, req), req.Model, req.Payload, false, endpoint)
 	if errTranslate != nil {
 		return pluginapi.ExecutorResponse{}, statusError("translation_error", errTranslate.Error(), http.StatusUnprocessableEntity)
 	}
@@ -83,11 +85,11 @@ func (s *Service) ExecuteStream(ctx context.Context, req ExecuteRequest) (http.H
 	if errParse != nil {
 		return nil, errParse
 	}
-	endpoint, token, errEndpoint := s.endpointForModel(ctx, req.HostCallbackID, req.AuthID, storage, req.Model)
+	endpoint, token, errEndpoint := s.endpointForModel(ctx, req.HostCallbackID, req.AuthID, storage, req.Model, requestRouteFormat(sourceFormat, req))
 	if errEndpoint != nil {
 		return nil, errEndpoint
 	}
-	requestBody, errTranslate := translate.RequestForEndpointFrom(sourceFormat, req.Model, req.Payload, true, endpoint)
+	requestBody, errTranslate := translate.RequestForEndpointFrom(payloadFormat(sourceFormat, req), req.Model, req.Payload, true, endpoint)
 	if errTranslate != nil {
 		return nil, statusError("translation_error", errTranslate.Error(), http.StatusUnprocessableEntity)
 	}
@@ -201,6 +203,7 @@ func (s *Service) pumpStream(outputID, endpoint, destination, model string, orig
 
 	decoder := &sse.Decoder{}
 	var state any
+	aliases := newResponsesIDAliases()
 	emit := func(frame []byte) error {
 		frames, errTranslate := translate.StreamFromEndpoint(ctx, endpoint, destination, model, original, translated, frame, &state)
 		if errTranslate != nil {
@@ -228,6 +231,7 @@ func (s *Service) pumpStream(outputID, endpoint, destination, model string, orig
 			return
 		}
 		for _, frame := range decoder.Feed(chunk.Payload) {
+			frame = normalizeResponsesFrame(endpoint, frame, aliases)
 			if errEmit := emit(frame); errEmit != nil {
 				terminalErr = fmt.Errorf("translate Copilot stream: %w", errEmit)
 				return
@@ -235,6 +239,7 @@ func (s *Service) pumpStream(outputID, endpoint, destination, model string, orig
 		}
 		if chunk.Done {
 			if trailing := decoder.Flush(); len(trailing) > 0 {
+				trailing = normalizeResponsesFrame(endpoint, trailing, aliases)
 				if errEmit := emit(trailing); errEmit != nil {
 					terminalErr = fmt.Errorf("translate final Copilot stream frame: %w", errEmit)
 				}
@@ -244,10 +249,185 @@ func (s *Service) pumpStream(outputID, endpoint, destination, model string, orig
 	}
 }
 
+// requestRouteFormat picks the Copilot endpoint from the body the client
+// actually sent. The host may rewrite a chat-completions request into a
+// Responses payload before calling the plugin, and then report that rewritten
+// format as the source. The original body still has messages, so chat traffic
+// stays on /chat/completions instead of being translated again.
+// payloadFormat describes the body the plugin actually received. The host can
+// report a Responses source while leaving the original chat-completions body
+// in place when its own rewrite has no translator.
+func payloadFormat(sourceFormat string, req ExecuteRequest) string {
+	if chatCompletionsBody(req.Payload) {
+		return "openai"
+	}
+	return sourceFormat
+}
+
+func requestRouteFormat(sourceFormat string, req ExecuteRequest) string {
+	if chatCompletionsBody(req.OriginalRequest) || chatCompletionsBody(req.Payload) {
+		return "openai"
+	}
+	return sourceFormat
+}
+
+func chatCompletionsBody(body []byte) bool {
+	if !gjson.ValidBytes(body) {
+		return false
+	}
+	root := gjson.ParseBytes(body)
+	return root.Get("messages").IsArray() && !root.Get("input").Exists()
+}
+
+// responsesIDAliases keeps the first ID Copilot assigned to an output item.
+// Later events for the same item carry a longer encrypted reasoning blob in
+// the ID field. Forwarding that new ID makes OpenCode start another reasoning
+// fragment, and it also breaks the encrypted_content check because the blob
+// is sealed to the first ID.
+type responsesIDAliases struct {
+	byOutputIndex map[int]string
+	byOpaqueID    map[string]string
+}
+
+func newResponsesIDAliases() *responsesIDAliases {
+	return &responsesIDAliases{
+		byOutputIndex: make(map[int]string),
+		byOpaqueID:    make(map[string]string),
+	}
+}
+
+func (a *responsesIDAliases) idFor(outputIndex int, opaque string) string {
+	if outputIndex >= 0 {
+		if id, ok := a.byOutputIndex[outputIndex]; ok {
+			if opaque != "" {
+				a.byOpaqueID[opaque] = id
+			}
+			return id
+		}
+	}
+	if opaque != "" {
+		if id, ok := a.byOpaqueID[opaque]; ok {
+			if outputIndex >= 0 {
+				a.byOutputIndex[outputIndex] = id
+			}
+			return id
+		}
+	}
+	if outputIndex >= 0 {
+		a.byOutputIndex[outputIndex] = opaque
+	}
+	if opaque != "" {
+		a.byOpaqueID[opaque] = opaque
+	}
+	return opaque
+}
+
+// normalizeResponsesFrame pins every event for one Responses output item to
+// the first ID Copilot sent. encrypted_content stays, because it only
+// verifies against that original ID.
+func normalizeResponsesFrame(endpoint string, frame []byte, aliases *responsesIDAliases) []byte {
+	if endpoint != translate.EndpointResponses || aliases == nil {
+		return frame
+	}
+	event, data := sseData(frame)
+	if len(data) == 0 || !json.Valid(data) {
+		return frame
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(data, &payload); err != nil {
+		return frame
+	}
+	if !normalizeResponsesPayload(payload, aliases) {
+		return frame
+	}
+	encoded, err := json.Marshal(payload)
+	if err != nil {
+		return frame
+	}
+	if event == "" {
+		return encoded
+	}
+	return []byte("event: " + event + "\ndata: " + string(encoded) + "\n\n")
+}
+
+func normalizeResponsesPayload(payload map[string]any, aliases *responsesIDAliases) bool {
+	outputIndex := intFromAny(payload["output_index"])
+	changed := false
+	if item, ok := payload["item"].(map[string]any); ok {
+		if rewriteOpaqueID(item, "id", aliases, outputIndex) {
+			changed = true
+		}
+	}
+	if rewriteOpaqueID(payload, "item_id", aliases, outputIndex) {
+		changed = true
+	}
+	if response, ok := payload["response"].(map[string]any); ok {
+		if output, ok := response["output"].([]any); ok {
+			for index, raw := range output {
+				item, ok := raw.(map[string]any)
+				if !ok {
+					continue
+				}
+				if rewriteOpaqueID(item, "id", aliases, index) {
+					changed = true
+				}
+			}
+		}
+	}
+	return changed
+}
+
+func rewriteOpaqueID(value map[string]any, key string, aliases *responsesIDAliases, outputIndex int) bool {
+	id, ok := value[key].(string)
+	if !ok || len(id) <= 80 {
+		return false
+	}
+	pinned := aliases.idFor(outputIndex, id)
+	if pinned == id {
+		return false
+	}
+	value[key] = pinned
+	return true
+}
+
+func intFromAny(value any) int {
+	switch typed := value.(type) {
+	case float64:
+		return int(typed)
+	case int:
+		return typed
+	case json.Number:
+		parsed, err := typed.Int64()
+		if err != nil {
+			return -1
+		}
+		return int(parsed)
+	default:
+		return -1
+	}
+}
+
+func sseData(frame []byte) (string, []byte) {
+	event := ""
+	var data []byte
+	for _, line := range bytes.Split(frame, []byte("\n")) {
+		line = bytes.TrimSuffix(line, []byte("\r"))
+		switch {
+		case bytes.HasPrefix(line, []byte("event:")):
+			event = strings.TrimSpace(string(bytes.TrimPrefix(line, []byte("event:"))))
+		case bytes.HasPrefix(line, []byte("data:")):
+			data = append(data, bytes.TrimSpace(bytes.TrimPrefix(line, []byte("data:")))...)
+		}
+	}
+	return event, data
+}
+
 func normalizeRequestFormat(value string) string {
 	switch strings.ToLower(strings.TrimSpace(value)) {
 	case "", "responses", "openai-response", "openai-responses":
 		return "openai-response"
+	case "openai", "chat", "chat-completions":
+		return "openai"
 	case "claude", "anthropic":
 		return "claude"
 	default:

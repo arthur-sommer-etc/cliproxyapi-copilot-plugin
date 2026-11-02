@@ -413,7 +413,7 @@ func (s *Service) RefreshAuth(ctx context.Context, callbackID string, req plugin
 		storage.RefreshTokenExpiresAt = now.Add(time.Duration(token.RefreshTokenExpiresIn) * time.Second).Unix()
 	}
 	s.invalidateAuth(req.AuthID)
-	data, errData := authData(storage, req.AuthID, "", "", "", false, req.Metadata, req.Attributes)
+	data, errData := authData(storage, req.AuthID, "", storage.Prefix, storage.ProxyURL, storage.Disabled, req.Metadata, req.Attributes)
 	if errData != nil {
 		return pluginapi.AuthRefreshResponse{}, errData
 	}

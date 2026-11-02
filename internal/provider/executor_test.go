@@ -1,9 +1,12 @@
 package provider
 
 import (
+	"bytes"
 	"net/http"
+	"strings"
 	"testing"
 
+	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/translate"
 	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
 	"github.com/tidwall/gjson"
 )
@@ -137,6 +140,60 @@ func TestAuthorizationRefreshKeepsInteractionIdentity(t *testing.T) {
 	}
 	if original.Get("Authorization") != "Bearer expired" {
 		t.Fatal("refresh mutated the original authorization header")
+	}
+}
+
+func TestNormalizeResponsesFrameKeepsOneIDAsBlobGrows(t *testing.T) {
+	t.Parallel()
+
+	original := "rs_" + strings.Repeat("A", 120)
+	grown := "rs_" + strings.Repeat("B", 140)
+	messageID := "msg_" + strings.Repeat("C", 120)
+	added := []byte("event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"output_index\":0,\"item\":{\"id\":\"" + original + "\",\"type\":\"reasoning\",\"encrypted_content\":\"one\"}}\n\n")
+	done := []byte("event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"output_index\":0,\"item\":{\"id\":\"" + grown + "\",\"type\":\"reasoning\",\"encrypted_content\":\"one-two\"}}\n\n")
+	aliases := newResponsesIDAliases()
+	first := normalizeResponsesFrame(translate.EndpointResponses, added, aliases)
+	second := normalizeResponsesFrame(translate.EndpointResponses, done, aliases)
+	if !bytes.Contains(first, []byte(`"id":"`+original+`"`)) || !bytes.Contains(second, []byte(`"id":"`+original+`"`)) {
+		t.Fatalf("ids diverged:\n%s\n%s", first, second)
+	}
+	if bytes.Contains(second, []byte(grown)) {
+		t.Fatal("grown opaque id was forwarded")
+	}
+	if !bytes.Contains(second, []byte(`"encrypted_content":"one-two"`)) {
+		t.Fatal("encrypted content sealed to the original id was removed")
+	}
+	message := []byte("event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"output_index\":1,\"item\":{\"id\":\"" + messageID + "\",\"type\":\"message\"}}\n\n")
+	messagePart := []byte("event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"output_index\":1,\"item_id\":\"" + strings.Repeat("D", 120) + "\",\"content_index\":0}\n\n")
+	gotMessage := normalizeResponsesFrame(translate.EndpointResponses, message, aliases)
+	if !bytes.Contains(gotMessage, []byte(`"id":"`+messageID+`"`)) {
+		t.Fatalf("message item did not keep its original id: %s", gotMessage)
+	}
+	gotPart := normalizeResponsesFrame(translate.EndpointResponses, messagePart, aliases)
+	if !bytes.Contains(gotPart, []byte(`"item_id":"`+messageID+`"`)) {
+		t.Fatalf("message part did not keep the original id: %s", gotPart)
+	}
+	if chat := normalizeResponsesFrame(translate.EndpointChatCompletions, added, aliases); !bytes.Equal(chat, added) {
+		t.Fatal("chat frame was rewritten")
+	}
+}
+
+func TestRequestRouteFormatKeepsChatBodyOnChat(t *testing.T) {
+	t.Parallel()
+
+	chat := ExecuteRequest{ExecutorRequest: pluginapi.ExecutorRequest{
+		OriginalRequest: []byte(`{"model":"gpt-5.3-codex","messages":[{"role":"user","content":"ok"}]}`),
+		Payload:         []byte(`{"model":"gpt-5.3-codex","input":[{"role":"user","content":"ok"}]}`),
+	}}
+	if got := requestRouteFormat("openai-response", chat); got != "openai" {
+		t.Fatalf("chat route = %q", got)
+	}
+
+	responses := ExecuteRequest{ExecutorRequest: pluginapi.ExecutorRequest{
+		OriginalRequest: []byte(`{"model":"gpt-5.3-codex","input":[{"role":"user","content":"ok"}]}`),
+	}}
+	if got := requestRouteFormat("openai-response", responses); got != "openai-response" {
+		t.Fatalf("responses route = %q", got)
 	}
 }
 

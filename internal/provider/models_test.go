@@ -12,6 +12,7 @@ func TestSelectEndpoint(t *testing.T) {
 	tests := []struct {
 		name      string
 		model     upstreamModel
+		source    string
 		want      string
 		wantError bool
 	}{
@@ -19,6 +20,18 @@ func TestSelectEndpoint(t *testing.T) {
 			name:  "responses preferred",
 			model: upstreamModel{ID: "model-a", SupportedEndpoints: []string{"/chat/completions", "/responses"}},
 			want:  translate.EndpointResponses,
+		},
+		{
+			name:   "chat clients stay on chat completions",
+			model:  upstreamModel{ID: "gpt-5.3-codex", SupportedEndpoints: []string{"/chat/completions", "/responses"}},
+			source: "openai",
+			want:   translate.EndpointChatCompletions,
+		},
+		{
+			name:   "chat clients use responses when chat is not offered",
+			model:  upstreamModel{ID: "gpt-5.3-codex", SupportedEndpoints: []string{"/responses"}},
+			source: "openai",
+			want:   translate.EndpointResponses,
 		},
 		{
 			name:  "messages fallback",
@@ -29,6 +42,12 @@ func TestSelectEndpoint(t *testing.T) {
 			name:  "sol forced to responses",
 			model: upstreamModel{ID: "gpt-5.6-sol", SupportedEndpoints: []string{"/chat/completions"}},
 			want:  translate.EndpointResponses,
+		},
+		{
+			name:   "chat clients are not forced onto responses",
+			model:  upstreamModel{ID: "gpt-5.6-sol", SupportedEndpoints: []string{"/chat/completions", "/responses"}},
+			source: "openai",
+			want:   translate.EndpointChatCompletions,
 		},
 		{
 			name:  "terra forced to responses",
@@ -46,7 +65,7 @@ func TestSelectEndpoint(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			got, err := selectEndpoint(test.model)
+			got, err := selectEndpointForSource(test.model, test.source)
 			if test.wantError {
 				if err == nil {
 					t.Fatal("expected an endpoint selection error")
@@ -60,6 +79,20 @@ func TestSelectEndpoint(t *testing.T) {
 				t.Fatalf("endpoint = %q, want %q", got, test.want)
 			}
 		})
+	}
+}
+
+func TestStripAuthPrefix(t *testing.T) {
+	t.Parallel()
+
+	if got := stripAuthPrefix("Copilot/gpt-5.3-codex", "Copilot"); got != "gpt-5.3-codex" {
+		t.Fatalf("stripped = %q", got)
+	}
+	if got := stripAuthPrefix("gpt-5.3-codex", "Copilot"); got != "gpt-5.3-codex" {
+		t.Fatalf("bare = %q", got)
+	}
+	if got := stripAuthPrefix("OpenRouter/gpt-5.3-codex", "Copilot"); got != "OpenRouter/gpt-5.3-codex" {
+		t.Fatalf("other prefix = %q", got)
 	}
 }
 
