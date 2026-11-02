@@ -110,7 +110,7 @@ func (s *Service) models(ctx context.Context, callbackID, authID string, storage
 	resp, errDo := s.host.Do(ctx, callbackID, transport.Request{
 		Method:  http.MethodGet,
 		URL:     token.APIBaseURL + "/models",
-		Headers: copilotHeaders(token.Token, false),
+		Headers: copilotHeaders(token.Token, false, copilotInteractionContext{ID: "model-discovery", Type: "conversation-background", Initiator: "agent"}),
 	})
 	if errDo != nil {
 		return nil, copilotTokenEntry{}, fmt.Errorf("discover Copilot models: %w", errDo)
@@ -124,7 +124,7 @@ func (s *Service) models(ctx context.Context, callbackID, authID string, storage
 		resp, errDo = s.host.Do(ctx, callbackID, transport.Request{
 			Method:  http.MethodGet,
 			URL:     token.APIBaseURL + "/models",
-			Headers: copilotHeaders(token.Token, false),
+			Headers: copilotHeaders(token.Token, false, copilotInteractionContext{ID: "model-discovery", Type: "conversation-background", Initiator: "agent"}),
 		})
 		if errDo != nil {
 			return nil, copilotTokenEntry{}, fmt.Errorf("discover Copilot models after token refresh: %w", errDo)
@@ -158,11 +158,12 @@ func (s *Service) models(ctx context.Context, callbackID, authID string, storage
 	return cleaned, token, nil
 }
 
-func (s *Service) endpointForModel(ctx context.Context, callbackID, authID string, storage authStorage, modelID string) (string, copilotTokenEntry, error) {
+func (s *Service) endpointForModel(ctx context.Context, callbackID, authID string, storage authStorage, modelID, sourceFormat string) (string, copilotTokenEntry, error) {
 	modelID = strings.TrimSpace(modelID)
 	if modelID == "" {
 		return "", copilotTokenEntry{}, statusError("invalid_request", "model is required", http.StatusBadRequest)
 	}
+	modelID = stripAuthPrefix(modelID, storage.Prefix)
 	models, token, errModels := s.models(ctx, callbackID, authID, storage, false)
 	if errModels != nil {
 		if endpoint, ok := specialResponsesModel(modelID); ok {
@@ -173,7 +174,7 @@ func (s *Service) endpointForModel(ctx context.Context, callbackID, authID strin
 	}
 	for _, model := range models {
 		if strings.EqualFold(model.ID, modelID) {
-			endpoint, errEndpoint := selectEndpoint(model)
+			endpoint, errEndpoint := selectEndpointForSource(model, sourceFormat)
 			return endpoint, token, errEndpoint
 		}
 	}
@@ -184,18 +185,47 @@ func (s *Service) endpointForModel(ctx context.Context, callbackID, authID strin
 }
 
 func selectEndpoint(model upstreamModel) (string, error) {
-	if endpoint, ok := specialResponsesModel(model.ID); ok {
-		return endpoint, nil
-	}
+	return selectEndpointForSource(model, "")
+}
+
+func selectEndpointForSource(model upstreamModel, sourceFormat string) (string, error) {
 	endpoints := normalizeEndpoints(model.SupportedEndpoints)
-	for _, preferred := range []string{translate.EndpointResponses, translate.EndpointChatCompletions, translate.EndpointMessages} {
+	// Responses-only models are forced to /responses for native Responses and
+	// Claude clients. A chat client has no translator into that format, and
+	// Copilot already lists /chat/completions for these models, so leave chat
+	// traffic there.
+	if !strings.EqualFold(strings.TrimSpace(sourceFormat), "openai") {
+		if endpoint, ok := specialResponsesModel(model.ID); ok {
+			return endpoint, nil
+		}
+	}
+	preferred := []string{translate.EndpointResponses, translate.EndpointChatCompletions, translate.EndpointMessages}
+	// Chat clients use /chat/completions when Copilot lists it. Codex-class
+	// models reject that endpoint, so they follow the normal preference and use
+	// /responses. The executor translates a leftover chat body before sending it.
+	if strings.EqualFold(strings.TrimSpace(sourceFormat), "openai") && contains(endpoints, translate.EndpointChatCompletions) {
+		return translate.EndpointChatCompletions, nil
+	}
+	for _, candidate := range preferred {
 		for _, endpoint := range endpoints {
-			if endpoint == preferred {
-				return preferred, nil
+			if endpoint == candidate {
+				return candidate, nil
 			}
 		}
 	}
 	return "", statusError("unsupported_model_endpoint", "Copilot model exposes no supported chat endpoint", http.StatusUnprocessableEntity)
+}
+
+func stripAuthPrefix(modelID, prefix string) string {
+	prefix = strings.Trim(strings.TrimSpace(prefix), "/")
+	if prefix == "" {
+		return modelID
+	}
+	head, tail, found := strings.Cut(modelID, "/")
+	if found && strings.EqualFold(head, prefix) && strings.TrimSpace(tail) != "" {
+		return strings.TrimSpace(tail)
+	}
+	return modelID
 }
 
 func specialResponsesModel(modelID string) (string, bool) {

@@ -23,6 +23,13 @@ type authStorage struct {
 	GitHubUserID          int64  `json:"github_user_id,omitempty"`
 	OAuthClientID         string `json:"oauth_client_id,omitempty"`
 	UpdatedAt             string `json:"updated_at"`
+	// Prefix is the host routing namespace (for example "Copilot"), persisted
+	// in the auth file. It is not part of the GitHub token.
+	Prefix string `json:"prefix,omitempty"`
+	// Disabled is host-managed and must survive parse and refresh.
+	Disabled bool `json:"disabled,omitempty"`
+	// ProxyURL is an optional per-credential proxy, also host-managed.
+	ProxyURL string `json:"proxy_url,omitempty"`
 }
 
 func parseStorage(raw []byte) (authStorage, error) {
@@ -40,6 +47,8 @@ func parseStorage(raw []byte) (authStorage, error) {
 	storage.GitHubRefreshToken = strings.TrimSpace(storage.GitHubRefreshToken)
 	storage.GitHubLogin = strings.TrimSpace(storage.GitHubLogin)
 	storage.OAuthClientID = strings.TrimSpace(storage.OAuthClientID)
+	storage.Prefix = normalizeAuthPrefix(storage.Prefix)
+	storage.ProxyURL = strings.TrimSpace(storage.ProxyURL)
 	if storage.GitHubAccessToken == "" {
 		return storage, fmt.Errorf("Copilot auth storage has no GitHub access token")
 	}
@@ -71,6 +80,15 @@ func authData(storage authStorage, id, fileName, prefix, proxyURL string, disabl
 		attributes = map[string]string{"auth_kind": "oauth"}
 	}
 	nextRefresh := nextGitHubRefresh(storage, time.Now())
+	if prefix == "" {
+		prefix = storage.Prefix
+	}
+	if proxyURL == "" {
+		proxyURL = storage.ProxyURL
+	}
+	if !disabled {
+		disabled = storage.Disabled
+	}
 	return pluginapi.AuthData{
 		Provider:         providerID,
 		ID:               id,
@@ -95,6 +113,17 @@ func nextGitHubRefresh(storage authStorage, now time.Time) time.Time {
 		return refreshAt
 	}
 	return now.Add(24 * time.Hour)
+}
+
+// normalizeAuthPrefix matches the host's file-prefix rule: trim space and
+// slashes, and reject a value that still contains a slash. An invalid value
+// is dropped rather than published as a broken model namespace.
+func normalizeAuthPrefix(prefix string) string {
+	prefix = strings.Trim(strings.TrimSpace(prefix), "/")
+	if prefix == "" || strings.Contains(prefix, "/") {
+		return ""
+	}
+	return prefix
 }
 
 func credentialFileName(login string) string {

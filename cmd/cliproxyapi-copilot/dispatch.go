@@ -31,6 +31,22 @@ type registrationCapability struct {
 	ExecutorModelScope    pluginapi.ExecutorModelScope `json:"executor_model_scope"`
 	ExecutorInputFormats  []string                     `json:"executor_input_formats"`
 	ExecutorOutputFormats []string                     `json:"executor_output_formats"`
+	// QuotaProvider is read by CLIProxyAPI v8. The v7 SDK this plugin compiles
+	// against has no quota capability, so the host ignores the field there.
+	QuotaProvider bool `json:"quota_provider"`
+}
+
+// Quota RPC methods added by CLIProxyAPI v8. Kept as literals because the
+// pinned v7 plugin ABI does not declare them.
+const (
+	methodQuotaIdentifier = "quota.identifier"
+	methodQuotaDescribe   = "quota.describe"
+	methodQuotaFetch      = "quota.fetch"
+)
+
+type quotaFetchRequest struct {
+	HostCallbackID string `json:"host_callback_id,omitempty"`
+	StorageJSON    []byte `json:"storage_json,omitempty"`
 }
 
 type identifierResponse struct {
@@ -95,8 +111,16 @@ func dispatch(method string, request []byte) (any, error) {
 			return nil, errUnmarshal
 		}
 		return pluginService.ModelsForAuth(ctx, req.HostCallbackID, req.AuthModelRequest)
-	case pluginabi.MethodAuthIdentifier, pluginabi.MethodExecutorIdentifier:
+	case pluginabi.MethodAuthIdentifier, pluginabi.MethodExecutorIdentifier, methodQuotaIdentifier:
 		return identifierResponse{Identifier: "copilot"}, nil
+	case methodQuotaDescribe:
+		return pluginService.DescribeQuota(), nil
+	case methodQuotaFetch:
+		var req quotaFetchRequest
+		if errUnmarshal := json.Unmarshal(request, &req); errUnmarshal != nil {
+			return nil, errUnmarshal
+		}
+		return pluginService.FetchQuota(ctx, req.HostCallbackID, req.StorageJSON)
 	case pluginabi.MethodAuthParse:
 		var req pluginapi.AuthParseRequest
 		if errUnmarshal := json.Unmarshal(request, &req); errUnmarshal != nil {
@@ -183,8 +207,9 @@ func pluginRegistration() registration {
 			AuthProvider:          true,
 			Executor:              true,
 			ExecutorModelScope:    pluginapi.ExecutorModelScopeOAuth,
-			ExecutorInputFormats:  []string{"openai-response", "claude"},
-			ExecutorOutputFormats: []string{"openai-response", "claude"},
+			ExecutorInputFormats:  []string{"openai", "openai-response", "claude"},
+			ExecutorOutputFormats: []string{"openai", "openai-response", "claude"},
+			QuotaProvider:         true,
 		},
 	}
 }

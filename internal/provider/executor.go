@@ -1,7 +1,11 @@
 package provider
 
 import (
+	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -12,6 +16,7 @@ import (
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/translate"
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/transport"
 	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
+	"github.com/tidwall/gjson"
 )
 
 const (
@@ -42,15 +47,15 @@ func (s *Service) Execute(ctx context.Context, req ExecuteRequest) (pluginapi.Ex
 	if errParse != nil {
 		return pluginapi.ExecutorResponse{}, errParse
 	}
-	endpoint, token, errEndpoint := s.endpointForModel(ctx, req.HostCallbackID, req.AuthID, storage, req.Model)
+	endpoint, token, errEndpoint := s.endpointForModel(ctx, req.HostCallbackID, req.AuthID, storage, req.Model, requestRouteFormat(sourceFormat, req))
 	if errEndpoint != nil {
 		return pluginapi.ExecutorResponse{}, errEndpoint
 	}
-	requestBody, errTranslate := translate.RequestForEndpointFrom(sourceFormat, req.Model, req.Payload, false, endpoint)
+	requestBody, errTranslate := translate.RequestForEndpointFrom(payloadFormat(sourceFormat, req), req.Model, req.Payload, false, endpoint)
 	if errTranslate != nil {
 		return pluginapi.ExecutorResponse{}, statusError("translation_error", errTranslate.Error(), http.StatusUnprocessableEntity)
 	}
-	resp, token, errDo := s.doModelRequest(ctx, req.HostCallbackID, req.AuthID, storage, token, endpoint, requestBody, false)
+	resp, token, errDo := s.doModelRequest(ctx, req.HostCallbackID, req.AuthID, storage, token, endpoint, requestBody, false, copilotHeaders(token.Token, false, copilotInteraction(req, requestBody)))
 	if errDo != nil {
 		return pluginapi.ExecutorResponse{}, errDo
 	}
@@ -80,15 +85,15 @@ func (s *Service) ExecuteStream(ctx context.Context, req ExecuteRequest) (http.H
 	if errParse != nil {
 		return nil, errParse
 	}
-	endpoint, token, errEndpoint := s.endpointForModel(ctx, req.HostCallbackID, req.AuthID, storage, req.Model)
+	endpoint, token, errEndpoint := s.endpointForModel(ctx, req.HostCallbackID, req.AuthID, storage, req.Model, requestRouteFormat(sourceFormat, req))
 	if errEndpoint != nil {
 		return nil, errEndpoint
 	}
-	requestBody, errTranslate := translate.RequestForEndpointFrom(sourceFormat, req.Model, req.Payload, true, endpoint)
+	requestBody, errTranslate := translate.RequestForEndpointFrom(payloadFormat(sourceFormat, req), req.Model, req.Payload, true, endpoint)
 	if errTranslate != nil {
 		return nil, statusError("translation_error", errTranslate.Error(), http.StatusUnprocessableEntity)
 	}
-	upstream, token, errOpen := s.openModelStream(ctx, req.HostCallbackID, req.AuthID, storage, token, endpoint, requestBody)
+	upstream, token, errOpen := s.openModelStream(ctx, req.HostCallbackID, req.AuthID, storage, token, endpoint, requestBody, copilotHeaders(token.Token, true, copilotInteraction(req, requestBody)))
 	if errOpen != nil {
 		return nil, errOpen
 	}
@@ -106,11 +111,11 @@ func (s *Service) ExecuteStream(ctx context.Context, req ExecuteRequest) (http.H
 	return headers, nil
 }
 
-func (s *Service) doModelRequest(ctx context.Context, callbackID, authID string, storage authStorage, token copilotTokenEntry, endpoint string, body []byte, stream bool) (transport.Response, copilotTokenEntry, error) {
+func (s *Service) doModelRequest(ctx context.Context, callbackID, authID string, storage authStorage, token copilotTokenEntry, endpoint string, body []byte, stream bool, headers http.Header) (transport.Response, copilotTokenEntry, error) {
 	request := transport.Request{
 		Method:  http.MethodPost,
 		URL:     token.APIBaseURL + endpoint,
-		Headers: copilotHeaders(token.Token, stream),
+		Headers: headers,
 		Body:    body,
 	}
 	resp, errDo := s.host.Do(ctx, callbackID, request)
@@ -125,7 +130,7 @@ func (s *Service) doModelRequest(ctx context.Context, callbackID, authID string,
 		}
 		token = refreshed
 		request.URL = token.APIBaseURL + endpoint
-		request.Headers = copilotHeaders(token.Token, stream)
+		request.Headers = withCopilotAuthorization(headers, token.Token)
 		resp, errDo = s.host.Do(ctx, callbackID, request)
 		if errDo != nil {
 			return transport.Response{}, token, fmt.Errorf("call Copilot model endpoint after token refresh: %w", errDo)
@@ -137,11 +142,11 @@ func (s *Service) doModelRequest(ctx context.Context, callbackID, authID string,
 	return resp, token, nil
 }
 
-func (s *Service) openModelStream(ctx context.Context, callbackID, authID string, storage authStorage, token copilotTokenEntry, endpoint string, body []byte) (transport.Stream, copilotTokenEntry, error) {
+func (s *Service) openModelStream(ctx context.Context, callbackID, authID string, storage authStorage, token copilotTokenEntry, endpoint string, body []byte, headers http.Header) (transport.Stream, copilotTokenEntry, error) {
 	request := transport.Request{
 		Method:  http.MethodPost,
 		URL:     token.APIBaseURL + endpoint,
-		Headers: copilotHeaders(token.Token, true),
+		Headers: headers,
 		Body:    body,
 	}
 	stream, errOpen := s.host.OpenStream(ctx, callbackID, request)
@@ -157,7 +162,7 @@ func (s *Service) openModelStream(ctx context.Context, callbackID, authID string
 		}
 		token = refreshed
 		request.URL = token.APIBaseURL + endpoint
-		request.Headers = copilotHeaders(token.Token, true)
+		request.Headers = withCopilotAuthorization(headers, token.Token)
 		stream, errOpen = s.host.OpenStream(ctx, callbackID, request)
 		if errOpen != nil {
 			return transport.Stream{}, token, fmt.Errorf("open Copilot model stream after token refresh: %w", errOpen)
@@ -198,6 +203,7 @@ func (s *Service) pumpStream(outputID, endpoint, destination, model string, orig
 
 	decoder := &sse.Decoder{}
 	var state any
+	aliases := newResponsesIDAliases()
 	emit := func(frame []byte) error {
 		frames, errTranslate := translate.StreamFromEndpoint(ctx, endpoint, destination, model, original, translated, frame, &state)
 		if errTranslate != nil {
@@ -225,6 +231,7 @@ func (s *Service) pumpStream(outputID, endpoint, destination, model string, orig
 			return
 		}
 		for _, frame := range decoder.Feed(chunk.Payload) {
+			frame = normalizeResponsesFrame(endpoint, frame, aliases)
 			if errEmit := emit(frame); errEmit != nil {
 				terminalErr = fmt.Errorf("translate Copilot stream: %w", errEmit)
 				return
@@ -232,6 +239,7 @@ func (s *Service) pumpStream(outputID, endpoint, destination, model string, orig
 		}
 		if chunk.Done {
 			if trailing := decoder.Flush(); len(trailing) > 0 {
+				trailing = normalizeResponsesFrame(endpoint, trailing, aliases)
 				if errEmit := emit(trailing); errEmit != nil {
 					terminalErr = fmt.Errorf("translate final Copilot stream frame: %w", errEmit)
 				}
@@ -241,10 +249,185 @@ func (s *Service) pumpStream(outputID, endpoint, destination, model string, orig
 	}
 }
 
+// requestRouteFormat picks the Copilot endpoint from the body the client
+// actually sent. The host may rewrite a chat-completions request into a
+// Responses payload before calling the plugin, and then report that rewritten
+// format as the source. The original body still has messages, so chat traffic
+// stays on /chat/completions instead of being translated again.
+// payloadFormat describes the body the plugin actually received. The host can
+// report a Responses source while leaving the original chat-completions body
+// in place when its own rewrite has no translator.
+func payloadFormat(sourceFormat string, req ExecuteRequest) string {
+	if chatCompletionsBody(req.Payload) {
+		return "openai"
+	}
+	return sourceFormat
+}
+
+func requestRouteFormat(sourceFormat string, req ExecuteRequest) string {
+	if chatCompletionsBody(req.OriginalRequest) || chatCompletionsBody(req.Payload) {
+		return "openai"
+	}
+	return sourceFormat
+}
+
+func chatCompletionsBody(body []byte) bool {
+	if !gjson.ValidBytes(body) {
+		return false
+	}
+	root := gjson.ParseBytes(body)
+	return root.Get("messages").IsArray() && !root.Get("input").Exists()
+}
+
+// responsesIDAliases keeps the first ID Copilot assigned to an output item.
+// Later events for the same item carry a longer encrypted reasoning blob in
+// the ID field. Forwarding that new ID makes OpenCode start another reasoning
+// fragment, and it also breaks the encrypted_content check because the blob
+// is sealed to the first ID.
+type responsesIDAliases struct {
+	byOutputIndex map[int]string
+	byOpaqueID    map[string]string
+}
+
+func newResponsesIDAliases() *responsesIDAliases {
+	return &responsesIDAliases{
+		byOutputIndex: make(map[int]string),
+		byOpaqueID:    make(map[string]string),
+	}
+}
+
+func (a *responsesIDAliases) idFor(outputIndex int, opaque string) string {
+	if outputIndex >= 0 {
+		if id, ok := a.byOutputIndex[outputIndex]; ok {
+			if opaque != "" {
+				a.byOpaqueID[opaque] = id
+			}
+			return id
+		}
+	}
+	if opaque != "" {
+		if id, ok := a.byOpaqueID[opaque]; ok {
+			if outputIndex >= 0 {
+				a.byOutputIndex[outputIndex] = id
+			}
+			return id
+		}
+	}
+	if outputIndex >= 0 {
+		a.byOutputIndex[outputIndex] = opaque
+	}
+	if opaque != "" {
+		a.byOpaqueID[opaque] = opaque
+	}
+	return opaque
+}
+
+// normalizeResponsesFrame pins every event for one Responses output item to
+// the first ID Copilot sent. encrypted_content stays, because it only
+// verifies against that original ID.
+func normalizeResponsesFrame(endpoint string, frame []byte, aliases *responsesIDAliases) []byte {
+	if endpoint != translate.EndpointResponses || aliases == nil {
+		return frame
+	}
+	event, data := sseData(frame)
+	if len(data) == 0 || !json.Valid(data) {
+		return frame
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(data, &payload); err != nil {
+		return frame
+	}
+	if !normalizeResponsesPayload(payload, aliases) {
+		return frame
+	}
+	encoded, err := json.Marshal(payload)
+	if err != nil {
+		return frame
+	}
+	if event == "" {
+		return encoded
+	}
+	return []byte("event: " + event + "\ndata: " + string(encoded) + "\n\n")
+}
+
+func normalizeResponsesPayload(payload map[string]any, aliases *responsesIDAliases) bool {
+	outputIndex := intFromAny(payload["output_index"])
+	changed := false
+	if item, ok := payload["item"].(map[string]any); ok {
+		if rewriteOpaqueID(item, "id", aliases, outputIndex) {
+			changed = true
+		}
+	}
+	if rewriteOpaqueID(payload, "item_id", aliases, outputIndex) {
+		changed = true
+	}
+	if response, ok := payload["response"].(map[string]any); ok {
+		if output, ok := response["output"].([]any); ok {
+			for index, raw := range output {
+				item, ok := raw.(map[string]any)
+				if !ok {
+					continue
+				}
+				if rewriteOpaqueID(item, "id", aliases, index) {
+					changed = true
+				}
+			}
+		}
+	}
+	return changed
+}
+
+func rewriteOpaqueID(value map[string]any, key string, aliases *responsesIDAliases, outputIndex int) bool {
+	id, ok := value[key].(string)
+	if !ok || len(id) <= 80 {
+		return false
+	}
+	pinned := aliases.idFor(outputIndex, id)
+	if pinned == id {
+		return false
+	}
+	value[key] = pinned
+	return true
+}
+
+func intFromAny(value any) int {
+	switch typed := value.(type) {
+	case float64:
+		return int(typed)
+	case int:
+		return typed
+	case json.Number:
+		parsed, err := typed.Int64()
+		if err != nil {
+			return -1
+		}
+		return int(parsed)
+	default:
+		return -1
+	}
+}
+
+func sseData(frame []byte) (string, []byte) {
+	event := ""
+	var data []byte
+	for _, line := range bytes.Split(frame, []byte("\n")) {
+		line = bytes.TrimSuffix(line, []byte("\r"))
+		switch {
+		case bytes.HasPrefix(line, []byte("event:")):
+			event = strings.TrimSpace(string(bytes.TrimPrefix(line, []byte("event:"))))
+		case bytes.HasPrefix(line, []byte("data:")):
+			data = append(data, bytes.TrimSpace(bytes.TrimPrefix(line, []byte("data:")))...)
+		}
+	}
+	return event, data
+}
+
 func normalizeRequestFormat(value string) string {
 	switch strings.ToLower(strings.TrimSpace(value)) {
 	case "", "responses", "openai-response", "openai-responses":
 		return "openai-response"
+	case "openai", "chat", "chat-completions":
+		return "openai"
 	case "claude", "anthropic":
 		return "claude"
 	default:
@@ -289,7 +472,13 @@ func (s *Service) HTTP(ctx context.Context, req HTTPRequest) (pluginapi.Executor
 	}, nil
 }
 
-func copilotHeaders(token string, stream bool) http.Header {
+type copilotInteractionContext struct {
+	ID        string
+	Type      string
+	Initiator string
+}
+
+func copilotHeaders(token string, stream bool, interaction copilotInteractionContext) http.Header {
 	requestID, _ := randomIdentifier(16)
 	accept := "application/json"
 	if stream {
@@ -304,12 +493,293 @@ func copilotHeaders(token string, stream bool) http.Header {
 	headers.Set("Editor-Version", copilotEditorVersion)
 	headers.Set("OpenAI-Intent", "conversation-edits")
 	headers.Set("User-Agent", copilotUserAgent)
-	headers.Set("X-Agent-Task-Id", requestID)
 	headers.Set("X-GitHub-Api-Version", copilotAPIVersion)
-	headers.Set("X-Initiator", "user")
-	headers.Set("X-Interaction-Type", "conversation-edits")
+	headers.Set("X-Initiator", interaction.Initiator)
+	headers.Set("X-Interaction-Id", interaction.ID)
+	headers.Set("X-Interaction-Type", interaction.Type)
 	headers.Set("X-Request-Id", requestID)
 	return headers
+}
+
+func withCopilotAuthorization(headers http.Header, token string) http.Header {
+	cloned := cloneHeader(headers)
+	cloned.Set("Authorization", "Bearer "+token)
+	return cloned
+}
+
+func copilotInteraction(req ExecuteRequest, translated []byte) copilotInteractionContext {
+	sessionID := copilotSessionID(req)
+	interactionType := "conversation-agent"
+	if sessionID == "" {
+		sessionID = copilotDerivedSessionID(req, translated)
+	}
+	initiator := "user"
+	if copilotAgentTurn(req, translated) {
+		initiator = "agent"
+	}
+	if copilotParentSession(req) != "" {
+		interactionType = "conversation-subagent"
+		initiator = "agent"
+	}
+	return copilotInteractionContext{
+		ID:        sessionID,
+		Type:      interactionType,
+		Initiator: initiator,
+	}
+}
+
+func copilotSessionID(req ExecuteRequest) string {
+	parent := copilotParentSession(req)
+	if parent != "" {
+		return parent
+	}
+	for _, name := range []string{
+		"X-Session-Id",
+		"X-Session-ID",
+		"x-session-affinity",
+		"x-opencode-session",
+		"X-Opencode-Session",
+		"X-Opencode-Session-Id",
+		"Session-Id",
+		"Session_id",
+	} {
+		if value := headerValue(req.Headers, name); value != "" {
+			return value
+		}
+	}
+	if value := metadataString(req.Metadata, "execution_session_id"); value != "" {
+		return value
+	}
+	if value := metadataString(req.Metadata, "canonical_session_id"); value != "" {
+		return value
+	}
+	if value := metadataString(req.Metadata, "derived_session_id"); value != "" {
+		return value
+	}
+	return claudeMetadataSessionID(req.OriginalRequest)
+}
+
+func copilotParentSession(req ExecuteRequest) string {
+	for _, name := range []string{"x-parent-session-id", "x-opencode-parent-session-id"} {
+		if value := headerValue(req.Headers, name); value != "" {
+			return value
+		}
+	}
+	return metadataString(req.Metadata, "parent_session_id")
+}
+
+func copilotDerivedSessionID(req ExecuteRequest, translated []byte) string {
+	material := copilotSessionMaterial(req.OriginalRequest)
+	if len(material) == 0 {
+		material = copilotSessionMaterial(translated)
+	}
+	if len(material) == 0 {
+		requestID, errID := randomIdentifier(16)
+		if errID != nil {
+			return "copilot-request"
+		}
+		return requestID
+	}
+	sum := sha256.New()
+	sum.Write([]byte(strings.TrimSpace(req.Model)))
+	sum.Write([]byte{0})
+	sum.Write(material)
+	return hex.EncodeToString(sum.Sum(nil))
+}
+
+func copilotSessionMaterial(body []byte) []byte {
+	if !gjson.ValidBytes(body) {
+		return nil
+	}
+	root := gjson.ParseBytes(body)
+	var material []byte
+	if instructions := strings.TrimSpace(root.Get("instructions").String()); instructions != "" {
+		material = append(material, instructions...)
+		material = append(material, 0)
+	}
+	if system := claudeSystemMaterial(root.Get("system")); system != "" {
+		material = append(material, system...)
+		material = append(material, 0)
+	}
+	if first := firstUserMaterial(root); first != "" {
+		material = append(material, first...)
+	}
+	return material
+}
+
+func claudeSystemMaterial(system gjson.Result) string {
+	if system.Type == gjson.String {
+		return strings.TrimSpace(system.String())
+	}
+	var text strings.Builder
+	system.ForEach(func(_, part gjson.Result) bool {
+		if part.Type == gjson.String {
+			text.WriteString(strings.TrimSpace(part.String()))
+			return true
+		}
+		if strings.TrimSpace(part.Get("type").String()) == "text" {
+			text.WriteString(strings.TrimSpace(part.Get("text").String()))
+		}
+		return true
+	})
+	return strings.TrimSpace(text.String())
+}
+
+func firstUserMaterial(root gjson.Result) string {
+	found := ""
+	root.Get("messages").ForEach(func(_, message gjson.Result) bool {
+		if strings.TrimSpace(message.Get("role").String()) != "user" {
+			return true
+		}
+		found = contentMaterial(message.Get("content"))
+		return false
+	})
+	if found != "" {
+		return found
+	}
+	root.Get("input").ForEach(func(_, item gjson.Result) bool {
+		switch strings.TrimSpace(item.Get("type").String()) {
+		case "", "message":
+			if strings.TrimSpace(item.Get("role").String()) != "user" {
+				return true
+			}
+			found = contentMaterial(item.Get("content"))
+			return false
+		}
+		return true
+	})
+	return found
+}
+
+func contentMaterial(content gjson.Result) string {
+	if content.Type == gjson.String {
+		return strings.TrimSpace(content.String())
+	}
+	var text strings.Builder
+	content.ForEach(func(_, part gjson.Result) bool {
+		partType := strings.TrimSpace(part.Get("type").String())
+		switch partType {
+		case "", "text", "input_text", "output_text":
+			if value := strings.TrimSpace(part.Get("text").String()); value != "" {
+				text.WriteString(value)
+			} else if part.Type == gjson.String {
+				text.WriteString(strings.TrimSpace(part.String()))
+			}
+		}
+		return true
+	})
+	return strings.TrimSpace(text.String())
+}
+
+func copilotAgentTurn(req ExecuteRequest, translated []byte) bool {
+	if copilotAgentTurnBody(translated) || copilotAgentTurnBody(req.Payload) || copilotAgentTurnBody(req.OriginalRequest) {
+		return true
+	}
+	return false
+}
+
+func copilotAgentTurnBody(body []byte) bool {
+	if !gjson.ValidBytes(body) {
+		return false
+	}
+	root := gjson.ParseBytes(body)
+	input := root.Get("input")
+	if input.IsArray() {
+		last := lastArrayValue(input)
+		switch strings.TrimSpace(last.Get("type").String()) {
+		case "function_call_output", "function_call", "reasoning":
+			return true
+		case "message":
+			if strings.TrimSpace(last.Get("role").String()) != "user" {
+				return strings.TrimSpace(last.Get("role").String()) != ""
+			}
+			return !messageHasNonToolContent(last.Get("content"))
+		}
+	}
+	messages := root.Get("messages")
+	if !messages.IsArray() {
+		return false
+	}
+	last := lastArrayValue(messages)
+	role := strings.TrimSpace(last.Get("role").String())
+	switch role {
+	case "assistant", "tool":
+		return true
+	case "user":
+		return !messageHasNonToolContent(last.Get("content"))
+	default:
+		return false
+	}
+}
+
+func messageHasNonToolContent(content gjson.Result) bool {
+	if content.Type == gjson.String {
+		return strings.TrimSpace(content.String()) != ""
+	}
+	if !content.IsArray() {
+		return false
+	}
+	hasNonTool := false
+	content.ForEach(func(_, part gjson.Result) bool {
+		partType := strings.TrimSpace(part.Get("type").String())
+		if partType == "" && part.Type == gjson.String {
+			partType = "text"
+		}
+		if partType != "tool_result" {
+			hasNonTool = true
+			return false
+		}
+		return true
+	})
+	return hasNonTool
+}
+
+func lastArrayValue(value gjson.Result) gjson.Result {
+	var last gjson.Result
+	value.ForEach(func(_, item gjson.Result) bool {
+		last = item
+		return true
+	})
+	return last
+}
+
+func claudeMetadataSessionID(body []byte) string {
+	if !gjson.ValidBytes(body) {
+		return ""
+	}
+	userID := strings.TrimSpace(gjson.GetBytes(body, "metadata.user_id").String())
+	if userID == "" {
+		return ""
+	}
+	if gjson.Valid(userID) {
+		if sessionID := strings.TrimSpace(gjson.Get(userID, "session_id").String()); sessionID != "" {
+			return sessionID
+		}
+	}
+	return ""
+}
+
+func headerValue(headers http.Header, name string) string {
+	if len(headers) == 0 {
+		return ""
+	}
+	return strings.TrimSpace(headers.Get(name))
+}
+
+func metadataString(metadata map[string]any, key string) string {
+	if len(metadata) == 0 {
+		return ""
+	}
+	value, ok := metadata[key]
+	if !ok || value == nil {
+		return ""
+	}
+	switch typed := value.(type) {
+	case string:
+		return strings.TrimSpace(typed)
+	default:
+		return ""
+	}
 }
 
 func filterResponseHeaders(headers http.Header) http.Header {

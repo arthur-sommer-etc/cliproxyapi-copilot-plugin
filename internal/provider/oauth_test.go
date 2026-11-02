@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 	"time"
@@ -82,5 +83,47 @@ func TestClassifyDeviceToken(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestParseAuthPreservesRoutingPrefix(t *testing.T) {
+	t.Parallel()
+
+	raw := []byte(`{
+		"type":"copilot",
+		"github_access_token":"gho_test",
+		"github_login":"moutansos",
+		"prefix":" Copilot ",
+		"disabled":true,
+		"proxy_url":" socks5://127.0.0.1:1080 ",
+		"updated_at":"2026-10-01T16:01:15Z"
+	}`)
+	got, err := (&Service{}).ParseAuth(pluginapi.AuthParseRequest{Provider: "copilot", FileName: "copilot-moutansos.json", RawJSON: raw})
+	if err != nil {
+		t.Fatalf("parse auth: %v", err)
+	}
+	if !got.Handled {
+		t.Fatal("expected the copilot auth file to be handled")
+	}
+	if got.Auth.Prefix != "Copilot" || !got.Auth.Disabled || got.Auth.ProxyURL != "socks5://127.0.0.1:1080" {
+		t.Fatalf("routing fields = prefix %q disabled %v proxy %q", got.Auth.Prefix, got.Auth.Disabled, got.Auth.ProxyURL)
+	}
+	var stored authStorage
+	if err := json.Unmarshal(got.Auth.StorageJSON, &stored); err != nil {
+		t.Fatalf("decode storage: %v", err)
+	}
+	if stored.Prefix != "Copilot" || !stored.Disabled || stored.ProxyURL != "socks5://127.0.0.1:1080" {
+		t.Fatalf("stored routing fields = %#v", stored)
+	}
+}
+
+func TestNormalizeAuthPrefix(t *testing.T) {
+	t.Parallel()
+
+	if got := normalizeAuthPrefix(" /Copilot/ "); got != "Copilot" {
+		t.Fatalf("prefix = %q", got)
+	}
+	if got := normalizeAuthPrefix("team/copilot"); got != "" {
+		t.Fatalf("slash prefix = %q, want empty", got)
 	}
 }
