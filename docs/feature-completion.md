@@ -18,7 +18,8 @@ Maintained v7 fixes remain a separate delivery scope.
 The candidate does not authorize upstream merge or deployment.
 
 The candidate requires the paired maintained host selected by go.mod.
-The official v8.0.26 callback dispatcher still lacks host.payload.finalize and the paired reserved-schema/interrupt behavior; [host PR #6500](https://github.com/router-for-me/CLIProxyAPI/pull/6500) remains open.
+The official v8.0.26 callback dispatcher lacks host.payload.finalize and the paired reserved-schema/interrupt behavior.
+[Host PR #6500](https://github.com/router-for-me/CLIProxyAPI/pull/6500) was closed without merging.
 Removing the replacement or promoting this as a standalone official-host upgrade would break the documented contract.
 A future promotion requires a dedicated migration PR, exact combined-head validation, host/configuration requirements and rollback, preserving current-main fixes.
 Source/package validation does not erase external provider or original-client limits.
