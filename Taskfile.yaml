@@ -2,29 +2,69 @@ version: "3"
 
 tasks:
   build:
+    env: &build_env
+      COPILOT_TASK_GO_IMAGE: '{{.GO_IMAGE | default "golang:1-bookworm"}}'
+      COPILOT_TASK_VERSION: '{{.VERSION | default "0.3.3"}}'
+      COPILOT_TASK_NATIVE_HOST_SOURCE: "{{.NATIVE_HOST_SOURCE}}"
     desc: Build the Linux plugin in Docker
     cmds:
-      - make build {{.CLI_ARGS}}
+      - mkdir -p build/plugins/linux/amd64 .cache/go-build .cache/go-mod .cache/home
+      - |
+        docker run --rm --platform=linux/amd64 \
+          --user "$(id -u):$(id -g)" \
+          -e HOME=/src/.cache/home \
+          -e GOCACHE=/src/.cache/go-build \
+          -e GOMODCACHE=/src/.cache/go-mod \
+          -e GOPROXY -e GOSUMDB -e VERSION="$COPILOT_TASK_VERSION" \
+          -v "$(pwd -P):/src" -w /src "$COPILOT_TASK_GO_IMAGE" \
+          sh -ec 'CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -buildvcs=false -trimpath -ldflags "-X main.pluginVersion=$VERSION" -buildmode=c-shared -o build/plugins/linux/amd64/cliproxyapi-copilot.so ./cmd/cliproxyapi-copilot'
 
   build-local:
+    env: *build_env
     desc: Build the Linux plugin locally
     cmds:
-      - make build-local {{.CLI_ARGS}}
+      - mkdir -p build/plugins/linux/amd64
+      - CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -buildvcs=false -trimpath -ldflags "-X main.pluginVersion=$COPILOT_TASK_VERSION" -buildmode=c-shared -o build/plugins/linux/amd64/cliproxyapi-copilot.so ./cmd/cliproxyapi-copilot
 
   build-darwin:
+    env: *build_env
     desc: Build the macOS plugin
     cmds:
-      - make build-darwin {{.CLI_ARGS}}
+      - mkdir -p build/plugins/darwin/arm64
+      - CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 go build -buildvcs=false -trimpath -ldflags "-X main.pluginVersion=$COPILOT_TASK_VERSION" -buildmode=c-shared -o build/plugins/darwin/arm64/cliproxyapi-copilot.dylib ./cmd/cliproxyapi-copilot
 
   test:
     desc: Run Go and Python tests
     cmds:
-      - make test {{.CLI_ARGS}}
+      - go test ./...
+      - python3 -m unittest discover -s packaging -p 'test_*.py'
+      - python3 -m unittest discover -s integration -p 'test_*.py'
 
   test-native:
+    env: *build_env
     desc: Run native host integration tests
     cmds:
-      - make test-native {{.CLI_ARGS}}
+      - |
+        case "$(uname -s)" in
+          Linux)
+            mkdir -p .cache/go-build .cache/go-mod .cache/home
+            NATIVE_HOST_SOURCE="$COPILOT_TASK_NATIVE_HOST_SOURCE" integration/prepare-native-container.sh run
+            NATIVE_HOST_GOOS=linux NATIVE_HOST_GOARCH=amd64 NATIVE_HOST_IMAGE="$COPILOT_TASK_GO_IMAGE" integration/test-native-host.sh
+            ;;
+          Darwin)
+            case "$(uname -m)" in
+              x86_64|amd64) native_arch=amd64 ;;
+              arm64|aarch64) native_arch=arm64 ;;
+              *) printf 'error: unsupported native host architecture: %s\n' "$(uname -m)" >&2; exit 1 ;;
+            esac
+            plugin_dir="build/plugins/darwin/$native_arch"
+            mkdir -p "$plugin_dir"
+            CGO_ENABLED=1 GOOS=darwin GOARCH="$native_arch" go build -buildvcs=false -trimpath -ldflags "-X main.pluginVersion=$COPILOT_TASK_VERSION" -buildmode=c-shared -o "$plugin_dir/cliproxyapi-copilot.dylib" ./cmd/cliproxyapi-copilot
+            NATIVE_HOST_GOOS=darwin NATIVE_HOST_GOARCH="$native_arch" NATIVE_HOST_SOURCE="$COPILOT_TASK_NATIVE_HOST_SOURCE" integration/prepare-native-host.sh
+            NATIVE_HOST_GOOS=darwin NATIVE_HOST_GOARCH="$native_arch" NATIVE_HOST_IMAGE="$COPILOT_TASK_GO_IMAGE" integration/test-native-host.sh
+            ;;
+          *) printf 'error: native host tests require Linux or macOS\n' >&2; exit 1 ;;
+        esac
 
   check:
     desc: Run contributor checks
@@ -37,21 +77,28 @@ tasks:
       - pnpm run fix
 
   package:
+    env: *build_env
     desc: Build and package the Linux plugin
     cmds:
-      - make package {{.CLI_ARGS}}
+      - task: build
+      - packaging/package-release.sh "$COPILOT_TASK_VERSION" linux amd64
 
   package-darwin:
+    env: *build_env
     desc: Build and package the macOS plugin
     cmds:
-      - make package-darwin {{.CLI_ARGS}}
+      - task: build-darwin
+      - packaging/package-release.sh "$COPILOT_TASK_VERSION" darwin arm64
 
   prepare-runtime-host:
+    env: *build_env
     desc: Prepare the runtime host
     cmds:
-      - make prepare-runtime-host {{.CLI_ARGS}}
+      - NATIVE_HOST_SOURCE="$COPILOT_TASK_NATIVE_HOST_SOURCE" integration/prepare-native-container.sh validate
+      - task: build
+      - NATIVE_HOST_SOURCE="$COPILOT_TASK_NATIVE_HOST_SOURCE" integration/prepare-native-container.sh run
 
   clean:
     desc: Remove build artifacts and caches
     cmds:
-      - make clean {{.CLI_ARGS}}
+      - rm -rf build dist .cache

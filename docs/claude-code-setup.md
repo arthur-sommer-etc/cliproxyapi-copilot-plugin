@@ -82,16 +82,22 @@ Re-run this step whenever `config/config.yaml` changes.
 
 ## 4. Build the paired plugin and host, then start the stack
 
+Install the pinned Task version using Go 1.27.3 or newer, and ensure the Go binary directory is on `PATH`:
+
+```bash
+(cd tools && go install github.com/go-task/task/v3/cmd/task)
+```
+
 Build the plugin shared library and the matching CLIProxyAPI host inside the pinned Go container:
 
 ```bash
-make prepare-runtime-host
+task prepare-runtime-host
 ```
 
 The plugin uses the official CLIProxyAPI v8.0.30 SDK and plugin ABI.
 Its final payload-rule callback is supplied by the published maintained CLIProxyAPI module replacement selected in `go.mod`; the official v8.0.30 server does not implement that callback.
 The Compose file keeps the official image as the runtime base, then mounts the host binary built from that paired module over the image's server binary.
-Do not run Compose before `make prepare-runtime-host`, or the required host binary will be missing.
+Do not run Compose before `task prepare-runtime-host`, or the required host binary will be missing.
 Compose pulls the official base image when it is absent locally.
 
 Start the stack.
@@ -376,12 +382,12 @@ Rebuild after updating the repository:
 
 ```bash
 git pull
-make test
-make prepare-runtime-host
+task test
+task prepare-runtime-host
 docker compose --env-file .runtime/secrets.env up -d --force-recreate
 ```
 
-`make prepare-runtime-host` rebuilds both the plugin and its paired host.
+`task prepare-runtime-host` rebuilds both the plugin and its paired host.
 The Compose command replaces the running container so it mounts the rebuilt host and plugin.
 If `config/config.yaml` changed, re-render `.runtime/config.yaml` (step 3) before recreating the container.
 

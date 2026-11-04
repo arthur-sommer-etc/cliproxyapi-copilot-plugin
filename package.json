@@ -6,7 +6,7 @@
     "check": "run-p check:*",
     "check:audit": "pnpm audit --prod",
     "check:go-format": "gofmt -d cmd internal && test -z \"$(gofmt -l cmd internal)\"",
-    "check:go-test": "make test",
+    "check:go-test": "task test",
     "check:go-vet": "go vet ./...",
     "check:markdownlint-cli2": "markdownlint-cli2",
     "check:ultracite": "ultracite check",

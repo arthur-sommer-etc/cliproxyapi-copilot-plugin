@@ -18,8 +18,14 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v7
         with:
-          go-version-file: go.mod
+          go-version-file: tools/go.mod
           cache: true
+
+      - name: Install pinned Task
+        run: |
+          mkdir -p "$RUNNER_TEMP/task-bin"
+          go -C tools build -o "$RUNNER_TEMP/task-bin/task" github.com/go-task/task/v3/cmd/task
+          echo "$RUNNER_TEMP/task-bin" >> "$GITHUB_PATH"
 
       - name: Validate release tag
         id: version
@@ -33,7 +39,7 @@ jobs:
       - name: Build and package production plugin
         env:
           VERSION: ${{ steps.version.outputs.value }}
-        run: make package-darwin VERSION="$VERSION"
+        run: task package-darwin VERSION="$VERSION"
 
       - name: Upload package
         uses: actions/upload-artifact@v7
@@ -67,19 +73,25 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v7
         with:
-          go-version-file: go.mod
+          go-version-file: tools/go.mod
           cache: true
 
+      - name: Install pinned Task
+        run: |
+          mkdir -p "$RUNNER_TEMP/task-bin"
+          go -C tools build -o "$RUNNER_TEMP/task-bin/task" github.com/go-task/task/v3/cmd/task
+          echo "$RUNNER_TEMP/task-bin" >> "$GITHUB_PATH"
+
       - name: Run tests
-        run: make test
+        run: task test
 
       - name: Build marketplace package
         env:
           VERSION: ${{ steps.version.outputs.value }}
-        run: make package VERSION="$VERSION"
+        run: task package VERSION="$VERSION"
 
       - name: Run synthetic native host tests
-        run: make test-native
+        run: task test-native
 
       - name: Download macOS package
         uses: actions/download-artifact@v8

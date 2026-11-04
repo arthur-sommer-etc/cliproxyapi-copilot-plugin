@@ -5,9 +5,9 @@ version=$(packaging/package-release.sh --validate-version "${RELEASE_VERSION:-}"
 checksums=$(mktemp)
 trap 'rm -f "$checksums"' EXIT HUP INT TERM
 if [ "${RELEASE_BUILD_PACKAGES:-0}" = 1 ]; then
-  make package VERSION="$version"
+  task package VERSION="$version"
   cp dist/checksums.txt "$checksums"
-  make package-darwin VERSION="$version"
+  task package-darwin VERSION="$version"
   cat dist/checksums.txt >> "$checksums"
   cp "$checksums" dist/checksums.txt
 fi

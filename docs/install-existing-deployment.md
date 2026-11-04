@@ -11,10 +11,12 @@ The official v8.0.30 server lacks the required `host.payload.finalize` callback.
 ```bash
 git clone https://github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin.git
 cd cliproxyapi-copilot-plugin
-make prepare-runtime-host
+(cd tools && go install github.com/go-task/task/v3/cmd/task)
+task prepare-runtime-host
 ```
 
 This builds the plugin library and matching Linux `amd64` server from the versioned host replacement selected by `go.mod`.
+Installing the pinned Task version requires Go 1.27.3 or newer and its binary directory on `PATH`.
 Docker Engine is required because the build uses the `golang:1-bookworm` container.
 Docker Compose v2 is required only when using the Compose deployment steps below.
 The outputs are:
@@ -321,7 +323,7 @@ Existing Claude and other provider models remain available.
 
 Version tags automatically publish marketplace-compatible packages.
 To update from a release, verify the plugin archive against `checksums.txt` and inspect `cliproxyapi-copilot.host-requirements.json` for the required host module identity.
-In a source checkout at the same release tag, run `make prepare-runtime-host` to build the matching plugin and host from that release's `go.mod`.
+In a source checkout at the same release tag, run `task prepare-runtime-host` to build the matching plugin and host from that release's `go.mod`.
 Install both outputs using the procedures in step 2, then restart CLIProxyAPI so it loads the matching pair.
 The release archive does not replace the host binary automatically.
 

@@ -17,8 +17,14 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v7
         with:
-          go-version-file: go.mod
+          go-version-file: tools/go.mod
           cache: true
+
+      - name: Install pinned Task
+        run: |
+          mkdir -p "$RUNNER_TEMP/task-bin"
+          go -C tools build -o "$RUNNER_TEMP/task-bin/task" github.com/go-task/task/v3/cmd/task
+          echo "$RUNNER_TEMP/task-bin" >> "$GITHUB_PATH"
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v6
@@ -44,11 +50,17 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v7
         with:
-          go-version-file: go.mod
+          go-version-file: tools/go.mod
           cache: true
 
+      - name: Install pinned Task
+        run: |
+          mkdir -p "$RUNNER_TEMP/task-bin"
+          go -C tools build -o "$RUNNER_TEMP/task-bin/task" github.com/go-task/task/v3/cmd/task
+          echo "$RUNNER_TEMP/task-bin" >> "$GITHUB_PATH"
+
       - name: Run tests
-        run: make test
+        run: task test
 
   package:
     runs-on: ubuntu-latest
@@ -59,14 +71,20 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v7
         with:
-          go-version-file: go.mod
+          go-version-file: tools/go.mod
           cache: true
 
+      - name: Install pinned Task
+        run: |
+          mkdir -p "$RUNNER_TEMP/task-bin"
+          go -C tools build -o "$RUNNER_TEMP/task-bin/task" github.com/go-task/task/v3/cmd/task
+          echo "$RUNNER_TEMP/task-bin" >> "$GITHUB_PATH"
+
       - name: Build and package production plugin
-        run: make package VERSION=0.0.0
+        run: task package VERSION=0.0.0
 
       - name: Run synthetic native host tests
-        run: make test-native
+        run: task test-native
 
       - name: Upload package
         uses: actions/upload-artifact@v7
@@ -86,11 +104,17 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v7
         with:
-          go-version-file: go.mod
+          go-version-file: tools/go.mod
           cache: true
 
+      - name: Install pinned Task
+        run: |
+          mkdir -p "$RUNNER_TEMP/task-bin"
+          go -C tools build -o "$RUNNER_TEMP/task-bin/task" github.com/go-task/task/v3/cmd/task
+          echo "$RUNNER_TEMP/task-bin" >> "$GITHUB_PATH"
+
       - name: Build and package production plugin
-        run: make package-darwin VERSION=0.0.0
+        run: task package-darwin VERSION=0.0.0
 
       - name: Upload package
         uses: actions/upload-artifact@v7

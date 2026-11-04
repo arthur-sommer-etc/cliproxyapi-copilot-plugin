@@ -11,12 +11,12 @@ import (
 )
 
 func TestNativeHostSourceRuntimeTargetMountsAbsolutePathWithSpaces(t *testing.T) {
-	fixture := newNativeHostSourceMakeFixture(t)
+	fixture := newNativeHostSourceTaskFixture(t)
 	source := fixture.addHostSource(t, "external CLIProxyAPI checkout")
 
-	result := fixture.runMake(t, "prepare-runtime-host", source)
+	result := fixture.runTask(t, "prepare-runtime-host", source)
 	if result.ExitCode != 0 {
-		t.Fatalf("make prepare-runtime-host failed: %s", result.Output)
+		t.Fatalf("task prepare-runtime-host failed: %s", result.Output)
 	}
 
 	calls := fixture.dockerCalls(t)
@@ -27,16 +27,16 @@ func TestNativeHostSourceRuntimeTargetMountsAbsolutePathWithSpaces(t *testing.T)
 }
 
 func TestNativeHostSourceLinuxTargetMountsRelativePathWithSpaces(t *testing.T) {
-	fixture := newNativeHostSourceMakeFixture(t)
+	fixture := newNativeHostSourceTaskFixture(t)
 	source := fixture.addHostSource(t, "external CLIProxyAPI checkout")
 	relativeSource, err := filepath.Rel(fixture.repo, source)
 	if err != nil {
-		t.Fatalf("make relative source path: %v", err)
+		t.Fatalf("compute relative source path: %v", err)
 	}
 
-	result := fixture.runMake(t, "test-native", relativeSource)
+	result := fixture.runTask(t, "test-native", relativeSource)
 	if result.ExitCode != 0 {
-		t.Fatalf("make test-native failed: %s", result.Output)
+		t.Fatalf("task test-native failed: %s", result.Output)
 	}
 
 	calls := fixture.dockerCalls(t)
@@ -52,11 +52,49 @@ func TestNativeHostSourceLinuxTargetMountsRelativePathWithSpaces(t *testing.T) {
 	}
 }
 
-func TestNativeHostSourcePublishedDefaultOmitsSourceMount(t *testing.T) {
-	fixture := newNativeHostSourceMakeFixture(t)
-	result := fixture.runMake(t, "test-native", "")
+func TestNativeHostSourceTaskArgumentOverridesInheritedEnvironment(t *testing.T) {
+	for _, target := range []string{"prepare-runtime-host", "test-native"} {
+		t.Run(target, func(t *testing.T) {
+			fixture := newNativeHostSourceTaskFixture(t)
+			inherited := fixture.addHostSource(t, "inherited CLIProxyAPI checkout")
+			selected := fixture.addHostSource(t, "selected CLIProxyAPI checkout")
+			result := fixture.runTask(t, target, inherited, "NATIVE_HOST_SOURCE="+selected)
+			if result.ExitCode != 0 {
+				t.Fatalf("task %s failed: %s", target, result.Output)
+			}
+			calls := fixture.dockerCalls(t)
+			if len(calls) == 0 {
+				t.Fatal("expected host preparation Docker call")
+			}
+			preparation := calls[len(calls)-1]
+			assertNativeHostDockerArgs(t, preparation, fixture, selected)
+			if slicesContainsPair(preparation, "-v", canonicalFixturePath(t, inherited)+":/native-host-source:ro") {
+				t.Fatalf("inherited host source was mounted instead of CLI override: %#v", preparation)
+			}
+		})
+	}
+}
+
+func TestNativeHostSourceDarwinTaskArgumentOverridesInheritedEnvironment(t *testing.T) {
+	fixture := newNativeHostSourceTaskFixture(t)
+	fixture.system = "Darwin"
+	fixture.machine = "arm64"
+	inherited := fixture.addHostSource(t, "inherited CLIProxyAPI checkout")
+	selected := fixture.addHostSource(t, "selected CLIProxyAPI checkout")
+	result := fixture.runTask(t, "test-native", inherited, "NATIVE_HOST_SOURCE="+selected)
 	if result.ExitCode != 0 {
-		t.Fatalf("make test-native failed: %s", result.Output)
+		t.Fatalf("task test-native on Darwin failed: %s", result.Output)
+	}
+	if got, err := os.ReadFile(fixture.preparerSourceCapture); err != nil || string(got) != selected+"\n" {
+		t.Fatalf("Darwin preparer source = %q, want %q; error %v", got, selected, err)
+	}
+}
+
+func TestNativeHostSourcePublishedDefaultOmitsSourceMount(t *testing.T) {
+	fixture := newNativeHostSourceTaskFixture(t)
+	result := fixture.runTask(t, "test-native", "")
+	if result.ExitCode != 0 {
+		t.Fatalf("task test-native failed: %s", result.Output)
 	}
 
 	calls := fixture.dockerCalls(t)
@@ -69,18 +107,18 @@ func TestNativeHostSourcePublishedDefaultOmitsSourceMount(t *testing.T) {
 func TestNativeHostSourceMissingPathFailsBeforeDocker(t *testing.T) {
 	for _, target := range []string{"prepare-runtime-host", "test-native"} {
 		t.Run(target, func(t *testing.T) {
-			fixture := newNativeHostSourceMakeFixture(t)
+			fixture := newNativeHostSourceTaskFixture(t)
 			missing := filepath.Join(fixture.root, "missing CLIProxyAPI checkout")
 
-			result := fixture.runMake(t, target, missing)
+			result := fixture.runTask(t, target, missing)
 			if result.ExitCode == 0 {
-				t.Fatalf("make %s accepted a missing source path", target)
+				t.Fatalf("task %s accepted a missing source path", target)
 			}
 			if !strings.Contains(result.Output, "NATIVE_HOST_SOURCE") {
 				t.Fatalf("missing-source error did not identify NATIVE_HOST_SOURCE: %s", result.Output)
 			}
 			if calls := fixture.dockerCalls(t); len(calls) != 0 {
-				t.Fatalf("make %s invoked Docker before rejecting the source: %#v", target, calls)
+				t.Fatalf("task %s invoked Docker before rejecting the source: %#v", target, calls)
 			}
 			if _, err := os.Stat(fixture.runnerCapture); !os.IsNotExist(err) {
 				t.Fatalf("fake integration runner should not run after source validation failure, stat error: %v", err)
@@ -89,19 +127,124 @@ func TestNativeHostSourceMissingPathFailsBeforeDocker(t *testing.T) {
 	}
 }
 
-type nativeHostSourceMakeFixture struct {
-	root          string
-	repo          string
-	bin           string
-	dockerCapture string
-	runnerCapture string
+func TestTaskPackagePassesImageAndVersionOverrides(t *testing.T) {
+	for _, test := range []struct {
+		name    string
+		args    []string
+		version string
+		image   string
+	}{
+		{name: "environment", version: "2.0.0", image: "example.test/go:environment"},
+		{name: "command line", args: []string{"GO_IMAGE=example.test/go:command", "VERSION=1.2.3.4"}, version: "1.2.3.4", image: "example.test/go:command"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			fixture := newNativeHostSourceTaskFixture(t)
+			fixture.image = "example.test/go:environment"
+			fixture.version = "2.0.0"
+			result := fixture.runTask(t, "package", "", test.args...)
+			if result.ExitCode != 0 {
+				t.Fatalf("task package failed: %s", result.Output)
+			}
+			calls := fixture.dockerCalls(t)
+			if len(calls) != 1 || !slicesContains(calls[0], test.image) {
+				t.Fatalf("build did not use overridden image: %#v", calls)
+			}
+			if !containsSubstring(calls[0], "-X main.pluginVersion=$VERSION") || !slicesContainsPair(calls[0], "-e", "VERSION="+test.version) {
+				t.Fatalf("build did not pass version %q into the container: %#v", test.version, calls)
+			}
+			if got, err := os.ReadFile(fixture.packageCapture); err != nil || string(got) != test.version+"|linux|amd64\n" {
+				t.Fatalf("package arguments = %q, error %v", got, err)
+			}
+		})
+	}
 }
 
-func newNativeHostSourceMakeFixture(t *testing.T) *nativeHostSourceMakeFixture {
+func TestTaskPackageVersionTreatsShellSyntaxAsData(t *testing.T) {
+	fixture := newNativeHostSourceTaskFixture(t)
+	marker := filepath.Join(fixture.root, "unexpected command")
+	version := "$(touch '" + marker + "')"
+	result := fixture.runTask(t, "package", "", "VERSION="+version)
+	if result.ExitCode != 0 {
+		t.Fatalf("task package failed: %s", result.Output)
+	}
+	if _, err := os.Stat(marker); !os.IsNotExist(err) {
+		t.Fatalf("version executed as shell code; stat error: %v", err)
+	}
+	calls := fixture.dockerCalls(t)
+	if len(calls) != 1 || !slicesContainsPair(calls[0], "-e", "VERSION="+version) {
+		t.Fatalf("version did not reach Docker as one argument: %#v", calls)
+	}
+	if got, err := os.ReadFile(fixture.packageCapture); err != nil || string(got) != version+"|linux|amd64\n" {
+		t.Fatalf("package arguments = %q, error %v", got, err)
+	}
+}
+
+func TestTaskNativeHostUsesImageOverride(t *testing.T) {
+	fixture := newNativeHostSourceTaskFixture(t)
+	result := fixture.runTask(t, "test-native", "", "GO_IMAGE=example.test/go:fixture")
+	if result.ExitCode != 0 {
+		t.Fatalf("task test-native failed: %s", result.Output)
+	}
+	calls := fixture.dockerCalls(t)
+	if len(calls) != 1 || !slicesContains(calls[0], "example.test/go:fixture") {
+		t.Fatalf("host preparation did not use overridden image: %#v", calls)
+	}
+	if got, err := os.ReadFile(fixture.runnerCapture); err != nil || string(got) != "linux/amd64|example.test/go:fixture\n" {
+		t.Fatalf("native runner image = %q, error %v", got, err)
+	}
+}
+
+func TestTaskNativeHostDarwinBuildsForHostArchitecture(t *testing.T) {
+	for _, test := range []struct{ machine, arch string }{{"x86_64", "amd64"}, {"arm64", "arm64"}} {
+		t.Run(test.machine, func(t *testing.T) {
+			fixture := newNativeHostSourceTaskFixture(t)
+			fixture.system = "Darwin"
+			fixture.machine = test.machine
+			result := fixture.runTask(t, "test-native", "", "VERSION=1.2.3.4")
+			if result.ExitCode != 0 {
+				t.Fatalf("task test-native on Darwin failed: %s", result.Output)
+			}
+			if calls := fixture.dockerCalls(t); len(calls) != 0 {
+				t.Fatalf("Darwin native host unexpectedly invoked Docker: %#v", calls)
+			}
+			wantGo := "darwin/" + test.arch + "|build -buildvcs=false -trimpath -ldflags -X main.pluginVersion=1.2.3.4 -buildmode=c-shared -o build/plugins/darwin/" + test.arch + "/cliproxyapi-copilot.dylib ./cmd/cliproxyapi-copilot\n"
+			if got, err := os.ReadFile(fixture.goCapture); err != nil || string(got) != wantGo {
+				t.Fatalf("Darwin build = %q, want %q; error %v", got, wantGo, err)
+			}
+			if got, err := os.ReadFile(fixture.preparerCapture); err != nil || string(got) != "darwin/"+test.arch+"\n" {
+				t.Fatalf("Darwin preparer = %q, error %v", got, err)
+			}
+			if got, err := os.ReadFile(fixture.runnerCapture); err != nil || string(got) != "darwin/"+test.arch+"|golang:1-bookworm\n" {
+				t.Fatalf("Darwin runner = %q, error %v", got, err)
+			}
+		})
+	}
+}
+
+type nativeHostSourceTaskFixture struct {
+	root                  string
+	system                string
+	machine               string
+	image                 string
+	version               string
+	repo                  string
+	bin                   string
+	dockerCapture         string
+	runnerCapture         string
+	packageCapture        string
+	goCapture             string
+	preparerCapture       string
+	preparerSourceCapture string
+}
+
+func newNativeHostSourceTaskFixture(t *testing.T) *nativeHostSourceTaskFixture {
 	t.Helper()
 	root := t.TempDir()
 	repo := filepath.Join(root, "repository with spaces")
 	bin := filepath.Join(root, "fake bin")
+	if err := os.MkdirAll(filepath.Join(repo, "packaging"), 0o755); err != nil {
+		t.Fatalf("create fixture packaging directory: %v", err)
+	}
 	if err := os.MkdirAll(filepath.Join(repo, "integration"), 0o755); err != nil {
 		t.Fatalf("create fixture repository: %v", err)
 	}
@@ -113,28 +256,42 @@ func newNativeHostSourceMakeFixture(t *testing.T) *nativeHostSourceMakeFixture {
 	if !ok {
 		t.Fatal("resolve native host source test path")
 	}
-	makefile, err := os.ReadFile(filepath.Join(filepath.Dir(testFile), "..", "Makefile"))
-	if err != nil {
-		t.Fatalf("read project Makefile: %v", err)
-	}
-	if err := os.WriteFile(filepath.Join(repo, "Makefile"), makefile, 0o644); err != nil {
-		t.Fatalf("write fixture Makefile: %v", err)
+	rootPath := filepath.Join(filepath.Dir(testFile), "..")
+	for _, name := range []string{"Taskfile.yaml", "integration/prepare-native-container.sh"} {
+		content, err := os.ReadFile(filepath.Join(rootPath, name))
+		if err != nil {
+			t.Fatalf("read project %s: %v", name, err)
+		}
+		if err := os.WriteFile(filepath.Join(repo, name), content, 0o755); err != nil {
+			t.Fatalf("write fixture %s: %v", name, err)
+		}
 	}
 
-	fixture := &nativeHostSourceMakeFixture{
-		root:          root,
-		repo:          repo,
-		bin:           bin,
-		dockerCapture: filepath.Join(root, "docker arguments"),
-		runnerCapture: filepath.Join(root, "integration runner"),
+	fixture := &nativeHostSourceTaskFixture{
+		root:                  root,
+		system:                "Linux",
+		machine:               "x86_64",
+		image:                 "golang:1-bookworm",
+		version:               "0.3.3",
+		repo:                  repo,
+		bin:                   bin,
+		dockerCapture:         filepath.Join(root, "docker arguments"),
+		runnerCapture:         filepath.Join(root, "integration runner"),
+		packageCapture:        filepath.Join(root, "package arguments"),
+		goCapture:             filepath.Join(root, "go arguments"),
+		preparerCapture:       filepath.Join(root, "host preparer"),
+		preparerSourceCapture: filepath.Join(root, "host source"),
 	}
 	fixture.writeExecutable(t, filepath.Join(bin, "docker"), "#!/bin/sh\nprintf '%s\\000' \"$@\" >>\"$DOCKER_CAPTURE\"\nprintf '\\n' >>\"$DOCKER_CAPTURE\"\n")
-	fixture.writeExecutable(t, filepath.Join(bin, "uname"), "#!/bin/sh\nif [ \"${1:-}\" = -s ]; then printf 'Linux\\n'; else exec /usr/bin/uname \"$@\"; fi\n")
+	fixture.writeExecutable(t, filepath.Join(bin, "uname"), "#!/bin/sh\ncase \"${1:-}\" in -s) printf '%s\\n' \"$FAKE_UNAME_OS\" ;; -m) printf '%s\\n' \"$FAKE_UNAME_ARCH\" ;; *) exit 1 ;; esac\n")
+	fixture.writeExecutable(t, filepath.Join(bin, "go"), "#!/bin/sh\nprintf '%s/%s|%s\\n' \"$GOOS\" \"$GOARCH\" \"$*\" >>\"$GO_CAPTURE\"\n")
+	fixture.writeExecutable(t, filepath.Join(repo, "integration", "prepare-native-host.sh"), "#!/bin/sh\nprintf '%s/%s\\n' \"$NATIVE_HOST_GOOS\" \"$NATIVE_HOST_GOARCH\" >>\"$NATIVE_HOST_PREPARER_CAPTURE\"\nprintf '%s\\n' \"${NATIVE_HOST_SOURCE:-}\" >>\"$NATIVE_HOST_PREPARER_SOURCE_CAPTURE\"\n")
 	fixture.writeExecutable(t, filepath.Join(repo, "integration", "test-native-host.sh"), "#!/bin/sh\nprintf '%s|%s\\n' \"$NATIVE_HOST_GOOS/$NATIVE_HOST_GOARCH\" \"$NATIVE_HOST_IMAGE\" >>\"$NATIVE_HOST_RUNNER_CAPTURE\"\n")
+	fixture.writeExecutable(t, filepath.Join(repo, "packaging", "package-release.sh"), "#!/bin/sh\nprintf '%s|%s|%s\\n' \"$1\" \"$2\" \"$3\" >>\"$PACKAGE_CAPTURE\"\n")
 	return fixture
 }
 
-func (f *nativeHostSourceMakeFixture) addHostSource(t *testing.T, name string) string {
+func (f *nativeHostSourceTaskFixture) addHostSource(t *testing.T, name string) string {
 	t.Helper()
 	source := filepath.Join(f.root, name)
 	if err := os.MkdirAll(filepath.Join(source, "cmd", "server"), 0o755); err != nil {
@@ -149,42 +306,48 @@ func (f *nativeHostSourceMakeFixture) addHostSource(t *testing.T, name string) s
 	return source
 }
 
-func (f *nativeHostSourceMakeFixture) writeExecutable(t *testing.T, path, contents string) {
+func (f *nativeHostSourceTaskFixture) writeExecutable(t *testing.T, path, contents string) {
 	t.Helper()
 	if err := os.WriteFile(path, []byte(contents), 0o755); err != nil {
 		t.Fatalf("write fixture executable %s: %v", path, err)
 	}
 }
 
-type makeResult struct {
+type taskResult struct {
 	ExitCode int
 	Output   string
 }
 
-func (f *nativeHostSourceMakeFixture) runMake(t *testing.T, target, source string) makeResult {
+func (f *nativeHostSourceTaskFixture) runTask(t *testing.T, target, source string, taskArgs ...string) taskResult {
 	t.Helper()
-	makePath, err := exec.LookPath("make")
+	taskPath, err := exec.LookPath("task")
 	if err != nil {
-		t.Fatalf("find make: %v", err)
+		t.Fatalf("find task: %v", err)
 	}
-	command := exec.Command(makePath, "--no-print-directory", "-C", f.repo, target)
+	args := append([]string{"--dir", f.repo, target}, taskArgs...)
+	command := exec.Command(taskPath, args...)
 	command.Env = makeEnvironment(os.Environ(), map[string]string{
-		"PATH":                       f.bin + string(os.PathListSeparator) + os.Getenv("PATH"),
-		"DOCKER_CAPTURE":             f.dockerCapture,
-		"GO_IMAGE":                   "golang:1-bookworm",
-		"NATIVE_HOST_RUNNER_CAPTURE": f.runnerCapture,
-		"NATIVE_HOST_SOURCE":         source,
-		"MAKEFLAGS":                  "",
-		"MAKELEVEL":                  "",
+		"PATH":                                f.bin + string(os.PathListSeparator) + os.Getenv("PATH"),
+		"DOCKER_CAPTURE":                      f.dockerCapture,
+		"GO_IMAGE":                            f.image,
+		"VERSION":                             f.version,
+		"NATIVE_HOST_RUNNER_CAPTURE":          f.runnerCapture,
+		"PACKAGE_CAPTURE":                     f.packageCapture,
+		"GO_CAPTURE":                          f.goCapture,
+		"NATIVE_HOST_PREPARER_CAPTURE":        f.preparerCapture,
+		"NATIVE_HOST_PREPARER_SOURCE_CAPTURE": f.preparerSourceCapture,
+		"FAKE_UNAME_OS":                       f.system,
+		"FAKE_UNAME_ARCH":                     f.machine,
+		"NATIVE_HOST_SOURCE":                  source,
 	})
 	output, err := command.CombinedOutput()
-	result := makeResult{Output: string(output)}
+	result := taskResult{Output: string(output)}
 	if err == nil {
 		result.ExitCode = 0
 	} else if exitError, ok := err.(*exec.ExitError); ok {
 		result.ExitCode = exitError.ExitCode()
 	} else {
-		t.Fatalf("run make %s: %v\n%s", target, err, output)
+		t.Fatalf("run task %s: %v\n%s", target, err, output)
 	}
 	return result
 }
@@ -206,7 +369,7 @@ func makeEnvironment(environment []string, replacements map[string]string) []str
 	return result
 }
 
-func (f *nativeHostSourceMakeFixture) dockerCalls(t *testing.T) [][]string {
+func (f *nativeHostSourceTaskFixture) dockerCalls(t *testing.T) [][]string {
 	t.Helper()
 	data, err := os.ReadFile(f.dockerCapture)
 	if os.IsNotExist(err) {
@@ -234,7 +397,7 @@ func (f *nativeHostSourceMakeFixture) dockerCalls(t *testing.T) [][]string {
 	return calls
 }
 
-func assertNativeHostDockerArgs(t *testing.T, arguments []string, fixture *nativeHostSourceMakeFixture, source string) {
+func assertNativeHostDockerArgs(t *testing.T, arguments []string, fixture *nativeHostSourceTaskFixture, source string) {
 	t.Helper()
 	for _, expected := range []string{
 		"run",

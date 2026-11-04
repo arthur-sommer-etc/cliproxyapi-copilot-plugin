@@ -48,7 +48,7 @@ DIST_DIR="$REPO_DIR/dist"
 ARCHIVE="$PLUGIN_ID"_"$VERSION"_"$GOOS"_"$GOARCH".zip
 
 [ -f "$PLUGIN" ] || {
-  printf 'error: plugin artifact is missing; run make build first\n' >&2
+  printf 'error: plugin artifact is missing; run task build or task build-darwin first\n' >&2
   exit 1
 }
 command -v python3 >/dev/null 2>&1 || {

@@ -20,16 +20,18 @@ It uses the existing package script for the ZIP contents and metadata.
 ## Run a release snapshot
 
 On an ARM64 Mac with Docker, the Go version in `tools/go.mod`, and Xcode Command Line Tools,
-build the pinned GoReleaser executable and run it from the repository root:
+install the pinned Task and GoReleaser executables and run the snapshot from the repository root.
+Ensure the Go binary directory is on `PATH` so the preparation hook can invoke Task:
 
 ```sh
+(cd tools && go install github.com/go-task/task/v3/cmd/task)
 mkdir -p .cache/tools
 CC=/usr/bin/clang go -C tools build -o ../.cache/tools/goreleaser github.com/goreleaser/goreleaser/v2
 RELEASE_VERSION=0.0.0 RELEASE_BUILD_PACKAGES=1 CC=/usr/bin/clang \
 .cache/tools/goreleaser release --snapshot --clean
 ```
 
-The preparation hook runs `make package` and `make package-darwin`.
+The preparation hook runs `task package` and `task package-darwin`.
 It combines and verifies both SHA-256 digests before GoReleaser continues.
 The ZIPs and `checksums.txt` remain in `dist/`.
 GoReleaser writes its own snapshot metadata under `.cache/goreleaser-dist/`.
@@ -43,8 +45,6 @@ The workflow accepts dotted numeric tags with more than three components.
 GoReleaser's semver validation does not accept those tags, so the workflow uses
 `--skip=validate` after `packaging/validate-release-git.sh` checks the numeric tag,
 clean worktree, and exact tag at HEAD. These replace its skipped Git checks.
-The isolated `tools` module also pins Task.
-Run its tasks from the repository root with `go -C tools tool task --dir ..`.
 
 ## Run the package tests offline
 
@@ -75,7 +75,7 @@ uses Xcode Command Line Tools' compiler when another `clang` appears earlier on
 ```sh
 GOMODCACHE="$PWD/.cache/go-mod" GOCACHE="$PWD/.cache/go-build" \
 GOPROXY=off GOSUMDB=off GOTOOLCHAIN=local CC=/usr/bin/clang \
-make package-darwin VERSION=0.3.3
+task package-darwin VERSION=0.3.3
 ```
 
 The command creates
@@ -86,7 +86,7 @@ The command creates
 To build the Linux package for the same version, run:
 
 ```sh
-GOPROXY=off GOSUMDB=off make package VERSION=0.3.3
+GOPROXY=off GOSUMDB=off task package VERSION=0.3.3
 ```
 
 The command creates

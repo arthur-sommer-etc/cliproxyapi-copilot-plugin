@@ -107,31 +107,42 @@ The default `token_exchange` mode uses the recognized VS Code Copilot integratio
 
 ## Build and test
 
-`make test` requires Go 1.27.2 or newer and Python 3.9 or newer.
-`make build` and `make prepare-runtime-host` require Docker. On Linux, `make test-native` also requires Docker; on macOS, it builds a local Darwin plugin and runs the fixtures with `sandbox-exec`.
-Running the development deployment requires Docker Compose v2.
-The production plugin build uses `golang:1-bookworm`, matching the Debian Bookworm runtime of the official image.
-Contributor lint checks require Node.js 24 and the pnpm version declared in `package.json`.
-Run `pnpm install` once, then use `pnpm run check` and `pnpm run fix`.
+Install the pinned Task version with the Go version required by `tools/go.mod` (1.27.3 or newer), and ensure the Go binary directory is on `PATH`:
 
 ```sh
-make test
-make build
-make prepare-runtime-host
-make test-native
+(cd tools && go install github.com/go-task/task/v3/cmd/task)
+```
+
+`task test` requires Go 1.27.2 or newer and Python 3.9 or newer.
+`task build` and `task prepare-runtime-host` require Docker. On Linux, `task test-native` also requires Docker; on macOS, it builds a local Darwin plugin and runs the fixtures with `sandbox-exec`.
+Running the development deployment requires Docker Compose v2.
+The production plugin build uses `golang:1-bookworm`, matching the Debian Bookworm runtime of the official image.
+Set `GO_IMAGE` to use a different build image, for example `GO_IMAGE=golang:1.27-bookworm task build`.
+Set `VERSION` as a Task variable when packaging, for example `task package VERSION=0.3.3`.
+Contributor lint checks require Node.js 24 and the pnpm version declared in `package.json`.
+Run `pnpm install` once, then use `pnpm run check` and `pnpm run fix`.
+The check invokes `task test`, and the Go integration tests invoke Task directly.
+Task must be on `PATH` for both `pnpm run check` and `go test ./...`.
+
+```sh
+task test
+task build
+task prepare-runtime-host
+task test-native
 ```
 
 For opt-in calls against real Copilot models and isolated Claude Code/Codex client checks, see [`docs/live-copilot-validation.md`](docs/live-copilot-validation.md).
 
-`make test-native` and `make prepare-runtime-host` prepare a CLIProxyAPI host from the version or maintained-fork replacement selected in `go.mod` and compile the integration test executable.
+`task test-native` and `task prepare-runtime-host` prepare a CLIProxyAPI host from the version or maintained-fork replacement selected in `go.mod` and compile the integration test executable.
 Set `NATIVE_HOST_SOURCE` to a readable local CLIProxyAPI checkout to use unreleased host changes.
 Relative paths are resolved from this repository's root.
 Container preparation mounts that checkout read-only at `/native-host-source`, then verifies its module identity.
+You can also pass `NATIVE_HOST_SOURCE` as a Task variable; a command-line value takes precedence over the environment.
 For example:
 
 ```sh
-NATIVE_HOST_SOURCE=../CLIProxyAPI make test-native
-NATIVE_HOST_SOURCE="../CLIProxyAPI checkout" make prepare-runtime-host
+NATIVE_HOST_SOURCE=../CLIProxyAPI task test-native
+NATIVE_HOST_SOURCE="../CLIProxyAPI checkout" task prepare-runtime-host
 ```
 
 When `NATIVE_HOST_SOURCE` is unset, preparation uses the published host source selected in `go.mod`.
@@ -139,7 +150,7 @@ Preparation may download dependencies.
 The plugin uses the official v8.0.30 SDK and ABI.
 Payload-rule finalization requires the published maintained host replacement selected in `go.mod`; the official v8.0.30 release does not provide that callback.
 The development Compose file still defaults to the official image as its runtime base.
-`make prepare-runtime-host` builds the selected host and mounts it over the image's server binary, so the default development stack runs the maintained host while reusing the official image runtime.
+`task prepare-runtime-host` builds the selected host and mounts it over the image's server binary, so the default development stack runs the maintained host while reusing the official image runtime.
 Set `CLI_PROXY_API_IMAGE` only when you intentionally want to change the runtime base.
 The runtime loads the built plugin and uses committed synthetic seeds under `integration/testdata/native/v1`.
 Linux runs the prepared binaries in a container with `--network=none` and only loopback available.
@@ -147,7 +158,7 @@ The fixtures require no Copilot login.
 Missing artifacts or seed files fail the required lane.
 Failed native runs preserve their temporary request and response logs; set `NATIVE_HOST_KEEP_ARTIFACTS=1` to retain them after a successful run as well.
 
-`make test-native` builds the macOS plugin before preparing and running the fixtures. To test a prebuilt plugin directly, prepare the host and test executable first.
+`task test-native` builds the macOS plugin before preparing and running the fixtures. To test a prebuilt plugin directly, prepare the host and test executable first.
 
 ```sh
 integration/prepare-native-host.sh
@@ -163,7 +174,7 @@ The loader artifact is:
 build/plugins/linux/amd64/cliproxyapi-copilot.so
 ```
 
-`make build-local` exists for development, but a binary built on a newer host glibc may not load in the Bookworm container.
+`task build-local` exists for development, but a binary built on a newer host glibc may not load in the Bookworm container.
 
 ## Existing CLIProxyAPI deployment
 
@@ -223,11 +234,11 @@ sed "s/__CLIPROXYAPI_API_KEY__/$(sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/se
   config/config.yaml > .runtime/config.yaml
 chmod 600 .runtime/config.yaml
 
-make prepare-runtime-host
+task prepare-runtime-host
 docker compose --env-file .runtime/secrets.env up -d
 ```
 
-`make prepare-runtime-host` builds both the plugin and its paired CLIProxyAPI host.
+`task prepare-runtime-host` builds both the plugin and its paired CLIProxyAPI host.
 The plugin uses the official v8.0.30 SDK and ABI, while payload-rule finalization requires the published maintained host module selected by the `go.mod` replacement.
 Compose overlays that built host on the official runtime image; the official v8.0.30 server alone does not implement the required callback.
 
