@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -12,12 +13,31 @@ import (
 )
 
 type requestAttachment struct {
-	part     map[string]any
-	kind     string
-	data     string
-	filename string
-	detail   string
+	part       map[string]any
+	kind       string
+	sourceKind string
+	toolOutput bool
+	data       string
+	filename   string
+	detail     string
 }
+
+// ErrAttachmentConversion identifies an attachment that cannot be preserved.
+var ErrAttachmentConversion = errors.New("unsupported attachment conversion")
+
+// AttachmentConversionError identifies a lossy protocol edge using static identifiers.
+type AttachmentConversionError struct {
+	Source      string
+	Destination string
+	Kind        string
+	Field       string
+}
+
+func (e *AttachmentConversionError) Error() string {
+	return fmt.Sprintf("cannot preserve %s attachment field %s from %s to %s", e.Kind, e.Field, e.Source, e.Destination)
+}
+
+func (e *AttachmentConversionError) Unwrap() error { return ErrAttachmentConversion }
 
 // UnsupportedImageDetailError identifies image detail that cannot be preserved
 // by a destination endpoint.
@@ -52,15 +72,16 @@ func ValidateRequestAttachmentsForEndpoint(source, endpoint string, body []byte)
 
 func requestAttachments(root map[string]any, format sdktranslator.Format) ([]requestAttachment, error) {
 	var attachments []requestAttachment
-	var visit func(any) error
-	visit = func(value any) error {
+	var visit func(any, bool) error
+	visit = func(value any, toolOutput bool) error {
 		for _, rawPart := range arrayValue(value) {
 			part := objectValue(rawPart)
-			attachment := requestAttachment{part: part}
-			switch stringValue(part["type"]) {
+			attachment := requestAttachment{part: part, toolOutput: toolOutput}
+			typ := stringValue(part["type"])
+			switch typ {
 			case "tool_result":
 				if format == sdktranslator.FormatClaude {
-					if err := visit(part["content"]); err != nil {
+					if err := visit(part["content"], true); err != nil {
 						return err
 					}
 				}
@@ -97,11 +118,12 @@ func requestAttachments(root map[string]any, format sdktranslator.Format) ([]req
 					case "text":
 						attachment.data = rawStringValue(source["data"])
 					case "file":
-						return fmt.Errorf("uploaded attachment references cannot be translated across endpoints")
+						attachment.data = ""
 					}
 				}
 			}
 			if attachment.kind != "" {
+				attachment.sourceKind = typ
 				attachments = append(attachments, attachment)
 			}
 		}
@@ -110,11 +132,11 @@ func requestAttachments(root map[string]any, format sdktranslator.Format) ([]req
 	if format == sdktranslator.FormatOpenAIResponse {
 		for _, rawItem := range arrayValue(root["input"]) {
 			item := objectValue(rawItem)
-			if err := visit(item["content"]); err != nil {
+			if err := visit(item["content"], false); err != nil {
 				return nil, err
 			}
 			if typ := stringValue(item["type"]); typ == "function_call_output" || typ == "custom_tool_call_output" {
-				if err := visit(item["output"]); err != nil {
+				if err := visit(item["output"], true); err != nil {
 					return nil, err
 				}
 			}
@@ -125,7 +147,7 @@ func requestAttachments(root map[string]any, format sdktranslator.Format) ([]req
 			if format == sdktranslator.FormatClaude && stringValue(message["role"]) == "system" {
 				continue
 			}
-			if err := visit(message["content"]); err != nil {
+			if err := visit(message["content"], false); err != nil {
 				return nil, err
 			}
 		}
@@ -143,21 +165,46 @@ func validateRequestAttachments(body []byte, from, to sdktranslator.Format) erro
 		return err
 	}
 	for _, attachment := range attachments {
+		unsupported := func(field string) error {
+			return &AttachmentConversionError{Source: from.String(), Destination: to.String(), Kind: attachment.sourceKind, Field: field}
+		}
+		if attachment.toolOutput && attachment.kind == "file" && to == sdktranslator.FormatOpenAI {
+			return unsupported("output")
+		}
+		if from == sdktranslator.FormatClaude && stringValue(objectValue(attachment.part["source"])["type"]) == "file" {
+			return unsupported("source.type")
+		}
+		dataField := "source.data"
+		if from == sdktranslator.FormatOpenAIResponse {
+			dataField = "file_data"
+			if attachment.kind == "image" {
+				dataField = "image_url"
+			}
+		} else if from == sdktranslator.FormatOpenAI {
+			dataField = "file.file_data"
+			if attachment.kind == "image" {
+				dataField = "image_url.url"
+			}
+		}
 		if attachment.kind == "image" {
+			detailField := "detail"
+			if from == sdktranslator.FormatOpenAI {
+				detailField = "image_url.detail"
+			}
 			fields := attachment.part
 			if from == sdktranslator.FormatOpenAI {
 				fields = objectValue(fields["image_url"])
-				if err := validateAttachmentFields(fields, "url", "detail"); err != nil {
-					return err
+				if field := unsupportedAttachmentField(fields, "url", "detail"); field != "" {
+					return unsupported("image_url." + field)
 				}
 			} else if from == sdktranslator.FormatOpenAIResponse {
-				if err := validateAttachmentFields(fields, "type", "image_url", "url", "detail", "cache_control"); err != nil {
-					return err
+				if field := unsupportedAttachmentField(fields, "type", "image_url", "url", "detail", "cache_control"); field != "" {
+					return unsupported(field)
 				}
 			}
 			if value, exists := fields["detail"]; exists && value != nil {
 				if _, ok := value.(string); !ok {
-					return fmt.Errorf("image detail must be a string")
+					return unsupported(detailField)
 				}
 			}
 			switch attachment.detail {
@@ -170,17 +217,17 @@ func validateRequestAttachments(body []byte, from, to sdktranslator.Format) erro
 					return &UnsupportedImageDetailError{Endpoint: EndpointChatCompletions, Detail: attachment.detail}
 				}
 			default:
-				return fmt.Errorf("image detail cannot be represented by the destination endpoint")
+				return unsupported(detailField)
 			}
 			if attachment.data == "" {
-				return fmt.Errorf("image attachment requires a URL or inline data")
+				return unsupported(dataField)
 			}
 			if to == sdktranslator.FormatClaude && attachment.detail != "" && attachment.detail != "auto" {
 				return &UnsupportedImageDetailError{Endpoint: EndpointMessages, Detail: attachment.detail}
 			}
 			if strings.HasPrefix(attachment.data, "data:") {
 				if _, err := inlineAttachmentData(attachment.data, "image/"); err != nil {
-					return err
+					return unsupported(dataField)
 				}
 			}
 			continue
@@ -189,32 +236,39 @@ func validateRequestAttachments(body []byte, from, to sdktranslator.Format) erro
 		allowed := []string{"type", "filename", "file_data", "cache_control"}
 		switch from {
 		case sdktranslator.FormatOpenAI:
-			if err := validateAttachmentFields(fields, "type", "file", "cache_control"); err != nil {
-				return err
+			if field := unsupportedAttachmentField(fields, "type", "file", "cache_control"); field != "" {
+				return unsupported(field)
 			}
 			fields = objectValue(fields["file"])
 			allowed = []string{"filename", "file_data"}
 		case sdktranslator.FormatClaude:
 			allowed = []string{"type", "source", "title", "cache_control"}
 			source := objectValue(fields["source"])
-			if err := validateAttachmentFields(source, "type", "media_type", "data", "url"); err != nil {
-				return err
+			if field := unsupportedAttachmentField(source, "type", "media_type", "data", "url"); field != "" {
+				return unsupported("source." + field)
 			}
 			if stringValue(source["type"]) == "url" && to == sdktranslator.FormatOpenAIResponse {
 				if attachment.data == "" {
-					return fmt.Errorf("document URL is empty")
+					return unsupported("source.url")
 				}
 			} else if stringValue(source["type"]) != "base64" {
-				return fmt.Errorf("document source cannot be represented by the destination endpoint")
+				return unsupported("source.type")
 			}
 		}
-		if err := validateAttachmentFields(fields, allowed...); err != nil {
-			return err
+		if field := unsupportedAttachmentField(fields, allowed...); field != "" {
+			if from == sdktranslator.FormatOpenAI {
+				field = "file." + field
+			}
+			return unsupported(field)
 		}
 		for _, name := range []string{"filename", "title"} {
 			if value, exists := fields[name]; exists && value != nil {
 				if _, ok := value.(string); !ok {
-					return fmt.Errorf("attachment filename must be a string")
+					field := name
+					if from == sdktranslator.FormatOpenAI {
+						field = "file." + name
+					}
+					return unsupported(field)
 				}
 			}
 		}
@@ -222,23 +276,37 @@ func validateRequestAttachments(body []byte, from, to sdktranslator.Format) erro
 			continue
 		}
 		if _, err := inlineAttachmentData(attachment.data, "application/pdf"); err != nil {
-			return err
+			return unsupported(dataField)
 		}
 	}
 	return nil
 }
 
-func validateAttachmentFields(part map[string]any, allowed ...string) error {
+func unsupportedAttachmentField(part map[string]any, allowed ...string) string {
+	knownFields := []string{"type", "source", "url", "image_url", "detail", "file", "file_data", "file_url", "file_id", "filename", "title", "media_type", "data", "cache_control"}
+	for _, field := range knownFields {
+		value, present := part[field]
+		if !present || !hasMeaningfulValue(value) {
+			continue
+		}
+		permitted := false
+		for _, name := range allowed {
+			permitted = permitted || field == name
+		}
+		if !permitted {
+			return field
+		}
+	}
 	for key, value := range part {
 		known := false
-		for _, name := range allowed {
+		for _, name := range knownFields {
 			known = known || key == name
 		}
 		if !known && hasMeaningfulValue(value) {
-			return fmt.Errorf("attachment field %q cannot be represented by the destination endpoint", key)
+			return "additional_fields"
 		}
 	}
-	return nil
+	return ""
 }
 
 func inlineAttachmentData(data, mediaType string) ([]byte, error) {

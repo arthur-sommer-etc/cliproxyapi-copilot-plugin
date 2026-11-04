@@ -240,3 +240,39 @@ func requestContainsImageDetail(body []byte, detail string) bool {
 	}
 	return false
 }
+
+func TestUnsupportedAttachmentStopsInferenceForBothExecutorModes(t *testing.T) {
+	for _, streaming := range []bool{false, true} {
+		t.Run(fmt.Sprintf("stream_%t", streaming), func(t *testing.T) {
+			model := capturedCopilotModel(t, "claude-haiku-5.5")
+			host := newAttachmentRoutingExecutorHost()
+			service, storage, _ := serviceWithCachedModels(t, []upstreamModel{model})
+			service.host = host
+			service.config.ModelEndpointOverrides[model.ID] = translate.EndpointMessages
+			storage = continuityTestStorage(storage.GitHubAccessToken)
+			storage.Type = providerID
+			storageJSON, err := marshalStorage(storage)
+			if err != nil {
+				t.Fatal(err)
+			}
+			payload := []byte(`{"input":[{"role":"user","content":[{"type":"input_file","file_data":"data:application/pdf;base64,YQ==","SYNTHETIC_SECRET":"value"}]}]}`)
+			request := ExecuteRequest{ExecutorRequest: pluginapi.ExecutorRequest{AuthID: "auth", SourceFormat: "openai-response", Model: model.ID, Payload: payload, OriginalRequest: append([]byte(nil), payload...), StorageJSON: storageJSON}, StreamID: "attachment-routing-output"}
+			if streaming {
+				_, err = service.ExecuteStream(context.Background(), request)
+			} else {
+				_, err = service.Execute(context.Background(), request)
+			}
+			statusErr, ok := err.(*StatusError)
+			if !ok || statusErr.Code != "unsupported_attachment" || statusErr.HTTPStatus != http.StatusUnprocessableEntity {
+				t.Fatalf("error = %#v, want 422 unsupported_attachment", err)
+			}
+			if strings.Contains(statusErr.Message, "SYNTHETIC_SECRET") {
+				t.Fatal("error exposed an arbitrary request key")
+			}
+			requests, streamRequest := host.snapshots()
+			if len(requests) != 0 || streamRequest.URL != "" {
+				t.Fatal("unsupported attachment reached inference")
+			}
+		})
+	}
+}

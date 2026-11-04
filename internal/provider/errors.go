@@ -43,6 +43,9 @@ func translationStatusError(err error) error {
 	if errors.As(err, &imageDetailErr) {
 		return statusError("unsupported_image_detail", imageDetailErr.Error(), http.StatusUnprocessableEntity)
 	}
+	if errors.Is(err, translate.ErrAttachmentConversion) {
+		return statusError("unsupported_attachment", err.Error(), http.StatusUnprocessableEntity)
+	}
 	return statusError("translation_error", err.Error(), http.StatusUnprocessableEntity)
 }
 

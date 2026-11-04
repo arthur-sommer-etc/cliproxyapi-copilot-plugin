@@ -583,3 +583,48 @@ func TestOrphanToolResultMarkerDoesNotCollideWithEscapedInput(t *testing.T) {
 		t.Fatalf("orphan tool result call ID = %q, want call_orphan", got)
 	}
 }
+
+func TestAttachmentConversionErrorsIdentifyUnsupportedFieldsWithoutRequestData(t *testing.T) {
+	for _, tc := range []struct {
+		name, source, endpoint, body, destination, kind, field string
+	}{
+		{"Chat image detail type", "openai", EndpointMessages, `{"messages":[{"role":"user","content":[{"type":"image_url","image_url":{"url":"https://example.invalid/image.png","detail":5}}]}]}`, "claude", "image_url", "image_url.detail"},
+		{"Chat filename type", "openai", EndpointMessages, `{"messages":[{"role":"user","content":[{"type":"file","file":{"file_data":"data:application/pdf;base64,YQ==","filename":5}}]}]}`, "claude", "file", "file.filename"},
+		{"uploaded document", "claude", EndpointResponses, `{"messages":[{"role":"user","content":[{"type":"document","source":{"type":"file","file_id":"SYNTHETIC_SECRET"}}]}]}`, "openai-response", "document", "source.type"},
+		{"unknown file metadata", "openai-response", EndpointMessages, `{"input":[{"role":"user","content":[{"type":"input_file","file_data":"data:application/pdf;base64,YQ==","SYNTHETIC_SECRET":"value"}]}]}`, "claude", "input_file", "additional_fields"},
+		{"Responses file ID", "openai-response", EndpointMessages, `{"input":[{"role":"user","content":[{"type":"input_file","file_id":"SYNTHETIC_SECRET"}]}]}`, "claude", "input_file", "file_id"},
+		{"Responses file URL", "openai-response", EndpointMessages, `{"input":[{"role":"user","content":[{"type":"input_file","file_url":"https://example.invalid/document.pdf"}]}]}`, "claude", "input_file", "file_url"},
+		{"tool output PDF", "openai-response", EndpointChatCompletions, `{"input":[{"type":"function_call_output","call_id":"call_1","output":[{"type":"input_file","file_data":"data:application/pdf;base64,YQ=="}]}]}`, "openai", "input_file", "output"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			for _, streaming := range []bool{false, true} {
+				_, err := RequestForEndpointFrom(tc.source, "model", []byte(tc.body), streaming, tc.endpoint)
+				var attachmentErr *AttachmentConversionError
+				if !errors.Is(err, ErrAttachmentConversion) || !errors.As(err, &attachmentErr) {
+					t.Fatalf("stream=%t: error = %v, want typed attachment conversion error", streaming, err)
+				}
+				if attachmentErr.Source != tc.source || attachmentErr.Destination != tc.destination || attachmentErr.Kind != tc.kind || attachmentErr.Field != tc.field {
+					t.Fatalf("stream=%t: unexpected attachment context: %#v", streaming, attachmentErr)
+				}
+				if strings.Contains(err.Error(), "SYNTHETIC_SECRET") {
+					t.Fatal("error exposed an arbitrary request key or value")
+				}
+			}
+		})
+	}
+}
+
+func TestResponsesToChatPreservesVideoAlongsideImage(t *testing.T) {
+	body := []byte(`{"input":[{"role":"user","content":[{"type":"input_video","video_url":"https://example.invalid/clip.mp4","processing":"agentic"},{"type":"input_image","image_url":"https://example.invalid/frame.png","detail":"low"}]}]}`)
+	for _, streaming := range []bool{false, true} {
+		out, err := RequestForEndpointFrom("openai-response", "model", body, streaming, EndpointChatCompletions)
+		if err != nil {
+			t.Fatalf("stream=%t: %v", streaming, err)
+		}
+		video := gjson.GetBytes(out, "messages.0.content.0")
+		image := gjson.GetBytes(out, "messages.0.content.1")
+		if video.Get("type").String() != "video_url" || video.Get("video_url.url").String() != "https://example.invalid/clip.mp4" || video.Get("video_url.processing").String() != "agentic" || image.Get("type").String() != "image_url" || image.Get("image_url.url").String() != "https://example.invalid/frame.png" || image.Get("image_url.detail").String() != "low" {
+			t.Fatalf("stream=%t: video or image changed: %s", streaming, out)
+		}
+	}
+}

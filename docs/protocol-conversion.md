@@ -74,7 +74,10 @@ For some unsupported nonempty attachment shapes and image detail covered by its 
 It cannot infer file bytes or reconstruct media that the original client never supplied.
 
 Provider errors expose structured code, message, HTTP status and retryability.
-Unsupported image detail maps to HTTP 422 `unsupported_image_detail`; other request conversion failures map to HTTP 422 `translation_error`.
+Unsupported image detail maps to HTTP 422 `unsupported_image_detail`; attachment conversion errors detected by preflight map to HTTP 422 `unsupported_attachment` and identify the source format, destination format, attachment kind and field.
+Unknown extra field names are reported as `additional_fields` without exposing the supplied names or values.
+Other request conversion failures map to HTTP 422 `translation_error`.
+Attachment preflight examines the host payload; it cannot detect an attachment already removed by the host before this plugin receives that payload.
 Response translation failures can return HTTP 502.
 Upstream HTTP status is retained, and client-visible errors suppress provider response text except for fixed safe classifications.
 Upstream errors mark 408, 429 and 5xx responses as retryable; this does not promise a successful retry.
