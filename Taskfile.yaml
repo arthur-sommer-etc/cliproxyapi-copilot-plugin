@@ -101,4 +101,5 @@ tasks:
   clean:
     desc: Remove build artifacts and caches
     cmds:
+      - if [ ! -L .cache ] && [ ! -L .cache/go-mod ] && [ -d .cache/go-mod ]; then chmod -R u+w .cache/go-mod; fi
       - rm -rf build dist .cache

@@ -221,6 +221,93 @@ func TestTaskNativeHostDarwinBuildsForHostArchitecture(t *testing.T) {
 	}
 }
 
+func TestTaskCleanRemovesReadOnlyModuleCache(t *testing.T) {
+	fixture := newNativeHostSourceTaskFixture(t)
+	moduleDir := filepath.Join(fixture.repo, ".cache", "go-mod", "example.test", "module@v1.0.0")
+	for _, dir := range []string{filepath.Join(fixture.repo, "build"), filepath.Join(fixture.repo, "dist"), moduleDir} {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatalf("create cleanup fixture: %v", err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "fixture"), []byte("data"), 0o444); err != nil {
+			t.Fatalf("write cleanup fixture: %v", err)
+		}
+	}
+	if err := os.Chmod(moduleDir, 0o555); err != nil {
+		t.Fatalf("make module cache directory read-only: %v", err)
+	}
+	result := fixture.runTask(t, "clean", "")
+	if result.ExitCode != 0 {
+		t.Fatalf("task clean failed: %s", result.Output)
+	}
+	for _, name := range []string{"build", "dist", ".cache"} {
+		if _, err := os.Stat(filepath.Join(fixture.repo, name)); !os.IsNotExist(err) {
+			t.Errorf("task clean left %s; stat error: %v", name, err)
+		}
+	}
+}
+
+func TestTaskCleanDoesNotFollowCacheRootSymlinks(t *testing.T) {
+	for _, link := range []string{".cache", filepath.Join(".cache", "go-mod")} {
+		t.Run(link, func(t *testing.T) {
+			fixture := newNativeHostSourceTaskFixture(t)
+			outside := filepath.Join(fixture.root, "outside cache")
+			if err := os.MkdirAll(outside, 0o755); err != nil {
+				t.Fatalf("create outside cache: %v", err)
+			}
+			cacheDir := outside
+			if link == ".cache" {
+				cacheDir = filepath.Join(outside, "go-mod")
+			}
+			nested := filepath.Join(cacheDir, "nested module")
+			if err := os.MkdirAll(nested, 0o755); err != nil {
+				t.Fatalf("create outside module cache: %v", err)
+			}
+			file := filepath.Join(nested, "fixture")
+			if err := os.WriteFile(file, []byte("outside data"), 0o444); err != nil {
+				t.Fatalf("write outside cache fixture: %v", err)
+			}
+			if err := os.Chmod(file, 0o444); err != nil {
+				t.Fatalf("set outside file permissions: %v", err)
+			}
+			for _, dir := range []string{outside, cacheDir, nested} {
+				if err := os.Chmod(dir, 0o555); err != nil {
+					t.Fatalf("make outside cache read-only: %v", err)
+				}
+			}
+			t.Cleanup(func() {
+				_ = os.Chmod(outside, 0o755)
+				_ = os.Chmod(cacheDir, 0o755)
+				_ = os.Chmod(nested, 0o755)
+			})
+			linkPath := filepath.Join(fixture.repo, link)
+			if err := os.MkdirAll(filepath.Dir(linkPath), 0o755); err != nil {
+				t.Fatalf("create cache link parent: %v", err)
+			}
+			if err := os.Symlink(outside, linkPath); err != nil {
+				t.Fatalf("create cache symlink: %v", err)
+			}
+			result := fixture.runTask(t, "clean", "")
+			if result.ExitCode != 0 {
+				t.Fatalf("task clean failed: %s", result.Output)
+			}
+			if _, err := os.Lstat(linkPath); !os.IsNotExist(err) {
+				t.Errorf("task clean left cache link %s; stat error: %v", link, err)
+			}
+			for _, dir := range []string{outside, cacheDir, nested} {
+				if info, err := os.Stat(dir); err != nil || info.Mode().Perm() != 0o555 {
+					t.Errorf("outside directory %s permissions changed: info=%v error=%v", dir, info, err)
+				}
+			}
+			if info, err := os.Stat(file); err != nil || info.Mode().Perm() != 0o444 {
+				t.Errorf("outside file permissions changed: info=%v error=%v", info, err)
+			}
+			if got, err := os.ReadFile(file); err != nil || string(got) != "outside data" {
+				t.Errorf("outside file content changed: %q, error %v", got, err)
+			}
+		})
+	}
+}
+
 type nativeHostSourceTaskFixture struct {
 	root                  string
 	system                string
