@@ -19,11 +19,7 @@
         "other *_id string fields"
       ],
       "claude_tool_id_carriers": "Canonical cpa_tool_v1_ carriers retain their format while embedded item and call IDs are replaced using the same global deterministic ID map as their standalone fields.",
-      "ciphertext": [
-        "encrypted_content",
-        "encrypted_index",
-        "signature"
-      ],
+      "ciphertext": ["encrypted_content", "encrypted_index", "signature"],
       "private_paths": "Absolute private paths and exact occurrences inside JSON strings become deterministic /fixture/private-path-NNN.ext sentinels; longest known full paths are replaced before their directory prefixes.",
       "identity": [
         "account_uuid",
@@ -33,10 +29,7 @@
         "user_id",
         "account_id"
       ],
-      "cache_and_safety": [
-        "prompt_cache_key",
-        "safety_identifier"
-      ]
+      "cache_and_safety": ["prompt_cache_key", "safety_identifier"]
     },
     "replacement_rule": "Replacements keep each JSON key and string type. Equal opaque IDs, ciphertext values, cache/safety values, identity values, and path strings reuse deterministic sentinels across all eight bodies, preserving cross-request/event correlation. Known Claude tool-ID carriers preserve their canonical wrapper and correlated embedded IDs.",
     "image_note": "The actual PNG base64 payload is preserved unchanged; tests compare the SHA-256 of its decoded bytes across the Messages tool_result and Responses function_call_output.",

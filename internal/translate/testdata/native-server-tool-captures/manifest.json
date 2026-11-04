@@ -12,14 +12,8 @@
         "previous_response_id",
         "container.id"
       ],
-      "persistent_identity_fields": [
-        "prompt_cache_key",
-        "safety_identifier"
-      ],
-      "opaque_ciphertext_fields": [
-        "encrypted_content",
-        "encrypted_index"
-      ]
+      "persistent_identity_fields": ["prompt_cache_key", "safety_identifier"],
+      "opaque_ciphertext_fields": ["encrypted_content", "encrypted_index"]
     },
     "replacement_rule": "Replacements retain the original JSON type and field name. Repeated original values reuse the same deterministic sentinel within a capture; correlated Claude server-tool IDs therefore remain equal.",
     "ciphertext_note": "Encrypted sentinels are fixture-only shape placeholders, not provider replay tokens or continuation credentials.",

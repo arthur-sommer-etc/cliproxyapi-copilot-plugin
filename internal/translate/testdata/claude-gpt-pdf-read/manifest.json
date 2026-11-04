@@ -20,10 +20,7 @@
         "user_id",
         "account_id"
       ],
-      "cache_and_safety": [
-        "prompt_cache_key",
-        "safety_identifier"
-      ]
+      "cache_and_safety": ["prompt_cache_key", "safety_identifier"]
     },
     "replacement_rule": "Each replacement preserves key, position, and string type. Equal source values map to equal sentinels across all cases and body contexts. Nested serialized JSON argument strings replace only the exact path substring.",
     "media_note": "Actual captured JPEG payload bytes and all other non-private body values remain intact; decoded hashes are checked across original tool_result and Responses function output.",

@@ -112,10 +112,7 @@
           },
           "mode": {
             "description": "Execution mode: \"sync\" runs synchronously and waits for completion (default), \"async\" runs in the background. You can read output from \"async\" commands using the `read_bash` tool.",
-            "enum": [
-              "sync",
-              "async"
-            ],
+            "enum": ["sync", "async"],
             "type": "string"
           },
           "shellId": {
@@ -123,10 +120,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "command",
-          "description"
-        ],
+        "required": ["command", "description"],
         "type": "object"
       },
       "strict": false,
@@ -147,10 +141,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "shellId",
-          "delay"
-        ],
+        "required": ["shellId", "delay"],
         "type": "object"
       },
       "strict": false,
@@ -167,9 +158,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "shellId"
-        ],
+        "required": ["shellId"],
         "type": "object"
       },
       "strict": false,
@@ -209,9 +198,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "path"
-        ],
+        "required": ["path"],
         "type": "object"
       },
       "strict": false,
@@ -240,9 +227,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "url"
-        ],
+        "required": ["url"],
         "type": "object"
       },
       "strict": false,
@@ -264,16 +249,11 @@
           },
           "thoroughness": {
             "description": "Search thoroughness. 'deep' doubles the search budget for broader, more exhaustive results. Defaults to 'normal'.",
-            "enum": [
-              "normal",
-              "deep"
-            ],
+            "enum": ["normal", "deep"],
             "type": "string"
           }
         },
-        "required": [
-          "query"
-        ],
+        "required": ["query"],
         "type": "object"
       },
       "strict": false,
@@ -287,10 +267,7 @@
         "properties": {
           "args": {
             "description": "Arguments supplied to the workflow as ctx.args. Send a JSON object, or null when the workflow takes no arguments, and never JSON-encoded text. A workflow may declare an argument shape; when present, arguments are validated against its structure -- types, required properties, and enum or const values -- and a mismatch fails the call. Finer constraints such as minLength, pattern, or additionalProperties are recorded in the declaration but not enforced. Use dynamic_workflows_manage inspect to read the declared shape when one is available.",
-            "type": [
-              "object",
-              "null"
-            ]
+            "type": ["object", "null"]
           },
           "limits": {
             "additionalProperties": false,
@@ -298,31 +275,19 @@
             "properties": {
               "maxAiCredits": {
                 "description": "Maximum AI credits consumed by subagents and descendants. This is a post-paid soft ceiling.\n\n{exclusiveMinimum: 0}",
-                "type": [
-                  "number",
-                  "null"
-                ]
+                "type": ["number", "null"]
               },
               "maxConcurrentSubagents": {
                 "description": "{minimum: 1}",
-                "type": [
-                  "integer",
-                  "null"
-                ]
+                "type": ["integer", "null"]
               },
               "maxTotalSubagents": {
                 "description": "{minimum: 1}",
-                "type": [
-                  "integer",
-                  "null"
-                ]
+                "type": ["integer", "null"]
               },
               "timeoutSeconds": {
                 "description": "Maximum accumulated active-execution time in seconds.\n\n{maximum: 2147483.647, exclusiveMinimum: 0}",
-                "type": [
-                  "number",
-                  "null"
-                ]
+                "type": ["number", "null"]
               }
             },
             "type": "object"
@@ -404,19 +369,13 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "title"
-                  ],
+                  "required": ["title"],
                   "type": "object"
                 },
                 "type": "array"
               }
             },
-            "required": [
-              "name",
-              "description",
-              "phases"
-            ],
+            "required": ["name", "description", "phases"],
             "type": "object"
           },
           "name": {
@@ -444,9 +403,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "operation"
-        ],
+        "required": ["operation"],
         "type": "object"
       },
       "strict": false,
@@ -461,10 +418,7 @@
           "database": {
             "default": "session",
             "description": "Which database to query. \"session\" (default) is the per-session database for task tracking. \"session_store\" is the global read-only database containing cross-session history, files, refs, and FTS5 search.",
-            "enum": [
-              "session",
-              "session_store"
-            ],
+            "enum": ["session", "session_store"],
             "type": "string"
           },
           "description": {
@@ -476,10 +430,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "description",
-          "query"
-        ],
+        "required": ["description", "query"],
         "type": "object"
       },
       "strict": false,
@@ -508,9 +459,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "agent_id"
-        ],
+        "required": ["agent_id"],
         "type": "object"
       },
       "strict": false,
@@ -528,11 +477,7 @@
           },
           "scope": {
             "description": "Visibility: omit for nearby; siblings=peers, children=descendants, all=read-only visible-tree inspection.",
-            "enum": [
-              "siblings",
-              "children",
-              "all"
-            ],
+            "enum": ["siblings", "children", "all"],
             "type": "string"
           }
         },
@@ -565,16 +510,11 @@
           },
           "scope": {
             "description": "Visible agent group to send the same message to. Use only for same-message coordination with all current sibling agents or child/descendant agents.",
-            "enum": [
-              "siblings",
-              "children"
-            ],
+            "enum": ["siblings", "children"],
             "type": "string"
           }
         },
-        "required": [
-          "message"
-        ],
+        "required": ["message"],
         "type": "object"
       },
       "strict": false,
@@ -620,11 +560,7 @@
           },
           "output_mode": {
             "description": "Output: matching lines (content, with context/line-number options), matching file paths (files_with_matches, default), or per-file counts (count).",
-            "enum": [
-              "content",
-              "files_with_matches",
-              "count"
-            ],
+            "enum": ["content", "files_with_matches", "count"],
             "type": "string"
           },
           "paths": {
@@ -650,9 +586,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "pattern"
-        ],
+        "required": ["pattern"],
         "type": "object"
       },
       "strict": false,
@@ -683,9 +617,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "pattern"
-        ],
+        "required": ["pattern"],
         "type": "object"
       },
       "strict": false,
@@ -711,10 +643,7 @@
           },
           "context_tier": {
             "description": "Optional context tier override. Specify a value only when the user's current request or applicable persistent custom instructions (including global instructions) explicitly require that value for the subagent. Do not reuse values from earlier requests or infer unspecified values from the parent configuration. The runtime resolves `/subagents` preferences when these fields are omitted; do not copy them merely because they appear in `<subagent_model_preferences>`.",
-            "enum": [
-              "default",
-              "long_context"
-            ],
+            "enum": ["default", "long_context"],
             "type": "string"
           },
           "description": {
@@ -723,10 +652,7 @@
           },
           "mode": {
             "description": "sync waits; background returns immediately. Await results before use.",
-            "enum": [
-              "sync",
-              "background"
-            ],
+            "enum": ["sync", "background"],
             "type": "string"
           },
           "model": {
@@ -766,12 +692,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "prompt",
-          "agent_type",
-          "description"
-        ],
+        "required": ["name", "prompt", "agent_type", "description"],
         "type": "object"
       },
       "strict": false,
