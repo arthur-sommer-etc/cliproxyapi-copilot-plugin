@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 
 	sdktranslator "github.com/router-for-me/CLIProxyAPI/v8/sdk/translator"
@@ -317,7 +318,7 @@ func restoreResponsesRequestCitations(body []byte, citations map[string]json.Raw
 		return nil, fmt.Errorf("translated Messages citations have no message list")
 	}
 	seen := make(map[string]int, len(citations))
-	for _, rawMessage := range messages {
+	for rawMessage := range slices.Values(messages) {
 		message, ok := rawMessage.(map[string]any)
 		if !ok || stringValue(message["role"]) != "assistant" {
 			continue
@@ -327,7 +328,7 @@ func restoreResponsesRequestCitations(body []byte, citations map[string]json.Raw
 			continue
 		}
 		restored := make([]any, 0, len(content))
-		for _, rawBlock := range content {
+		for rawBlock := range slices.Values(content) {
 			block, ok := rawBlock.(map[string]any)
 			if !ok || stringValue(block["type"]) != "text" {
 				restored = append(restored, rawBlock)
@@ -422,7 +423,7 @@ func responsesClaudeToolPayloadFromItem(item gjson.Result) (responsesClaudeToolP
 		callID = itemID
 	}
 	carrierCallID := ""
-	for _, field := range []string{"call_id", "tool_call_id", "callId"} {
+	for field := range slices.Values([]string{"call_id", "tool_call_id", "callId"}) {
 		value := item.Get(field)
 		if value.Type == gjson.String && strings.TrimSpace(value.String()) != "" {
 			carrierCallID = value.String()
@@ -465,7 +466,7 @@ func unwrapClaudeToolIDCarrier(itemID, value string) (string, bool, error) {
 }
 
 func responsesRequestItemCallID(item gjson.Result) string {
-	for _, field := range []string{"call_id", "tool_call_id", "callId"} {
+	for field := range slices.Values([]string{"call_id", "tool_call_id", "callId"}) {
 		value := item.Get(field)
 		if value.Type == gjson.String && strings.TrimSpace(value.String()) != "" {
 			return strings.TrimSpace(value.String())

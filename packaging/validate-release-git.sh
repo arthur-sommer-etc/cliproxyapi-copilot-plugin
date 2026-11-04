@@ -1,5 +1,5 @@
-#!/bin/sh
-set -eu
+#!/usr/bin/env sh
+set -e
 
 tag=${RELEASE_TAG:?RELEASE_TAG is required}
 case "$tag" in

@@ -3,6 +3,7 @@ package translate
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -72,7 +73,7 @@ func prepareResponsesChatCitations(body []byte) ([]byte, string, []responsesChat
 			if annotations.IsArray() {
 				annotationItems = annotations.Array()
 			}
-			for _, annotation := range annotationItems {
+			for annotation := range slices.Values(annotationItems) {
 				object, err := decodeObject([]byte(annotation.Raw))
 				if err != nil {
 					return nil, "", nil, fmt.Errorf("decode Responses URL citation")
@@ -121,7 +122,7 @@ func restoreResponsesChatCitations(chatResponse []byte, expectedText string, cit
 		return nil, fmt.Errorf("Chat conversion produced conflicting message annotations")
 	}
 	annotations := make([]map[string]any, 0, len(citations))
-	for _, citation := range citations {
+	for citation := range slices.Values(citations) {
 		annotations = append(annotations, map[string]any{
 			"type": "url_citation",
 			"url_citation": map[string]any{

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
+	"slices"
 	"strings"
 
 	sdktranslator "github.com/router-for-me/CLIProxyAPI/v8/sdk/translator"
@@ -106,7 +108,7 @@ func (s *claudeHostedSearchStreamState) restoreTextParts(sourceEvent string, sou
 	part := map[string]any{"type": "output_text", "text": rawStringValue(block["text"]), "annotations": append([]any{}, arrayValue(block["citations"])...)}
 	var payloads []map[string]any
 	partAdded := false
-	for _, frame := range frames {
+	for frame := range slices.Values(frames) {
 		event, data, done, err := parseSSEFrame(frame)
 		if err != nil {
 			return nil, err
@@ -158,7 +160,7 @@ func (s *claudeHostedSearchStreamState) restoreTextParts(sourceEvent string, sou
 		}
 	}
 	var out [][]byte
-	for _, payload := range payloads {
+	for payload := range slices.Values(payloads) {
 		s.Sequence++
 		payload["sequence_number"] = s.Sequence
 		encoded, err := json.Marshal(payload)
@@ -413,7 +415,7 @@ func (s *claudeHostedSearchStreamState) observe(event string, data []byte, done 
 		if s.PendingResult != "" {
 			return fmt.Errorf("Claude web search call has no result")
 		}
-		for _, call := range s.Searches {
+		for call := range maps.Values(s.Searches) {
 			if !call.CallStopped || !call.ResultStopped || call.Query == "" {
 				return fmt.Errorf("Claude web search call/result pair is incomplete")
 			}

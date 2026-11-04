@@ -8,6 +8,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"maps"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -152,13 +154,13 @@ func findClaudeCarrier(value any) bool {
 		if rawStringValue(current["type"]) == "thinking" && strings.HasPrefix(rawStringValue(current["signature"]), copilotOpaquePrefix) {
 			return true
 		}
-		for _, nested := range current {
+		for nested := range maps.Values(current) {
 			if findClaudeCarrier(nested) {
 				return true
 			}
 		}
 	case []any:
-		for _, nested := range current {
+		for nested := range slices.Values(current) {
 			if findClaudeCarrier(nested) {
 				return true
 			}
@@ -178,13 +180,13 @@ func findResponsesCarrier(value any) bool {
 		if rawStringValue(current["type"]) == "reasoning" && strings.HasPrefix(rawStringValue(current["encrypted_content"]), copilotOpaquePrefix) {
 			return true
 		}
-		for _, nested := range current {
+		for nested := range maps.Values(current) {
 			if findResponsesCarrier(nested) {
 				return true
 			}
 		}
 	case []any:
-		for _, nested := range current {
+		for nested := range slices.Values(current) {
 			if findResponsesCarrier(nested) {
 				return true
 			}
@@ -202,7 +204,7 @@ func copilotOpaqueFromChatResponse(response, request []byte, model string) (stri
 	var thinking *string
 	var anchor copilotOpaqueAnchor
 	found := false
-	for _, choice := range choices.Array() {
+	for choice := range slices.Values(choices.Array()) {
 		message := choice.Get("message")
 		field := message.Get("reasoning_opaque")
 		text := message.Get("reasoning_text")
@@ -498,7 +500,7 @@ func chatContentFingerprint(content gjson.Result) (string, bool) {
 		return "", false
 	}
 	var text strings.Builder
-	for _, part := range content.Array() {
+	for part := range slices.Values(content.Array()) {
 		typeName := part.Get("type").String()
 		if typeName != "text" && typeName != "input_text" && typeName != "output_text" {
 			return "", false
@@ -529,7 +531,7 @@ func priorChatUserFingerprint(request []byte) string {
 		return ""
 	}
 	var last string
-	for _, message := range messages.Array() {
+	for message := range slices.Values(messages.Array()) {
 		if message.Get("role").String() != "user" {
 			continue
 		}
@@ -576,14 +578,14 @@ func copyResponsesCacheControls(chatRequest, responsesRequest []byte) ([]byte, e
 	messages := gjson.GetBytes(chatRequest, "messages")
 	if inputs.IsArray() && messages.IsArray() {
 		messageIndex, contentIndex := 0, 0
-		for _, input := range inputs.Array() {
+		for input := range slices.Values(inputs.Array()) {
 			switch input.Get("type").String() {
 			case "message":
 				contents := input.Get("content")
 				if !contents.IsArray() {
 					continue
 				}
-				for _, content := range contents.Array() {
+				for content := range slices.Values(contents.Array()) {
 					cacheControl := content.Get("cache_control")
 					if !cacheControl.Exists() {
 						continue
@@ -644,7 +646,7 @@ func copyResponsesCacheControls(chatRequest, responsesRequest []byte) ([]byte, e
 	tools := gjson.GetBytes(responsesRequest, "tools")
 	chatTools := gjson.GetBytes(chatRequest, "tools")
 	if tools.IsArray() {
-		for _, tool := range tools.Array() {
+		for tool := range slices.Values(tools.Array()) {
 			cacheControl := tool.Get("cache_control")
 			if !cacheControl.Exists() {
 				continue
@@ -679,7 +681,7 @@ func restoreCopilotOpaqueToChat(chatRequest, responsesRequest []byte, model stri
 	values := make([]copilotOpaqueValue, 0)
 	priorUser := ""
 	var priorUserItem gjson.Result
-	for _, item := range items.Array() {
+	for item := range slices.Values(items.Array()) {
 		if item.Get("role").String() == "user" {
 			priorUserItem = item
 			priorUser, _ = chatUserContentFingerprint(item.Get("content"))
@@ -729,7 +731,7 @@ func restoreCopilotOpaqueToChat(chatRequest, responsesRequest []byte, model stri
 	}
 	groups := make(map[string][]copilotOpaqueValue)
 	order := make([]string, 0)
-	for _, value := range values {
+	for value := range slices.Values(values) {
 		anchorJSON, _ := json.Marshal(value.Anchor)
 		key := string(anchorJSON)
 		if _, exists := groups[key]; !exists {
@@ -739,10 +741,10 @@ func restoreCopilotOpaqueToChat(chatRequest, responsesRequest []byte, model stri
 	}
 	messages := make([][]byte, 0, len(gjson.GetBytes(chatRequest, "messages").Array())+len(groups))
 	messageResults := gjson.GetBytes(chatRequest, "messages").Array()
-	for _, message := range messageResults {
+	for message := range slices.Values(messageResults) {
 		messages = append(messages, []byte(message.Raw))
 	}
-	for _, key := range order {
+	for key := range slices.Values(order) {
 		group := groups[key]
 		if len(group) != 1 {
 			return nil, fmt.Errorf("multiple Copilot opaque reasoning items share one assistant anchor")
@@ -816,7 +818,7 @@ func validateCopilotThinkingSummary(item gjson.Result, expected string) error {
 		return fmt.Errorf("Copilot reasoning text does not match its carrier")
 	}
 	var text strings.Builder
-	for _, part := range summary.Array() {
+	for part := range slices.Values(summary.Array()) {
 		value := part.Get("text")
 		if !part.IsObject() || part.Get("type").String() != "summary_text" || value.Type != gjson.String || !jsonHasSafeStrings(value.Raw) {
 			return fmt.Errorf("Copilot reasoning text does not match its carrier")
@@ -998,7 +1000,7 @@ func responsesOpaqueCarriers(body []byte, model string) ([]copilotOpaqueValue, e
 		return nil, nil
 	}
 	var values []copilotOpaqueValue
-	for _, item := range items.Array() {
+	for item := range slices.Values(items.Array()) {
 		if item.Get("type").String() != "reasoning" {
 			continue
 		}
@@ -1035,7 +1037,7 @@ func chatResponseOpaqueFromSSE(frame, request []byte, model string) (string, boo
 	}
 	var raw []byte
 	var anchor copilotOpaqueAnchor
-	for _, choice := range choices.Array() {
+	for choice := range slices.Values(choices.Array()) {
 		field := choice.Get("delta.reasoning_opaque")
 		if !field.Exists() {
 			field = choice.Get("message.reasoning_opaque")
@@ -1089,7 +1091,7 @@ func (s *chatOpaqueStreamState) observe(frame, request []byte, model string) err
 	if !choices.IsArray() {
 		return nil
 	}
-	for _, choice := range choices.Array() {
+	for choice := range slices.Values(choices.Array()) {
 		message := choice.Get("message")
 		delta := choice.Get("delta")
 		if choice.Get("index").Int() != 0 {
@@ -1245,7 +1247,7 @@ func (s *chatOpaqueStreamState) carrier(request []byte, model string) (string, b
 	}
 	sort.Ints(indices)
 	calls := make([]any, 0, len(indices))
-	for _, index := range indices {
+	for index := range slices.Values(indices) {
 		tool := s.Tools[index]
 		if tool.ID == "" {
 			continue
@@ -1281,7 +1283,7 @@ func (s *chatOpaqueStreamState) carrier(request []byte, model string) (string, b
 func chatToResponsesStream(ctx context.Context, model string, original, translated, frame []byte, state *chatOpaqueStreamState) ([][]byte, error) {
 	out := registry.TranslateStream(ctx, sdktranslator.FormatOpenAI, sdktranslator.FormatOpenAIResponse, model, original, translated, frame, &state.Chat)
 	var translatedFrames [][]byte
-	for _, responseFrame := range out {
+	for responseFrame := range slices.Values(out) {
 		event, data, _, err := parseSSEFrame(responseFrame)
 		if err != nil {
 			return nil, err
@@ -1447,7 +1449,7 @@ func insertOpaqueReasoning(response []byte, carrier, model string) ([]byte, erro
 	}
 	items := make([][]byte, 0, len(output.Array())+1)
 	attached := false
-	for _, item := range output.Array() {
+	for item := range slices.Values(output.Array()) {
 		itemRaw := []byte(item.Raw)
 		if !attached && item.Get("type").String() == "reasoning" {
 			var err error

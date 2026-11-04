@@ -1,5 +1,5 @@
-#!/bin/sh
-set -eu
+#!/usr/bin/env sh
+set -e
 
 repo_dir=$(pwd -P)
 host_source_dir=

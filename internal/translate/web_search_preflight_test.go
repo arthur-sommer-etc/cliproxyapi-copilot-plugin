@@ -1,6 +1,7 @@
 package translate
 
 import (
+	"slices"
 	"strings"
 	"testing"
 
@@ -171,7 +172,6 @@ func TestResponsesNativeToolsRemainUntouchedAndNamedFunctionsRemainFunctions(t *
 	if got := gjson.GetBytes(translated, "tools").Raw; got != gjson.GetBytes(native, "tools").Raw {
 		t.Fatalf("native Responses tools changed from %s to %s", gjson.GetBytes(native, "tools").Raw, got)
 	}
-
 	functions := []byte(`{"input":"inspect","tools":[{"type":"function","name":"web_search","parameters":{"type":"object"}},{"type":"function","name":"image_generation","parameters":{"type":"object"}}],"tool_choice":{"type":"function","name":"web_search"}}`)
 	for _, test := range []struct {
 		endpoint string
@@ -185,7 +185,7 @@ func TestResponsesNativeToolsRemainUntouchedAndNamedFunctionsRemainFunctions(t *
 			t.Fatalf("translate named functions to %s: %v", test.endpoint, err)
 		}
 		toolNames := make(map[string]bool)
-		for _, tool := range gjson.GetBytes(converted, test.path).Array() {
+		for tool := range slices.Values(gjson.GetBytes(converted, test.path).Array()) {
 			name := tool.Get("name").String()
 			if name == "" {
 				name = tool.Get("function.name").String()

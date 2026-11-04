@@ -3,6 +3,7 @@ package translate
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 	"reflect"
 	"slices"
 	"strconv"
@@ -529,7 +530,7 @@ func (s *responsesClaudeStreamState) trackSearchItem(event string, payload map[s
 		if call != nil {
 			return fmt.Errorf("Copilot Responses search stream repeated an addition")
 		}
-		for _, previous := range s.SearchItems {
+		for previous := range maps.Values(s.SearchItems) {
 			if rawStringValue(previous.Added["id"]) == id {
 				return fmt.Errorf("Copilot Responses search stream reused an item ID")
 			}
@@ -615,7 +616,7 @@ func (s *responsesClaudeStreamState) validateTerminalText(items []any) error {
 		citations = append(citations, s.BufferedCitations[key]...)
 		contentIndex := strings.TrimPrefix(key, "item::content:")
 		matched := ""
-		for _, candidate := range terminalKeys {
+		for candidate := range slices.Values(terminalKeys) {
 			if contentIndex != "" && !strings.HasSuffix(candidate, ":content:"+contentIndex) {
 				continue
 			}
@@ -675,7 +676,7 @@ func (s *responsesClaudeStreamState) validateTerminalText(items []any) error {
 				return fmt.Errorf("Copilot Responses anonymous text cannot precede a terminal tool or reasoning item")
 			}
 		}
-		for _, candidate := range terminalKeys {
+		for candidate := range slices.Values(terminalKeys) {
 			if candidate == matched {
 				break
 			}
@@ -799,7 +800,7 @@ func (s *responsesClaudeStreamState) reconcileTextPart(key, text string, citatio
 
 func (s *responsesClaudeStreamState) textCitations(target *responsesClaudeBlock, citations []any) [][]byte {
 	var out [][]byte
-	for _, citation := range citations {
+	for citation := range slices.Values(citations) {
 		out = append(out, claudeSSE("content_block_delta", map[string]any{
 			"type":  "content_block_delta",
 			"index": target.Index,
@@ -965,7 +966,7 @@ func (s *responsesClaudeStreamState) finish(response map[string]any) [][]byte {
 func parseSSEFrame(frame []byte) (event string, data []byte, done bool, err error) {
 	normalized := strings.ReplaceAll(string(frame), "\r\n", "\n")
 	var dataLines []string
-	for _, line := range strings.Split(normalized, "\n") {
+	for line := range slices.Values(strings.Split(normalized, "\n")) {
 		switch {
 		case strings.HasPrefix(line, "event:"):
 			event = strings.TrimSpace(strings.TrimPrefix(line, "event:"))

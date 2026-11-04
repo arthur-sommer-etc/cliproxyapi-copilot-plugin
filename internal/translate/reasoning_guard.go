@@ -2,6 +2,8 @@ package translate
 
 import (
 	"fmt"
+	"maps"
+	"slices"
 	"strings"
 
 	sdktranslator "github.com/router-for-me/CLIProxyAPI/v8/sdk/translator"
@@ -79,13 +81,13 @@ func containsClaudeOpaqueValue(value any) bool {
 				return true
 			}
 		}
-		for _, nested := range current {
+		for nested := range maps.Values(current) {
 			if containsClaudeOpaqueValue(nested) {
 				return true
 			}
 		}
 	case []any:
-		for _, nested := range current {
+		for nested := range slices.Values(current) {
 			if containsClaudeOpaqueValue(nested) {
 				return true
 			}
@@ -112,13 +114,13 @@ func containsForeignResponsesOpaqueValue(value any) bool {
 				return true
 			}
 		}
-		for _, nested := range current {
+		for nested := range maps.Values(current) {
 			if containsForeignResponsesOpaqueValue(nested) {
 				return true
 			}
 		}
 	case []any:
-		for _, nested := range current {
+		for nested := range slices.Values(current) {
 			if containsForeignResponsesOpaqueValue(nested) {
 				return true
 			}
@@ -133,13 +135,13 @@ func containsResponsesOpaqueValue(value any) bool {
 		if rawStringValue(current["type"]) == "reasoning" && rawStringValue(current["encrypted_content"]) != "" {
 			return true
 		}
-		for _, nested := range current {
+		for nested := range maps.Values(current) {
 			if containsResponsesOpaqueValue(nested) {
 				return true
 			}
 		}
 	case []any:
-		for _, nested := range current {
+		for nested := range slices.Values(current) {
 			if containsResponsesOpaqueValue(nested) {
 				return true
 			}

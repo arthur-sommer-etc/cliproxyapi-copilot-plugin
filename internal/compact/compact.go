@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"slices"
 	"strings"
 )
 
@@ -55,7 +56,7 @@ func Prepare(body []byte, active KeyMaterial, legacy []KeyMaterial) ([]byte, boo
 		return nil, false, fmt.Errorf("%w: input must be an array", ErrInvalidRequest)
 	}
 	triggerCount := 0
-	for _, rawItem := range items {
+	for rawItem := range slices.Values(items) {
 		kind, err := itemType(rawItem)
 		if err != nil {
 			return nil, false, fmt.Errorf("%w: input item is malformed", ErrInvalidRequest)
@@ -69,7 +70,7 @@ func Prepare(body []byte, active KeyMaterial, legacy []KeyMaterial) ([]byte, boo
 	}
 	prepared := make([]json.RawMessage, 0, len(items)+1)
 	changed := triggerCount == 1
-	for _, rawItem := range items {
+	for rawItem := range slices.Values(items) {
 		kind, _ := itemType(rawItem)
 		if kind == "compaction_trigger" {
 			continue
@@ -150,7 +151,7 @@ func Complete(response []byte, active KeyMaterial, legacy []KeyMaterial) ([]byte
 	}
 	var pluginCapsules int
 	var nativeCompactions int
-	for _, rawItem := range output {
+	for rawItem := range slices.Values(output) {
 		kind, err := itemType(rawItem)
 		if err != nil {
 			return nil, fmt.Errorf("%w: output item is malformed", ErrInvalidResponse)
@@ -217,7 +218,7 @@ func decryptSummaryWithKeys(capsule string, active KeyMaterial, legacy []KeyMate
 	keys = append(keys, active)
 	keys = append(keys, legacy...)
 	var validKey bool
-	for _, key := range keys {
+	for key := range slices.Values(keys) {
 		if validateKeyMaterial(key.Scope, key.Secret) == nil {
 			validKey = true
 			summary, err := decryptSummary(capsule, key.Scope, key.Secret)
@@ -257,7 +258,7 @@ func itemCapsule(raw json.RawMessage) (string, error) {
 
 func extractSummary(output []json.RawMessage) string {
 	var parts []string
-	for _, rawItem := range output {
+	for rawItem := range slices.Values(output) {
 		var item struct {
 			Type    string `json:"type"`
 			Role    string `json:"role"`
@@ -268,7 +269,7 @@ func extractSummary(output []json.RawMessage) string {
 			} `json:"content"`
 		}
 		if json.Unmarshal(rawItem, &item) == nil && item.Type == "message" && item.Role == "assistant" && item.Status == "completed" {
-			for _, content := range item.Content {
+			for content := range slices.Values(item.Content) {
 				if content.Type == "output_text" && strings.TrimSpace(content.Text) != "" {
 					parts = append(parts, content.Text)
 				}

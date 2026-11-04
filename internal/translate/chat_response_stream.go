@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -98,7 +99,7 @@ func responsesStreamToChat(ctx context.Context, model string, original, translat
 		return nil, err
 	}
 	var out [][]byte
-	for _, claudeFrame := range claudeFrames {
+	for claudeFrame := range slices.Values(claudeFrames) {
 		translatedFrames, err := streamClaudeFrameToChat(ctx, model, original, streamState.Request, claudeFrame, &streamState.Chat, &streamState.Output, streamState.Items, &streamState.Attached)
 		if err != nil {
 			return nil, err
@@ -111,10 +112,10 @@ func responsesStreamToChat(ctx context.Context, model string, original, translat
 			if !gjson.GetBytes(chunk, "usage").IsObject() {
 				continue
 			}
-			for _, fields := range [][2]string{
+			for fields := range slices.Values([][2]string{
 				{"input_tokens", "prompt_tokens"}, {"output_tokens", "completion_tokens"}, {"total_tokens", "total_tokens"},
 				{"input_tokens_details", "prompt_tokens_details"}, {"output_tokens_details", "completion_tokens_details"},
-			} {
+			}) {
 				if value := usage.Get(fields[0]); value.Exists() {
 					chunk, err = sjson.SetRawBytes(chunk, "usage."+fields[1], []byte(value.Raw))
 					if err != nil {
@@ -138,7 +139,7 @@ func mergeResponsesOpaqueItems(current, candidates [][]byte) [][]byte {
 	for index, item := range items {
 		positions[responsesOpaqueItemKey(item)] = index
 	}
-	for _, item := range candidates {
+	for item := range slices.Values(candidates) {
 		key := responsesOpaqueItemKey(item)
 		if index, exists := positions[key]; exists {
 			items[index] = item
@@ -195,7 +196,7 @@ func claudeStreamToChat(ctx context.Context, model string, original, translated,
 		return nil, err
 	}
 	chatFrames := registry.TranslateStream(ctx, sdktranslator.FormatClaude, sdktranslator.FormatOpenAI, model, original, translated, normalized, &streamState.Chat)
-	for _, chatFrame := range chatFrames {
+	for chatFrame := range slices.Values(chatFrames) {
 		if err := observeChatChunk(&streamState.Output, chatFrame, original, model); err != nil {
 			return nil, err
 		}
@@ -252,7 +253,7 @@ func streamClaudeFrameToChat(ctx context.Context, model string, original, claude
 		return nil, err
 	}
 	chatFrames := registry.TranslateStream(ctx, sdktranslator.FormatClaude, sdktranslator.FormatOpenAI, model, original, claudeRequest, normalized, nativeState)
-	for _, chatFrame := range chatFrames {
+	for chatFrame := range slices.Values(chatFrames) {
 		if err := observeChatChunk(outputState, chatFrame, original, model); err != nil {
 			return nil, err
 		}
@@ -375,7 +376,7 @@ func (s *claudeChatStreamState) responsesReasoningItems() [][]byte {
 	indices := append([]int(nil), s.Order...)
 	sort.Ints(indices)
 	items := make([][]byte, 0, len(indices))
-	for _, index := range indices {
+	for index := range slices.Values(indices) {
 		block := s.Blocks[index]
 		var item map[string]any
 		if block.Type == "redacted_thinking" {

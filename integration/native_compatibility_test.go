@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -436,13 +437,13 @@ func TestNativeHostClaudeUnsupportedServerToolGuards(t *testing.T) {
 		{"Responses", "gpt-6-luna", "/responses"},
 		{"Chat", "gemini-3.8-flash", "/chat/completions"},
 	} {
-		for _, tool := range []struct {
+		for tool := range slices.Values([]struct {
 			name, declarationType string
 			input                 map[string]any
 		}{
 			{"web_fetch", "web_fetch_20250910", map[string]any{"url": "https://example.org/synthetic-native-history"}},
 			{"code_execution", "code_execution_20250825", map[string]any{"code": "print(385)"}},
-		} {
+		}) {
 			for _, stream := range []bool{false, true} {
 				format := "JSON"
 				if stream {

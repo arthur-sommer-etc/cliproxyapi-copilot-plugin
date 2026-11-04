@@ -119,7 +119,7 @@ Running the development deployment requires Docker Compose v2.
 The production plugin build uses `golang:1-bookworm`, matching the Debian Bookworm runtime of the official image.
 Set `GO_IMAGE` to use a different build image, for example `GO_IMAGE=golang:1.27-bookworm task build`.
 Set `VERSION` as a Task variable when packaging, for example `task package VERSION=0.3.3`.
-Contributor lint checks require Node.js 24 and the pnpm version declared in `package.json`.
+Contributor lint checks require Node.js 26 and the pnpm version declared in `package.json`.
 Run `pnpm install` once, then use `pnpm run check` and `pnpm run fix`.
 The check invokes `task test`, and the Go integration tests invoke Task directly.
 Task must be on `PATH` for both `pnpm run check` and `go test ./...`.

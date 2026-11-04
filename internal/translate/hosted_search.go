@@ -3,6 +3,7 @@ package translate
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -56,7 +57,7 @@ func validateClaudeWebSearchResults(value any) error {
 			if rawStringValue(entry["url"]) == "" || rawStringValue(entry["encrypted_content"]) == "" {
 				return fmt.Errorf("Claude web search result lacks its URL or replay token")
 			}
-			for _, field := range []string{"title", "page_age", "snippet"} {
+			for field := range slices.Values([]string{"title", "page_age", "snippet"}) {
 				if raw, exists := entry[field]; exists {
 					if _, ok := raw.(string); !ok {
 						return fmt.Errorf("Claude web search result field %q has an unsupported value", field)
@@ -74,7 +75,7 @@ func validateClaudeWebSearchResults(value any) error {
 	}
 	switch content := value.(type) {
 	case []any:
-		for _, rawEntry := range content {
+		for rawEntry := range slices.Values(content) {
 			entry, ok := rawEntry.(map[string]any)
 			if !ok {
 				return fmt.Errorf("Claude web search results contain an unsupported entry")
@@ -104,7 +105,7 @@ func validateClaudeCitation(value any) error {
 	if stringValue(citation["type"]) != "web_search_result_location" || rawStringValue(citation["url"]) == "" || rawStringValue(citation["encrypted_index"]) == "" {
 		return fmt.Errorf("Claude citation cannot be replayed exactly")
 	}
-	for _, field := range []string{"title", "cited_text"} {
+	for field := range slices.Values([]string{"title", "cited_text"}) {
 		if raw, exists := citation[field]; exists {
 			if _, ok := raw.(string); !ok {
 				return fmt.Errorf("Claude citation field %q has an unsupported value", field)
@@ -119,7 +120,7 @@ func validateClaudeCitations(value any) error {
 	if !ok || len(citations) == 0 {
 		return fmt.Errorf("Claude citations have an unsupported shape")
 	}
-	for _, citation := range citations {
+	for citation := range slices.Values(citations) {
 		if err := validateClaudeCitation(citation); err != nil {
 			return err
 		}
@@ -211,7 +212,7 @@ func claudeHostedSearchContent(root map[string]any) ([]claudeHostedSearchPair, [
 			index++
 		case "text":
 			group := claudeCitationGroup{Text: rawStringValue(block["text"]), Run: run}
-			for _, citation := range arrayValue(block["citations"]) {
+			for citation := range slices.Values(arrayValue(block["citations"])) {
 				encoded, err := json.Marshal(citation)
 				if err == nil {
 					group.Citations = append(group.Citations, encoded)
@@ -235,10 +236,10 @@ func restoreClaudeHostedSearchResponse(source map[string]any, body []byte) ([]by
 	if !ok && len(searches) > 0 {
 		return nil, fmt.Errorf("translated Responses output omitted the hosted search list")
 	}
-	for _, search := range searches {
+	for search := range slices.Values(searches) {
 		responsesID := "ws_" + search.ID
 		matches := 0
-		for _, rawItem := range output {
+		for rawItem := range slices.Values(output) {
 			item, ok := rawItem.(map[string]any)
 			if !ok || stringValue(item["type"]) != "web_search_call" || rawStringValue(item["id"]) != responsesID {
 				continue
@@ -267,13 +268,13 @@ func restoreClaudeHostedSearchResponse(source map[string]any, body []byte) ([]by
 
 func restoreClaudeResponseCitations(output []any, groups []claudeCitationGroup) error {
 	groupIndex := 0
-	for _, rawItem := range output {
+	for rawItem := range slices.Values(output) {
 		item, ok := rawItem.(map[string]any)
 		if !ok || stringValue(item["type"]) != "message" {
 			continue
 		}
 		var text strings.Builder
-		for _, rawPart := range arrayValue(item["content"]) {
+		for rawPart := range slices.Values(arrayValue(item["content"])) {
 			part := objectValue(rawPart)
 			if stringValue(part["type"]) != "output_text" && stringValue(part["type"]) != "text" {
 				return fmt.Errorf("Claude text boundaries cannot be restored onto non-text content")
@@ -294,7 +295,7 @@ func restoreClaudeResponseCitations(output []any, groups []claudeCitationGroup) 
 			sourceText.WriteString(group.Text)
 			part := map[string]any{"type": "output_text", "text": group.Text, "annotations": []any{}}
 			annotations := make([]any, 0, len(group.Citations))
-			for _, rawCitation := range group.Citations {
+			for rawCitation := range slices.Values(group.Citations) {
 				var citation any
 				if err := json.Unmarshal(rawCitation, &citation); err != nil {
 					return fmt.Errorf("decode Claude hosted search citation")
@@ -331,7 +332,7 @@ func validClaudeServerToolID(id string) bool {
 
 func rejectFields(object map[string]any, fields ...string) error {
 	allowed := make(map[string]struct{}, len(fields))
-	for _, field := range fields {
+	for field := range slices.Values(fields) {
 		allowed[field] = struct{}{}
 	}
 	for field := range object {

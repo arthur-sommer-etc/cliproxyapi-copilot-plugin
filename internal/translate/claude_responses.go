@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"slices"
 	"strings"
 )
 
@@ -51,7 +52,7 @@ func claudeRequestToResponses(model string, body []byte, stream bool) ([]byte, e
 	}
 	if tools, ok := root["tools"].([]any); ok {
 		converted := make([]any, 0, len(tools))
-		for _, rawTool := range tools {
+		for rawTool := range slices.Values(tools) {
 			tool, okTool := rawTool.(map[string]any)
 			if !okTool {
 				continue
@@ -135,7 +136,7 @@ func claudeRequestToResponses(model string, body []byte, stream bool) ([]byte, e
 		input = append(input, systemMessage)
 	}
 	hostedSearchIDs := make(map[string]struct{})
-	for _, rawMessage := range messages {
+	for rawMessage := range slices.Values(messages) {
 		message, okMessage := rawMessage.(map[string]any)
 		if !okMessage {
 			if hasMeaningfulValue(rawMessage) {
@@ -398,14 +399,14 @@ func responsesResponseToClaude(model string, body []byte) ([]byte, error) {
 	}
 	content := make([]any, 0)
 	hasToolUse := false
-	for _, rawItem := range arrayValue(root["output"]) {
+	for rawItem := range slices.Values(arrayValue(root["output"])) {
 		item, ok := rawItem.(map[string]any)
 		if !ok {
 			continue
 		}
 		switch stringValue(item["type"]) {
 		case "message":
-			for _, rawPart := range arrayValue(item["content"]) {
+			for rawPart := range slices.Values(arrayValue(item["content"])) {
 				part, okPart := rawPart.(map[string]any)
 				if !okPart {
 					continue
@@ -510,7 +511,7 @@ func claudeSystemText(value any) string {
 		return text
 	}
 	var blocks []string
-	for _, rawPart := range arrayValue(value) {
+	for rawPart := range slices.Values(arrayValue(value)) {
 		part, ok := rawPart.(map[string]any)
 		if ok && stringValue(part["type"]) == "text" {
 			blocks = append(blocks, rawStringValue(part["text"]))
@@ -533,7 +534,7 @@ func claudeSystemToResponses(value any) (string, any, error) {
 	var texts []string
 	content := make([]any, 0, len(blocks))
 	hasCacheControl := false
-	for _, rawBlock := range blocks {
+	for rawBlock := range slices.Values(blocks) {
 		block, okBlock := rawBlock.(map[string]any)
 		if !okBlock {
 			if hasMeaningfulValue(rawBlock) {
@@ -592,7 +593,7 @@ func claudeReasoningEffort(root map[string]any) string {
 func claudeMessageEffortMarker(messages []any) (string, bool, error) {
 	var effort string
 	var found bool
-	for _, rawMessage := range messages {
+	for rawMessage := range slices.Values(messages) {
 		message, ok := rawMessage.(map[string]any)
 		if ok && stringValue(message["role"]) == "system" {
 			if _, exists := message["output_config"]; exists {
@@ -663,7 +664,7 @@ func claudeSystemMessageToResponses(message map[string]any) (map[string]any, err
 	}
 	content := make([]any, 0, len(parts))
 	lastText := -1
-	for _, part := range parts {
+	for part := range slices.Values(parts) {
 		if stringValue(part["type"]) != "text" {
 			return nil, fmt.Errorf("unsupported non-text Claude system block type %q", stringValue(part["type"]))
 		}
@@ -712,7 +713,7 @@ func claudeContentParts(value any) []map[string]any {
 		return []map[string]any{{"type": "text", "text": text}}
 	}
 	var out []map[string]any
-	for _, rawPart := range arrayValue(value) {
+	for rawPart := range slices.Values(arrayValue(value)) {
 		if part, ok := rawPart.(map[string]any); ok {
 			out = append(out, part)
 		}
@@ -732,7 +733,7 @@ func claudeContentPartsStrict(value any) ([]map[string]any, error) {
 		return nil, fmt.Errorf("Claude content must be text or content blocks")
 	}
 	parts := make([]map[string]any, 0, len(values))
-	for _, rawPart := range values {
+	for rawPart := range slices.Values(values) {
 		part, okPart := rawPart.(map[string]any)
 		if !okPart {
 			if hasMeaningfulValue(rawPart) {
@@ -827,7 +828,7 @@ func claudeToolResultOutput(value any) (any, error) {
 		return nil, err
 	}
 	converted := make([]any, 0)
-	for _, part := range parts {
+	for part := range slices.Values(parts) {
 		switch stringValue(part["type"]) {
 		case "text":
 			item := map[string]any{"type": "input_text", "text": rawStringValue(part["text"])}
@@ -868,12 +869,12 @@ func containsCacheControl(body []byte) bool {
 	if err != nil {
 		return false
 	}
-	for _, rawTool := range arrayValue(root["tools"]) {
+	for rawTool := range slices.Values(arrayValue(root["tools"])) {
 		if _, exists := objectValue(rawTool)["cache_control"]; exists {
 			return true
 		}
 	}
-	for _, rawItem := range arrayValue(root["input"]) {
+	for rawItem := range slices.Values(arrayValue(root["input"])) {
 		item := objectValue(rawItem)
 		if _, exists := item["cache_control"]; exists || containsCacheControlBlock(item["content"]) || containsCacheControlBlock(item["output"]) {
 			return true
@@ -883,7 +884,7 @@ func containsCacheControl(body []byte) bool {
 }
 
 func containsCacheControlBlock(value any) bool {
-	for _, rawBlock := range arrayValue(value) {
+	for rawBlock := range slices.Values(arrayValue(value)) {
 		if _, exists := objectValue(rawBlock)["cache_control"]; exists {
 			return true
 		}
@@ -905,14 +906,14 @@ func stripCacheControlFields(body []byte) ([]byte, error) {
 }
 
 func stripResponsesRequestCacheControl(root map[string]any) {
-	for _, rawTool := range arrayValue(root["tools"]) {
+	for rawTool := range slices.Values(arrayValue(root["tools"])) {
 		delete(objectValue(rawTool), "cache_control")
 	}
-	for _, rawItem := range arrayValue(root["input"]) {
+	for rawItem := range slices.Values(arrayValue(root["input"])) {
 		item := objectValue(rawItem)
 		delete(item, "cache_control")
-		for _, field := range []string{"content", "output"} {
-			for _, rawBlock := range arrayValue(item[field]) {
+		for field := range slices.Values([]string{"content", "output"}) {
+			for rawBlock := range slices.Values(arrayValue(item[field])) {
 				delete(objectValue(rawBlock), "cache_control")
 			}
 		}
@@ -920,9 +921,9 @@ func stripResponsesRequestCacheControl(root map[string]any) {
 }
 
 func responsesReasoningText(item map[string]any) string {
-	for _, field := range []string{"summary", "content"} {
+	for field := range slices.Values([]string{"summary", "content"}) {
 		var builder strings.Builder
-		for _, rawPart := range arrayValue(item[field]) {
+		for rawPart := range slices.Values(arrayValue(item[field])) {
 			switch part := rawPart.(type) {
 			case string:
 				builder.WriteString(part)
@@ -1002,7 +1003,7 @@ func rawStringValue(value any) string {
 }
 
 func firstString(values map[string]any, keys ...string) string {
-	for _, key := range keys {
+	for key := range slices.Values(keys) {
 		if value := stringValue(values[key]); value != "" {
 			return value
 		}
@@ -1011,7 +1012,7 @@ func firstString(values map[string]any, keys ...string) string {
 }
 
 func firstRawString(values map[string]any, keys ...string) string {
-	for _, key := range keys {
+	for key := range slices.Values(keys) {
 		if value := rawStringValue(values[key]); value != "" {
 			return value
 		}
@@ -1020,7 +1021,7 @@ func firstRawString(values map[string]any, keys ...string) string {
 }
 
 func firstNonEmptyString(values ...string) string {
-	for _, value := range values {
+	for value := range slices.Values(values) {
 		if value = strings.TrimSpace(value); value != "" {
 			return value
 		}

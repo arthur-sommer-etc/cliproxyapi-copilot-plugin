@@ -3,6 +3,7 @@ package translate
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -38,7 +39,7 @@ func validateResponsesRequestForTarget(body []byte, target sdktranslator.Format)
 		return fmt.Errorf("Responses input has an unsupported shape")
 	}
 	webSearchIDs := make(map[string]struct{})
-	for _, rawItem := range items {
+	for rawItem := range slices.Values(items) {
 		item, okItem := rawItem.(map[string]any)
 		if !okItem {
 			if hasMeaningfulValue(rawItem) {
@@ -104,10 +105,9 @@ func validateResponsesToolsForTarget(root map[string]any, target sdktranslator.F
 			}
 		}
 	}
-
 	webSearchNames := make(map[string]struct{})
 	localShell := false
-	for _, source := range sources {
+	for source := range slices.Values(sources) {
 		if source.value == nil || !hasMeaningfulValue(source.value) {
 			continue
 		}
@@ -115,7 +115,7 @@ func validateResponsesToolsForTarget(root map[string]any, target sdktranslator.F
 		if !ok {
 			return fmt.Errorf("Responses %s has an unsupported shape", source.label)
 		}
-		for _, rawTool := range tools {
+		for rawTool := range slices.Values(tools) {
 			tool, ok := rawTool.(map[string]any)
 			if !ok {
 				if hasMeaningfulValue(rawTool) {
@@ -148,7 +148,6 @@ func validateResponsesToolsForTarget(root map[string]any, target sdktranslator.F
 			}
 		}
 	}
-
 	return validateResponsesNativeToolChoice(root["tool_choice"], target, webSearchNames, localShell)
 }
 
@@ -217,7 +216,7 @@ func validateResponsesWebSearchToolOptions(tool map[string]any, preview bool) er
 				if !ok {
 					return fmt.Errorf("Responses web search allowed_domains has an unsupported shape")
 				}
-				for _, domain := range domains {
+				for domain := range slices.Values(domains) {
 					if _, ok := domain.(string); !ok {
 						return fmt.Errorf("Responses web search allowed_domains contains an unsupported value")
 					}
@@ -296,7 +295,7 @@ func validateResponsesMessage(item map[string]any, target sdktranslator.Format) 
 	if !ok {
 		return fmt.Errorf("Responses message content has an unsupported shape")
 	}
-	for _, rawPart := range parts {
+	for rawPart := range slices.Values(parts) {
 		part, okPart := rawPart.(map[string]any)
 		if !okPart {
 			if hasMeaningfulValue(rawPart) {
@@ -380,7 +379,7 @@ func validateResponsesAnnotations(part map[string]any, target sdktranslator.Form
 	if !ok {
 		return fmt.Errorf("Responses annotations have an unsupported shape")
 	}
-	for _, rawAnnotation := range annotations {
+	for rawAnnotation := range slices.Values(annotations) {
 		if err := validateClaudeCitation(rawAnnotation); err != nil {
 			return fmt.Errorf("Responses annotation cannot be replayed by Claude Messages: %w", err)
 		}
@@ -413,7 +412,7 @@ func validateResponsesReasoning(item map[string]any) error {
 			return fmt.Errorf("Responses encrypted reasoning has an unsupported value")
 		}
 	}
-	for _, field := range []string{"summary", "content"} {
+	for field := range slices.Values([]string{"summary", "content"}) {
 		value := item[field]
 		if value == nil || !hasMeaningfulValue(value) {
 			continue
@@ -422,7 +421,7 @@ func validateResponsesReasoning(item map[string]any) error {
 		if !ok {
 			return fmt.Errorf("Responses reasoning %s has an unsupported shape", field)
 		}
-		for _, rawPart := range parts {
+		for rawPart := range slices.Values(parts) {
 			part, ok := rawPart.(map[string]any)
 			if !ok {
 				if hasMeaningfulValue(rawPart) {
@@ -492,7 +491,7 @@ func validateResponsesWebSearchCall(item map[string]any) error {
 	if !ok {
 		return fmt.Errorf("Responses web search results have an unsupported shape")
 	}
-	for _, rawEntry := range entries {
+	for rawEntry := range slices.Values(entries) {
 		entry, ok := rawEntry.(map[string]any)
 		if !ok {
 			return fmt.Errorf("Responses web search results contain an unsupported entry")
@@ -509,7 +508,7 @@ func validateResponsesWebSearchCall(item map[string]any) error {
 		if stringValue(entry["encrypted_content"]) == "" {
 			return fmt.Errorf("Responses web search result lacks its replay token")
 		}
-		for _, field := range []string{"title", "page_age", "snippet"} {
+		for field := range slices.Values([]string{"title", "page_age", "snippet"}) {
 			if value, exists := entry[field]; exists {
 				if _, ok := value.(string); !ok {
 					return fmt.Errorf("Responses web search result field %q has an unsupported value", field)
@@ -566,7 +565,7 @@ func validateResponsesToolOutput(value any, target sdktranslator.Format) error {
 	if !ok {
 		return nil
 	}
-	for _, rawPart := range parts {
+	for rawPart := range slices.Values(parts) {
 		part, okPart := rawPart.(map[string]any)
 		if !okPart {
 			if _, ok := rawPart.(string); ok {
@@ -639,7 +638,7 @@ func validateResponsesOutputForClaude(root map[string]any) error {
 		return nil
 	}
 	webSearchIDs := make(map[string]struct{})
-	for _, rawItem := range items {
+	for rawItem := range slices.Values(items) {
 		item, ok := rawItem.(map[string]any)
 		if !ok {
 			if hasMeaningfulValue(rawItem) {
@@ -700,7 +699,7 @@ func validateResponsesOutputForChat(root map[string]any) error {
 		}
 		return nil
 	}
-	for _, rawItem := range items {
+	for rawItem := range slices.Values(items) {
 		item, ok := rawItem.(map[string]any)
 		if !ok {
 			if hasMeaningfulValue(rawItem) {
@@ -753,7 +752,7 @@ func validateResponsesStreamFrame(frame []byte, target sdktranslator.Format) err
 		if err := validateResponsesOutputForChat(objectValue(payload["response"])); err != nil {
 			return err
 		}
-		for _, rawItem := range arrayValue(objectValue(payload["response"])["output"]) {
+		for rawItem := range slices.Values(arrayValue(objectValue(payload["response"])["output"])) {
 			if err := rejectResponsesChatStreamCitations(objectValue(rawItem)); err != nil {
 				return err
 			}
@@ -951,7 +950,7 @@ func validateResponsesResponseMessage(item map[string]any, target sdktranslator.
 	if !ok {
 		return fmt.Errorf("Responses message output content has an unsupported shape")
 	}
-	for _, rawPart := range parts {
+	for rawPart := range slices.Values(parts) {
 		part, ok := rawPart.(map[string]any)
 		if !ok {
 			if hasMeaningfulValue(rawPart) {
@@ -1000,7 +999,7 @@ func validateResponsesResponseAnnotations(part map[string]any, target sdktransla
 	if !ok {
 		return fmt.Errorf("Responses annotations have an unsupported shape")
 	}
-	for _, annotation := range annotations {
+	for annotation := range slices.Values(annotations) {
 		if _, err := responsesURLCitation(annotation); err != nil {
 			return err
 		}
@@ -1009,7 +1008,7 @@ func validateResponsesResponseAnnotations(part map[string]any, target sdktransla
 }
 
 func rejectResponsesChatStreamCitations(item map[string]any) error {
-	for _, rawPart := range arrayValue(item["content"]) {
+	for rawPart := range slices.Values(arrayValue(item["content"])) {
 		if hasMeaningfulValue(objectValue(rawPart)["annotations"]) {
 			return fmt.Errorf("Responses annotations cannot be represented by Chat streaming")
 		}

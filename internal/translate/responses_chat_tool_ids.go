@@ -3,6 +3,8 @@ package translate
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/tidwall/gjson"
@@ -90,7 +92,7 @@ func restoreOrphanResponsesToolOutputs(chatRequest []byte, orphaned []orphanResp
 		return nil, err
 	}
 	messages := arrayValue(root["messages"])
-	for _, result := range orphaned {
+	for result := range slices.Values(orphaned) {
 		messageIndex := -1
 		for index, rawMessage := range messages {
 			message := objectValue(rawMessage)
@@ -134,13 +136,13 @@ func jsonStringValueCount(value any, expected string) int {
 		return strings.Count(typed, expected)
 	case []any:
 		count := 0
-		for _, child := range typed {
+		for child := range slices.Values(typed) {
 			count += jsonStringValueCount(child, expected)
 		}
 		return count
 	case map[string]any:
 		count := 0
-		for _, child := range typed {
+		for child := range maps.Values(typed) {
 			count += jsonStringValueCount(child, expected)
 		}
 		return count
@@ -156,7 +158,7 @@ func responsesToolOutputToChatContent(output gjson.Result) (any, error) {
 		return nil, fmt.Errorf("standalone Responses tool output cannot be represented by Chat Completions")
 	}
 	content := make([]any, 0, len(output.Array()))
-	for _, part := range output.Array() {
+	for part := range slices.Values(output.Array()) {
 		switch part.Get("type").String() {
 		case "input_text", "output_text":
 			content = append(content, map[string]any{"type": "text", "text": part.Get("text").String()})

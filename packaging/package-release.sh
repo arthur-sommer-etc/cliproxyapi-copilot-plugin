@@ -1,5 +1,5 @@
-#!/bin/sh
-set -eu
+#!/usr/bin/env sh
+set -e
 
 VERSION=${1:-}
 PLUGIN_ID="cliproxyapi-copilot"

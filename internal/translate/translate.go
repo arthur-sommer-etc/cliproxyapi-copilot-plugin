@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"slices"
 
 	sdktranslator "github.com/router-for-me/CLIProxyAPI/v8/sdk/translator"
 	"github.com/router-for-me/CLIProxyAPI/v8/sdk/translator/builtin"
@@ -230,7 +231,7 @@ func StreamFromEndpoint(ctx context.Context, endpoint, destination, model string
 
 func declaresNativeResponsesWebSearch(request []byte) bool {
 	containsSearch := func(tools gjson.Result) bool {
-		for _, tool := range tools.Array() {
+		for tool := range slices.Values(tools.Array()) {
 			switch tool.Get("type").String() {
 			case "web_search", "web_search_preview":
 				return true
@@ -241,7 +242,7 @@ func declaresNativeResponsesWebSearch(request []byte) bool {
 	if containsSearch(gjson.GetBytes(request, "tools")) {
 		return true
 	}
-	for _, item := range gjson.GetBytes(request, "input").Array() {
+	for item := range slices.Values(gjson.GetBytes(request, "input").Array()) {
 		if item.Get("type").String() == "additional_tools" && containsSearch(item.Get("tools")) {
 			return true
 		}
@@ -387,7 +388,7 @@ func chatResponseToResponses(ctx context.Context, model string, original, transl
 }
 
 func chatResponseFailure(body []byte) error {
-	for _, choice := range gjson.GetBytes(body, "choices").Array() {
+	for choice := range slices.Values(gjson.GetBytes(body, "choices").Array()) {
 		if choice.Get("finish_reason").String() == "error" {
 			return fmt.Errorf("Copilot Chat request failed")
 		}
@@ -442,7 +443,7 @@ func stream(ctx context.Context, from, to sdktranslator.Format, model string, or
 		responsesFrames, err := chatToResponsesStream(ctx, model, original, translated, frame, streamState)
 		if err == nil && to == sdktranslator.FormatClaude {
 			var out [][]byte
-			for _, responsesFrame := range responsesFrames {
+			for responsesFrame := range slices.Values(responsesFrames) {
 				claudeFrames, err := responsesStreamToClaude(model, responsesFrame, &streamState.Claude)
 				if err != nil {
 					return nil, err
@@ -475,7 +476,7 @@ func stream(ctx context.Context, from, to sdktranslator.Format, model string, or
 		}
 		first := registry.TranslateStream(ctx, from, intermediate, model, intermediateRequest, translated, frame, &hopState.First)
 		var out [][]byte
-		for _, firstFrame := range first {
+		for firstFrame := range slices.Values(first) {
 			out = append(out, registry.TranslateStream(ctx, intermediate, to, model, original, intermediateRequest, firstFrame, &hopState.Second)...)
 		}
 		return out, nil
@@ -493,11 +494,11 @@ type twoHopStreamState struct {
 }
 
 func intermediateFormat(from, to sdktranslator.Format) (sdktranslator.Format, bool) {
-	for _, candidate := range []sdktranslator.Format{
+	for candidate := range slices.Values([]sdktranslator.Format{
 		sdktranslator.FormatOpenAI,
 		sdktranslator.FormatOpenAIResponse,
 		sdktranslator.FormatClaude,
-	} {
+	}) {
 		if candidate != from && candidate != to &&
 			registry.HasRequestTransformer(from, candidate) &&
 			registry.HasRequestTransformer(candidate, to) {

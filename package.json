@@ -5,7 +5,9 @@
   "scripts": {
     "check": "run-p check:*",
     "check:audit": "pnpm audit --prod",
-    "check:go-format": "gofmt -d cmd internal && test -z \"$(gofmt -l cmd internal)\"",
+    "check:go-format": "run-p check:go-format:*",
+    "check:go-format:diff": "gofmt -d cmd internal",
+    "check:go-format:clean": "test -z \"$(gofmt -l cmd internal)\"",
     "check:go-test": "task test",
     "check:go-vet": "go vet ./...",
     "check:markdownlint-cli2": "markdownlint-cli2",
@@ -29,7 +31,7 @@
     "ultracite": "catalog:"
   },
   "engines": {
-    "node": ">=24.22.0 <25"
+    "node": ">=26.13.0 <27"
   },
-  "packageManager": "pnpm@12.11.2"
+  "packageManager": "pnpm@12.16.1"
 }

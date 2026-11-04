@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"slices"
 	"strings"
 
 	sdktranslator "github.com/router-for-me/CLIProxyAPI/v8/sdk/translator"
@@ -249,7 +250,7 @@ func chatContentWithOpaqueMarker(content gjson.Result, marker string) ([]byte, e
 		textBlock, _ = sjson.SetBytes(textBlock, "text", content.String())
 		parts = append(parts, textBlock)
 	} else if content.IsArray() {
-		for _, part := range content.Array() {
+		for part := range slices.Values(content.Array()) {
 			parts = append(parts, []byte(part.Raw))
 		}
 	} else if content.Exists() && content.Type != gjson.Null && !(content.Type == gjson.String && content.String() == "") {
@@ -301,7 +302,7 @@ func restoreChatOpaqueToClaude(claudeRequest, chatRequest []byte, model string) 
 			if content.IsArray() {
 				blocks := make([][]byte, 0, len(content.Array()))
 				changed := false
-				for _, block := range content.Array() {
+				for block := range slices.Values(content.Array()) {
 					marker := block.Get("text").String()
 					if block.Get("type").String() == "text" {
 						if reasoning, exists := blocksByMarker[marker]; exists {
@@ -349,7 +350,7 @@ func claudeThinkingBlocksFromOpaque(raw []byte) ([][]byte, error) {
 		return nil, fmt.Errorf("Chat reasoning_opaque contains no reasoning blocks")
 	}
 	blocks := make([][]byte, 0, len(items))
-	for _, item := range items {
+	for item := range slices.Values(items) {
 		switch item.Get("type").String() {
 		case "thinking", "redacted_thinking":
 			blocks = append(blocks, []byte(item.Raw))
@@ -473,13 +474,13 @@ func restoreChatOpaqueToResponses(responses, chatRequest []byte, model string) (
 	}
 	found := make(map[string]bool, len(itemsByMarker))
 	items := make([][]byte, 0, len(input.Array())+len(itemsByMarker))
-	for _, item := range input.Array() {
+	for item := range slices.Values(input.Array()) {
 		if item.Get("type").String() != "message" || item.Get("role").String() != "assistant" {
 			items = append(items, []byte(item.Raw))
 			continue
 		}
 		parts := make([][]byte, 0, len(item.Get("content").Array()))
-		for _, part := range item.Get("content").Array() {
+		for part := range slices.Values(item.Get("content").Array()) {
 			marker := part.Get("text").String()
 			if reasoning, exists := itemsByMarker[marker]; exists && part.Get("type").String() == "output_text" {
 				if found[marker] {
@@ -517,7 +518,7 @@ func restoreChatOpaqueToResponses(responses, chatRequest []byte, model string) (
 
 func chatMessageBytes(messages []gjson.Result) [][]byte {
 	values := make([][]byte, 0, len(messages))
-	for _, message := range messages {
+	for message := range slices.Values(messages) {
 		values = append(values, []byte(message.Raw))
 	}
 	return values
@@ -538,7 +539,7 @@ func responsesReasoningItemsFromChatOpaque(raw []byte) ([][]byte, error) {
 		return nil, fmt.Errorf("Chat reasoning_opaque cannot be represented as Responses reasoning")
 	}
 	items := make([][]byte, 0, len(sourceItems))
-	for _, item := range sourceItems {
+	for item := range slices.Values(sourceItems) {
 		if id := item.Get("id"); id.Exists() && (id.Type != gjson.String || id.String() == "") {
 			return nil, fmt.Errorf("Chat reasoning_opaque item has an invalid Responses ID")
 		}
@@ -547,7 +548,7 @@ func responsesReasoningItemsFromChatOpaque(raw []byte) ([][]byte, error) {
 				if !summary.IsArray() {
 					return nil, fmt.Errorf("Chat reasoning_opaque has an invalid Responses summary")
 				}
-				for _, part := range summary.Array() {
+				for part := range slices.Values(summary.Array()) {
 					if !part.IsObject() || part.Get("type").String() != "summary_text" || part.Get("text").Type != gjson.String {
 						return nil, fmt.Errorf("Chat reasoning_opaque has an invalid Responses summary block")
 					}
@@ -699,7 +700,7 @@ func validateChatRequestForResponses(body []byte) error {
 		if !ok {
 			return fmt.Errorf("Chat messages have an unsupported shape for Responses translation")
 		}
-		for _, rawMessage := range array {
+		for rawMessage := range slices.Values(array) {
 			if message, ok := rawMessage.(map[string]any); ok {
 				if err := validateChatMessageForResponses(message); err != nil {
 					return err
@@ -709,7 +710,7 @@ func validateChatRequestForResponses(body []byte) error {
 			}
 		}
 	}
-	for _, rawTool := range arrayValue(root["tools"]) {
+	for rawTool := range slices.Values(arrayValue(root["tools"])) {
 		tool, ok := rawTool.(map[string]any)
 		if !ok || stringValue(tool["type"]) != "function" || stringValue(objectValue(tool["function"])["name"]) == "" {
 			return fmt.Errorf("Chat tool cannot be represented by Responses translation")
@@ -746,7 +747,7 @@ func validateChatToolHistory(body []byte) error {
 			if !ok {
 				return fmt.Errorf("Chat assistant tool calls have an unsupported shape")
 			}
-			for _, rawCall := range calls {
+			for rawCall := range slices.Values(calls) {
 				call, ok := rawCall.(map[string]any)
 				if !ok || stringValue(call["type"]) != "function" {
 					return fmt.Errorf("Chat tool call cannot be represented by function translation")
@@ -778,14 +779,13 @@ func validateChatToolHistory(body []byte) error {
 			}
 		}
 	}
-
 	toolsValue, toolsExist := root["tools"]
 	if toolsExist && toolsValue != nil {
 		tools, ok := toolsValue.([]any)
 		if !ok {
 			return fmt.Errorf("Chat tools have an unsupported shape")
 		}
-		for _, rawTool := range tools {
+		for rawTool := range slices.Values(tools) {
 			tool, ok := rawTool.(map[string]any)
 			if !ok || stringValue(tool["type"]) != "function" {
 				return fmt.Errorf("Chat tool cannot be represented by function translation")
@@ -812,7 +812,6 @@ func validateChatToolHistory(body []byte) error {
 			}
 		}
 	}
-
 	if messagesExist {
 		array, _ := messages.([]any)
 		resultIDs := make(map[string]struct{})
@@ -1026,7 +1025,7 @@ func validateChatMessageForResponses(message map[string]any) error {
 	if role == "tool" && rawStringValue(message["tool_call_id"]) == "" {
 		return fmt.Errorf("Chat tool result has no call ID for Responses translation")
 	}
-	for _, rawCall := range arrayValue(message["tool_calls"]) {
+	for rawCall := range slices.Values(arrayValue(message["tool_calls"])) {
 		call, ok := rawCall.(map[string]any)
 		if !ok || stringValue(call["type"]) != "function" || rawStringValue(call["id"]) == "" {
 			return fmt.Errorf("Chat tool call cannot be represented by Responses translation")
@@ -1054,7 +1053,7 @@ func validateChatContent(content any, role string) error {
 	if !ok {
 		return fmt.Errorf("Chat message content has an unsupported shape for Responses translation")
 	}
-	for _, rawPart := range parts {
+	for rawPart := range slices.Values(parts) {
 		if part, ok := rawPart.(map[string]any); ok {
 			switch stringValue(part["type"]) {
 			case "text":

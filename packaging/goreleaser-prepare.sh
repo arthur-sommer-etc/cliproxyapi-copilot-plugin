@@ -1,5 +1,5 @@
-#!/bin/sh
-set -eu
+#!/usr/bin/env sh
+set -e
 
 version=$(packaging/package-release.sh --validate-version "${RELEASE_VERSION:-}")
 checksums=$(mktemp)

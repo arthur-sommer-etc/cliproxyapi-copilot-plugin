@@ -16,6 +16,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -478,7 +479,7 @@ func assertNativeClaudeCodeRequest(t *testing.T, route matrixRoute, captured map
 		{name: "Bash", property: "command"},
 	} {
 		var parameters map[string]any
-		for _, tool := range tools {
+		for tool := range slices.Values(tools) {
 			if tool["type"] != "function" {
 				continue
 			}

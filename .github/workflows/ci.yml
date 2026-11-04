@@ -21,7 +21,7 @@ jobs:
           cache: true
 
       - name: Install pinned Task
-        run: |
+        run: |-
           mkdir -p "$RUNNER_TEMP/task-bin"
           go -C tools build -o "$RUNNER_TEMP/task-bin/task" github.com/go-task/task/v3/cmd/task
           echo "$RUNNER_TEMP/task-bin" >> "$GITHUB_PATH"
@@ -32,7 +32,7 @@ jobs:
       - name: Set up Node LTS
         uses: actions/setup-node@v7
         with:
-          node-version: 24.x
+          node-version: 26.x
           cache: pnpm
 
       - name: Install contributor tooling
@@ -54,7 +54,7 @@ jobs:
           cache: true
 
       - name: Install pinned Task
-        run: |
+        run: |-
           mkdir -p "$RUNNER_TEMP/task-bin"
           go -C tools build -o "$RUNNER_TEMP/task-bin/task" github.com/go-task/task/v3/cmd/task
           echo "$RUNNER_TEMP/task-bin" >> "$GITHUB_PATH"
@@ -75,7 +75,7 @@ jobs:
           cache: true
 
       - name: Install pinned Task
-        run: |
+        run: |-
           mkdir -p "$RUNNER_TEMP/task-bin"
           go -C tools build -o "$RUNNER_TEMP/task-bin/task" github.com/go-task/task/v3/cmd/task
           echo "$RUNNER_TEMP/task-bin" >> "$GITHUB_PATH"
@@ -108,7 +108,7 @@ jobs:
           cache: true
 
       - name: Install pinned Task
-        run: |
+        run: |-
           mkdir -p "$RUNNER_TEMP/task-bin"
           go -C tools build -o "$RUNNER_TEMP/task-bin/task" github.com/go-task/task/v3/cmd/task
           echo "$RUNNER_TEMP/task-bin" >> "$GITHUB_PATH"

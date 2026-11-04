@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
 	sdktranslator "github.com/router-for-me/CLIProxyAPI/v8/sdk/translator"
@@ -74,7 +75,7 @@ func requestAttachments(root map[string]any, format sdktranslator.Format) ([]req
 	var attachments []requestAttachment
 	var visit func(any, bool) error
 	visit = func(value any, toolOutput bool) error {
-		for _, rawPart := range arrayValue(value) {
+		for rawPart := range slices.Values(arrayValue(value)) {
 			part := objectValue(rawPart)
 			attachment := requestAttachment{part: part, toolOutput: toolOutput}
 			typ := stringValue(part["type"])
@@ -130,7 +131,7 @@ func requestAttachments(root map[string]any, format sdktranslator.Format) ([]req
 		return nil
 	}
 	if format == sdktranslator.FormatOpenAIResponse {
-		for _, rawItem := range arrayValue(root["input"]) {
+		for rawItem := range slices.Values(arrayValue(root["input"])) {
 			item := objectValue(rawItem)
 			if err := visit(item["content"], false); err != nil {
 				return nil, err
@@ -142,7 +143,7 @@ func requestAttachments(root map[string]any, format sdktranslator.Format) ([]req
 			}
 		}
 	} else {
-		for _, rawMessage := range arrayValue(root["messages"]) {
+		for rawMessage := range slices.Values(arrayValue(root["messages"])) {
 			message := objectValue(rawMessage)
 			if format == sdktranslator.FormatClaude && stringValue(message["role"]) == "system" {
 				continue
@@ -164,7 +165,7 @@ func validateRequestAttachments(body []byte, from, to sdktranslator.Format) erro
 	if err != nil {
 		return err
 	}
-	for _, attachment := range attachments {
+	for attachment := range slices.Values(attachments) {
 		unsupported := func(field string) error {
 			return &AttachmentConversionError{Source: from.String(), Destination: to.String(), Kind: attachment.sourceKind, Field: field}
 		}
@@ -261,7 +262,7 @@ func validateRequestAttachments(body []byte, from, to sdktranslator.Format) erro
 			}
 			return unsupported(field)
 		}
-		for _, name := range []string{"filename", "title"} {
+		for name := range slices.Values([]string{"filename", "title"}) {
 			if value, exists := fields[name]; exists && value != nil {
 				if _, ok := value.(string); !ok {
 					field := name
@@ -284,13 +285,13 @@ func validateRequestAttachments(body []byte, from, to sdktranslator.Format) erro
 
 func unsupportedAttachmentField(part map[string]any, allowed ...string) string {
 	knownFields := []string{"type", "source", "url", "image_url", "detail", "file", "file_data", "file_url", "file_id", "filename", "title", "media_type", "data", "cache_control"}
-	for _, field := range knownFields {
+	for field := range slices.Values(knownFields) {
 		value, present := part[field]
 		if !present || !hasMeaningfulValue(value) {
 			continue
 		}
 		permitted := false
-		for _, name := range allowed {
+		for name := range slices.Values(allowed) {
 			permitted = permitted || field == name
 		}
 		if !permitted {
@@ -299,7 +300,7 @@ func unsupportedAttachmentField(part map[string]any, allowed ...string) string {
 	}
 	for key, value := range part {
 		known := false
-		for _, name := range knownFields {
+		for name := range slices.Values(knownFields) {
 			known = known || key == name
 		}
 		if !known && hasMeaningfulValue(value) {
@@ -382,10 +383,10 @@ func prepareResponsesChatAttachments(body []byte) ([]byte, map[string]map[string
 	files := make(map[string]map[string]any)
 	changed := false
 	digest := sha256.Sum256(body)
-	for _, rawItem := range arrayValue(root["input"]) {
+	for rawItem := range slices.Values(arrayValue(root["input"])) {
 		item := objectValue(rawItem)
 		if typ := stringValue(item["type"]); typ == "function_call_output" || typ == "custom_tool_call_output" {
-			for _, rawPart := range arrayValue(item["output"]) {
+			for rawPart := range slices.Values(arrayValue(item["output"])) {
 				if stringValue(objectValue(rawPart)["type"]) == "input_file" {
 					return nil, nil, fmt.Errorf("tool output files cannot be represented by Chat Completions")
 				}
@@ -434,7 +435,7 @@ func restoreChatAttachmentFiles(body []byte, files map[string]map[string]any) ([
 		return nil, err
 	}
 	restored := make(map[string]bool, len(files))
-	for _, rawMessage := range arrayValue(root["messages"]) {
+	for rawMessage := range slices.Values(arrayValue(root["messages"])) {
 		message := objectValue(rawMessage)
 		for index, rawPart := range arrayValue(message["content"]) {
 			part := objectValue(rawPart)

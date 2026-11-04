@@ -1,6 +1,9 @@
 package sse
 
-import "bytes"
+import (
+	"bytes"
+	"slices"
+)
 
 // Decoder incrementally extracts SSE frames and normalizes line endings to LF.
 type Decoder struct {
@@ -13,7 +16,7 @@ func (d *Decoder) Feed(chunk []byte) [][]byte {
 	if len(chunk) == 0 {
 		return nil
 	}
-	for _, value := range chunk {
+	for value := range slices.Values(chunk) {
 		if d.skipLF {
 			d.skipLF = false
 			if value == '\n' {

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"slices"
 
 	sdktranslator "github.com/router-for-me/CLIProxyAPI/v8/sdk/translator"
 )
@@ -22,7 +23,7 @@ func claudeMessageResponseToResponses(ctx context.Context, model string, origina
 		return nil, err
 	}
 	var raw bytes.Buffer
-	for _, frame := range frames {
+	for frame := range slices.Values(frames) {
 		encoded, err := json.Marshal(frame)
 		if err != nil {
 			return nil, fmt.Errorf("encode Claude Messages response event")
@@ -76,7 +77,7 @@ func claudeMessageResponseEvents(root map[string]any) ([]map[string]any, error) 
 			if text != "" {
 				frames = append(frames, claudeBlockDelta(index, map[string]any{"type": "text_delta", "text": text}))
 			}
-			for _, citation := range arrayValue(block["citations"]) {
+			for citation := range slices.Values(arrayValue(block["citations"])) {
 				frames = append(frames, claudeBlockDelta(index, map[string]any{"type": "citations_delta", "citation": citation}))
 			}
 		case "thinking":

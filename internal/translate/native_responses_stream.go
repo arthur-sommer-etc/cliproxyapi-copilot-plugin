@@ -2,6 +2,7 @@ package translate
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -99,7 +100,7 @@ func nativeResponsesStream(frame []byte, state *any, wholeLifecycle bool) ([][]b
 		if reason := gjson.GetBytes(data, "response.incomplete_details.reason"); reason.Type != gjson.String || strings.TrimSpace(reason.String()) == "" {
 			return nil, fmt.Errorf("native Responses web search incomplete snapshot has no termination reason")
 		}
-		for _, path := range []string{"error", "response.error"} {
+		for path := range slices.Values([]string{"error", "response.error"}) {
 			if value := gjson.GetBytes(data, path); value.Exists() && value.Type != gjson.Null {
 				return nil, fmt.Errorf("native Responses web search incomplete snapshot contains an error")
 			}
@@ -139,7 +140,7 @@ func nativeResponsesStream(frame []byte, state *any, wholeLifecycle bool) ([][]b
 		}
 	}
 	out := make([][]byte, 0, len(pending.Frames))
-	for _, buffered := range pending.Frames {
+	for buffered := range slices.Values(pending.Frames) {
 		name, payload, _, err := parseSSEFrame(buffered)
 		if err != nil {
 			return nil, err

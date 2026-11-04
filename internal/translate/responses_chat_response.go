@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"slices"
 
 	sdktranslator "github.com/router-for-me/CLIProxyAPI/v8/sdk/translator"
 	"github.com/tidwall/gjson"
@@ -85,7 +86,7 @@ func restoreClaudeToolIDsToChat(body []byte) ([]byte, error) {
 
 func responsesOpaqueItems(body []byte) [][]byte {
 	var items [][]byte
-	for _, item := range gjson.GetBytes(body, "output").Array() {
+	for item := range slices.Values(gjson.GetBytes(body, "output").Array()) {
 		if item.Get("type").String() == "reasoning" && item.Get("encrypted_content").Type == gjson.String && item.Get("encrypted_content").String() != "" {
 			items = append(items, []byte(item.Raw))
 		}
