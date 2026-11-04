@@ -2014,7 +2014,7 @@ func assertChatReasoningCarrierWithPrefix(t *testing.T, carrier, model, authPref
 	if err := json.Unmarshal(jsonEnvelope, &envelope); err != nil {
 		t.Fatalf("decode Chat reasoning envelope JSON: %v", err)
 	}
-	if envelope.Version != 1 || envelope.Provider != "copilot" || envelope.Endpoint != "chat/completions" || envelope.Model != model {
+	if envelope.Version != 2 || envelope.Provider != "copilot" || envelope.Endpoint != "chat/completions" || envelope.Model != model {
 		t.Fatalf("Chat reasoning envelope scope changed: %+v", envelope)
 	}
 	if len(envelope.Anchor.ToolCallIDs) != 1 || envelope.Anchor.ToolCallIDs[0] != matrixChatCallID {

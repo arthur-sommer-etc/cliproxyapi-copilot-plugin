@@ -67,7 +67,7 @@ func TestCopilotOpaqueRoundTripsResponsesHistoryAndCacheKey(t *testing.T) {
 func TestCopilotOpaqueReplayRejectsAmbiguousRepeatedPriorUser(t *testing.T) {
 	t.Parallel()
 	const model = "gpt-6-luna"
-	carrier, err := encodeCopilotOpaque([]byte(`"opaque"`), model, copilotOpaqueAnchor{PriorUserSHA256: digest([]byte("same question"))})
+	carrier, err := encodeCopilotOpaque([]byte(`"opaque"`), model, copilotOpaqueAnchor{PriorUserSHA256: digest([]byte("user-text\x00same question"))})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,7 +88,7 @@ func TestCopilotOpaqueReplayKeepsRepeatedAssistantTurnsDistinct(t *testing.T) {
 	const model = "gpt-6-luna"
 	anchor := copilotOpaqueAnchor{
 		ContentSHA256:   digest([]byte("same answer")),
-		PriorUserSHA256: digest([]byte("same question")),
+		PriorUserSHA256: digest([]byte("user-text\x00same question")),
 	}
 	firstCarrier, err := encodeCopilotOpaque([]byte(`{"type":"reasoning","summary":[],"encrypted_content":"reasoning-a"}`), model, anchor)
 	if err != nil {

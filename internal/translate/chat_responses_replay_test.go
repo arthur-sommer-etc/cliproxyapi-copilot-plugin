@@ -63,7 +63,7 @@ func TestResponsesOpaqueReplayKeepsEmptyAssistantAfterMultimodalUser(t *testing.
 func TestResponsesOpaqueReplayRejectsStaleTextAnchorAfterMultimodalUser(t *testing.T) {
 	t.Parallel()
 	const model = "gpt-6-luna"
-	carrier, err := encodeCopilotOpaque([]byte(`{"token":"opaque"}`), model, copilotOpaqueAnchor{PriorUserSHA256: digest([]byte("first question"))})
+	carrier, err := encodeCopilotOpaque([]byte(`{"token":"opaque"}`), model, copilotOpaqueAnchor{PriorUserSHA256: digest([]byte("user-text\x00first question"))})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -261,7 +261,7 @@ func TestChatResponsesOpaqueReplayRejectsMismatchedToolAnchorOnEmptyTurn(t *test
 	const model = "gpt-6-luna"
 	carrier, err := encodeCopilotOpaque([]byte(`{"type":"reasoning","summary":[],"encrypted_content":"signature-tool-anchor"}`), model, copilotOpaqueAnchor{
 		ToolCalls:       []copilotOpaqueToolAnchor{{Name: "lookup", ArgumentsHash: digest([]byte(`{"x":1}`))}},
-		PriorUserSHA256: digest([]byte("question")),
+		PriorUserSHA256: digest([]byte("user-text\x00question")),
 	})
 	if err != nil {
 		t.Fatal(err)

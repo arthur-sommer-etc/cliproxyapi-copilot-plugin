@@ -36,9 +36,14 @@ See [hosted tool acceptance](server-tool-acceptance.md) for supported cases and 
 
 ## Thinking and continuation
 
-For Copilot Chat responses, including Gemini, the bridge preserves `reasoning_opaque` in an authenticated replay carrier for Messages and Responses clients.
-Recovery of Copilot Chat `reasoning_text` is not established by this branch.
-On continuation it checks the credential, model, endpoint and API origin and matches available conversation and tool-call anchors before restoring opaque state.
+For Copilot Chat responses, including Gemini, the bridge preserves `reasoning_text` and `reasoning_opaque` in an authenticated replay carrier for Messages and Responses clients.
+On continuation it checks the credential, model, endpoint and API origin and matches available conversation and tool-call anchors before restoring reasoning state.
+New carriers compare tool argument numbers by exact value without floating-point rounding.
+Legacy version 1 Copilot Chat replay carriers fail closed because their older hashes can be ambiguous.
+Start a fresh conversation without replaying the old carrier.
+Numbers with more than 4096 coefficient digits or an exponent outside ±1000000 are matched by their original bytes, so alternate spellings can be rejected.
+Tool arguments with duplicate JSON object keys are also matched by their original bytes.
+For cross-format Chat reasoning, the bridge rejects ambiguous source requests and Chat response data before conversion.
 The carrier is authenticated, not encrypted, and is private conversation data; it is not a native Claude or Google signature.
 Changed or foreign state is rejected rather than silently discarded.
 The bridge also preserves supported native Messages and Responses reasoning state on same-format routes.

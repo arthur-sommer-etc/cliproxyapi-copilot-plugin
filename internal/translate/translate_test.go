@@ -207,11 +207,11 @@ func TestChatRequestToResponsesMapsDuplicateAssistantTextInOrder(t *testing.T) {
 	const model = "gpt-6-luna"
 	first := []byte(`{"id":"reasoning-first","type":"reasoning","summary":[],"encrypted_content":"signature-first"}`)
 	second := []byte(`{"id":"reasoning-second","type":"reasoning","summary":[],"encrypted_content":"signature-second"}`)
-	firstCarrier, err := encodeCopilotOpaque(rawJSONArray([][]byte{first}), model, copilotOpaqueAnchor{ContentSHA256: digest([]byte("same answer")), PriorUserSHA256: digest([]byte("first question"))})
+	firstCarrier, err := encodeCopilotOpaque(rawJSONArray([][]byte{first}), model, copilotOpaqueAnchor{ContentSHA256: digest([]byte("same answer")), PriorUserSHA256: digest([]byte("user-text\x00first question"))})
 	if err != nil {
 		t.Fatalf("encode first opaque carrier: %v", err)
 	}
-	secondCarrier, err := encodeCopilotOpaque(rawJSONArray([][]byte{second}), model, copilotOpaqueAnchor{ContentSHA256: digest([]byte("same answer")), PriorUserSHA256: digest([]byte("second question"))})
+	secondCarrier, err := encodeCopilotOpaque(rawJSONArray([][]byte{second}), model, copilotOpaqueAnchor{ContentSHA256: digest([]byte("same answer")), PriorUserSHA256: digest([]byte("user-text\x00second question"))})
 	if err != nil {
 		t.Fatalf("encode second opaque carrier: %v", err)
 	}

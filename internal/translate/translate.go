@@ -41,6 +41,11 @@ func RequestForEndpointFrom(source, model string, body []byte, stream bool, endp
 	if err := rejectMismatchedCopilotCarrier(from, to, model, body); err != nil {
 		return nil, err
 	}
+	if to == sdktranslator.FormatOpenAI && from != to {
+		if err := validateCopilotSourceJSON(from, body); err != nil {
+			return nil, err
+		}
+	}
 	if from == sdktranslator.FormatOpenAI && from != to {
 		root, err := decodeObject(body)
 		if err != nil {
@@ -367,15 +372,18 @@ func chatResponseToResponses(ctx context.Context, model string, original, transl
 	if err := chatResponseFailure(body); err != nil {
 		return nil, err
 	}
+	carrier, exists, err := copilotOpaqueFromChatResponse(body, translated, model)
+	if err != nil {
+		return nil, err
+	}
 	out := registry.TranslateNonStream(ctx, sdktranslator.FormatOpenAI, sdktranslator.FormatOpenAIResponse, model, original, translated, body, nil)
 	if len(out) == 0 || !json.Valid(out) {
 		return nil, fmt.Errorf("official Chat-to-Responses response translation failed")
 	}
-	carrier, exists, err := copilotOpaqueFromChatResponse(body, translated, model)
-	if err == nil && exists {
-		return insertOpaqueReasoning(out, carrier)
+	if exists {
+		return insertOpaqueReasoning(out, carrier, model)
 	}
-	return out, err
+	return out, nil
 }
 
 func chatResponseFailure(body []byte) error {

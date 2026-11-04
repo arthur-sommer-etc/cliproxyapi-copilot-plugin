@@ -9,7 +9,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	sdktranslator "github.com/router-for-me/CLIProxyAPI/v8/sdk/translator"
 	"github.com/tidwall/gjson"
@@ -36,12 +38,15 @@ type copilotOpaqueEnvelope struct {
 	Endpoint   string              `json:"endpoint"`
 	Model      string              `json:"model"`
 	RawJSONB64 string              `json:"raw_json_b64"`
+	Thinking   *string             `json:"thinking,omitempty"`
 	Anchor     copilotOpaqueAnchor `json:"anchor"`
 }
 
 type copilotOpaqueValue struct {
-	Raw    []byte
-	Anchor copilotOpaqueAnchor
+	Version  int
+	Raw      []byte
+	Thinking *string
+	Anchor   copilotOpaqueAnchor
 }
 
 type chatOpaqueStreamTool struct {
@@ -51,20 +56,31 @@ type chatOpaqueStreamTool struct {
 }
 
 type chatOpaqueStreamState struct {
-	Model        string
-	Chat         any
-	Claude       any
-	ID           string
-	Created      string
-	LastSequence int64
-	Raw          []byte
-	Content      strings.Builder
-	Tools        map[int]*chatOpaqueStreamTool
-	Completed    bool
-	Failure      error
+	Model             string
+	Chat              any
+	Claude            any
+	ID                string
+	Created           string
+	LastSequence      int64
+	Raw               []byte
+	Thinking          strings.Builder
+	HasThinking       bool
+	HasReasoningAlias bool
+	PendingCompleted  []byte
+	Content           strings.Builder
+	Tools             map[int]*chatOpaqueStreamTool
+	Completed         bool
+	Failure           error
 }
 
 func encodeCopilotOpaque(raw []byte, model string, anchor copilotOpaqueAnchor) (string, error) {
+	return encodeCopilotThinking(raw, nil, model, anchor)
+}
+
+func encodeCopilotThinking(raw []byte, thinking *string, model string, anchor copilotOpaqueAnchor) (string, error) {
+	if raw == nil {
+		raw = []byte("null")
+	}
 	if !json.Valid(raw) {
 		return "", fmt.Errorf("Copilot reasoning_opaque is not valid JSON")
 	}
@@ -72,11 +88,12 @@ func encodeCopilotOpaque(raw []byte, model string, anchor copilotOpaqueAnchor) (
 		return "", fmt.Errorf("Copilot reasoning_opaque has no replay anchor")
 	}
 	envelope := copilotOpaqueEnvelope{
-		Version:    1,
+		Version:    2,
 		Provider:   "copilot",
 		Endpoint:   "chat/completions",
 		Model:      model,
 		RawJSONB64: base64.RawURLEncoding.EncodeToString(raw),
+		Thinking:   thinking,
 		Anchor:     anchor,
 	}
 	encoded, err := json.Marshal(envelope)
@@ -98,8 +115,11 @@ func decodeCopilotOpaque(value, model string) (copilotOpaqueValue, error) {
 	if err := json.Unmarshal(encodedEnvelope, &envelope); err != nil {
 		return copilotOpaqueValue{}, fmt.Errorf("invalid Copilot reasoning carrier")
 	}
-	if envelope.Version != 1 || envelope.Provider != "copilot" || envelope.Endpoint != "chat/completions" || envelope.Model != model {
+	if (envelope.Version != 1 && envelope.Version != 2) || envelope.Provider != "copilot" || envelope.Endpoint != "chat/completions" || envelope.Model != model {
 		return copilotOpaqueValue{}, fmt.Errorf("Copilot reasoning carrier scope does not match this request")
+	}
+	if envelope.Version == 1 {
+		return copilotOpaqueValue{}, fmt.Errorf("legacy Copilot reasoning carrier cannot safely bind conversation history; start a fresh turn")
 	}
 	raw, err := base64.RawURLEncoding.DecodeString(envelope.RawJSONB64)
 	if err != nil || !json.Valid(raw) {
@@ -108,7 +128,7 @@ func decodeCopilotOpaque(value, model string) (copilotOpaqueValue, error) {
 	if len(envelope.Anchor.ToolCallIDs) == 0 && envelope.Anchor.ContentSHA256 == "" && envelope.Anchor.PriorUserSHA256 == "" {
 		return copilotOpaqueValue{}, fmt.Errorf("Copilot reasoning carrier has no replay anchor")
 	}
-	return copilotOpaqueValue{Raw: raw, Anchor: envelope.Anchor}, nil
+	return copilotOpaqueValue{Version: envelope.Version, Raw: raw, Thinking: envelope.Thinking, Anchor: envelope.Anchor}, nil
 }
 
 func rejectMismatchedCopilotCarrier(from, to sdktranslator.Format, model string, body []byte) error {
@@ -174,35 +194,53 @@ func findResponsesCarrier(value any) bool {
 }
 
 func copilotOpaqueFromChatResponse(response, request []byte, model string) (string, bool, error) {
-	root := gjson.ParseBytes(response)
-	choices := root.Get("choices")
+	choices := gjson.GetBytes(response, "choices")
 	if !choices.IsArray() {
 		return "", false, nil
 	}
 	var raw []byte
+	var thinking *string
 	var anchor copilotOpaqueAnchor
+	found := false
 	for _, choice := range choices.Array() {
 		message := choice.Get("message")
 		field := message.Get("reasoning_opaque")
-		if !field.Exists() {
+		text := message.Get("reasoning_text")
+		if text.Exists() && text.Type != gjson.String && text.Type != gjson.Null {
+			return "", false, fmt.Errorf("Chat reasoning_text is not a string")
+		}
+		if text.Type == gjson.String && !jsonHasSafeStrings(text.Raw) {
+			return "", false, fmt.Errorf("Chat reasoning_text has invalid Unicode")
+		}
+		if text.Type == gjson.String && meaningfulOpaqueJSON([]byte(message.Get("reasoning_content").Raw)) {
+			return "", false, fmt.Errorf("Chat response contains multiple reasoning text fields")
+		}
+		if !meaningfulOpaqueJSON([]byte(field.Raw)) && text.Type != gjson.String {
 			continue
 		}
+		if !json.Valid(response) || !jsonHasSafeStrings(string(response)) || !jsonHasUniqueObjectKeys(string(response)) {
+			return "", false, fmt.Errorf("Copilot reasoning response has ambiguous JSON or invalid Unicode")
+		}
+		if found {
+			return "", false, fmt.Errorf("multiple Chat choices contain reasoning")
+		}
 		if role := message.Get("role"); role.Exists() && role.String() != "assistant" {
-			return "", false, fmt.Errorf("Chat opaque reasoning is not attached to an assistant message")
+			return "", false, fmt.Errorf("Chat reasoning is not attached to an assistant message")
 		}
-		candidate := []byte(field.Raw)
-		if meaningfulOpaqueJSON(candidate) {
-			if raw != nil {
-				return "", false, fmt.Errorf("multiple Chat choices contain opaque reasoning")
-			}
-			raw = candidate
-			anchor = copilotAnchorForMessage(message, request)
+		found = true
+		if meaningfulOpaqueJSON([]byte(field.Raw)) {
+			raw = []byte(field.Raw)
 		}
+		if text.Type == gjson.String {
+			value := text.String()
+			thinking = &value
+		}
+		anchor = copilotAnchorForMessage(message, request)
 	}
-	if raw == nil {
+	if !found {
 		return "", false, nil
 	}
-	carrier, err := encodeCopilotOpaque(raw, model, anchor)
+	carrier, err := encodeCopilotThinking(raw, thinking, model, anchor)
 	if err != nil {
 		return "", false, err
 	}
@@ -227,8 +265,8 @@ func copilotAnchorForMessage(message gjson.Result, request []byte) copilotOpaque
 		return true
 	})
 	if content := message.Get("content"); content.Exists() && content.Raw != "null" {
-		if text, ok := chatContentFingerprint(content); ok && text != "" {
-			anchor.ContentSHA256 = digest([]byte(text))
+		if fingerprint, ok := assistantContentFingerprint(content); ok {
+			anchor.ContentSHA256 = fingerprint
 		}
 	}
 	anchor.PriorUserSHA256 = priorChatUserFingerprint(request)
@@ -248,15 +286,208 @@ func meaningfulOpaqueJSON(raw []byte) bool {
 }
 
 func canonicalJSONDigest(raw string) string {
+	rawDigest := func() string { return digest([]byte("raw\x00" + raw)) }
+	if !json.Valid([]byte(raw)) || !jsonHasSafeStrings(raw) || !jsonHasUniqueObjectKeys(raw) {
+		return rawDigest()
+	}
 	var value any
-	if err := json.Unmarshal([]byte(raw), &value); err != nil {
-		return digest([]byte(raw))
+	decoder := json.NewDecoder(strings.NewReader(raw))
+	decoder.UseNumber()
+	if err := decoder.Decode(&value); err != nil {
+		return rawDigest()
+	}
+	value, ok := canonicalJSONNumbers(value)
+	if !ok {
+		return rawDigest()
 	}
 	canonical, err := json.Marshal(value)
 	if err != nil {
-		return digest([]byte(raw))
+		return rawDigest()
 	}
-	return digest(canonical)
+	return digest(append([]byte("canonical\x00"), canonical...))
+}
+
+// encoding/json replaces malformed UTF-8 and unpaired UTF-16 surrogates.
+// Preserve exact bytes when decoding would silently change a string or key.
+func jsonHasSafeStrings(raw string) bool {
+	if !utf8.ValidString(raw) {
+		return false
+	}
+	inside := false
+	for i := 0; i < len(raw); i++ {
+		switch raw[i] {
+		case '"':
+			inside = !inside
+		case '\\':
+			if !inside || i+1 >= len(raw) {
+				return false
+			}
+			i++
+			if raw[i] != 'u' {
+				continue
+			}
+			if i+4 >= len(raw) {
+				return false
+			}
+			unit, err := strconv.ParseUint(raw[i+1:i+5], 16, 16)
+			if err != nil {
+				return false
+			}
+			i += 4
+			if unit >= 0xdc00 && unit <= 0xdfff {
+				return false
+			}
+			if unit >= 0xd800 && unit <= 0xdbff {
+				if i+6 >= len(raw) || raw[i+1:i+3] != `\u` {
+					return false
+				}
+				low, err := strconv.ParseUint(raw[i+3:i+7], 16, 16)
+				if err != nil || low < 0xdc00 || low > 0xdfff {
+					return false
+				}
+				i += 6
+			}
+		}
+	}
+	return !inside
+}
+
+func validateCopilotSourceJSON(source sdktranslator.Format, body []byte) error {
+	switch source {
+	case sdktranslator.FormatOpenAIResponse, sdktranslator.FormatClaude:
+	default:
+		return nil
+	}
+	if !json.Valid(body) || !jsonHasSafeStrings(string(body)) || !jsonHasUniqueObjectKeys(string(body)) {
+		return fmt.Errorf("Copilot source has ambiguous JSON or invalid Unicode")
+	}
+	return nil
+}
+
+// A duplicate key has no portable JSON meaning. Keep its exact bytes rather
+// than accepting the last-value interpretation selected by encoding/json.
+func jsonHasUniqueObjectKeys(raw string) bool {
+	decoder := json.NewDecoder(strings.NewReader(raw))
+	decoder.UseNumber()
+	var scan func() bool
+	scan = func() bool {
+		token, err := decoder.Token()
+		if err != nil {
+			return false
+		}
+		delim, ok := token.(json.Delim)
+		if !ok {
+			return true
+		}
+		switch delim {
+		case '{':
+			keys := make(map[string]struct{})
+			for decoder.More() {
+				keyToken, err := decoder.Token()
+				key, ok := keyToken.(string)
+				if err != nil || !ok {
+					return false
+				}
+				if _, exists := keys[key]; exists {
+					return false
+				}
+				keys[key] = struct{}{}
+				if !scan() {
+					return false
+				}
+			}
+		case '[':
+			for decoder.More() {
+				if !scan() {
+					return false
+				}
+			}
+		default:
+			return false
+		}
+		_, err = decoder.Token()
+		return err == nil
+	}
+	return scan()
+}
+
+func canonicalJSONNumbers(value any) (any, bool) {
+	switch current := value.(type) {
+	case json.Number:
+		number, ok := canonicalJSONNumber(string(current))
+		return json.Number(number), ok
+	case []any:
+		for index, item := range current {
+			normalized, ok := canonicalJSONNumbers(item)
+			if !ok {
+				return nil, false
+			}
+			current[index] = normalized
+		}
+	case map[string]any:
+		for key, item := range current {
+			normalized, ok := canonicalJSONNumbers(item)
+			if !ok {
+				return nil, false
+			}
+			current[key] = normalized
+		}
+	}
+	return value, true
+}
+
+func canonicalJSONNumber(raw string) (string, bool) {
+	const maxDigits = 4096
+	const maxExponent = 1000000
+	sign := ""
+	if strings.HasPrefix(raw, "-") {
+		sign = "-"
+		raw = raw[1:]
+	}
+	mantissa := raw
+	exponent := 0
+	if index := strings.IndexAny(raw, "eE"); index >= 0 {
+		mantissa = raw[:index]
+		exponentText := raw[index+1:]
+		negative := strings.HasPrefix(exponentText, "-")
+		exponentText = strings.TrimPrefix(strings.TrimPrefix(exponentText, "-"), "+")
+		if len(exponentText) > 7 {
+			return "", false
+		}
+		for _, digit := range exponentText {
+			exponent = exponent*10 + int(digit-'0')
+			if exponent > maxExponent {
+				return "", false
+			}
+		}
+		if negative {
+			exponent = -exponent
+		}
+	}
+	fractionDigits := 0
+	if point := strings.IndexByte(mantissa, '.'); point >= 0 {
+		fractionDigits = len(mantissa) - point - 1
+	}
+	if len(mantissa) > maxDigits+1 {
+		return "", false
+	}
+	digits := strings.ReplaceAll(mantissa, ".", "")
+	if len(digits) > maxDigits {
+		return "", false
+	}
+	digits = strings.TrimLeft(digits, "0")
+	if digits == "" {
+		return "0", true
+	}
+	trimmed := strings.TrimRight(digits, "0")
+	exponent += len(digits) - len(trimmed) - fractionDigits
+	if exponent < -maxExponent || exponent > maxExponent {
+		return "", false
+	}
+	if exponent == 0 {
+		return sign + trimmed, true
+	}
+	return fmt.Sprintf("%s%se%d", sign, trimmed, exponent), true
 }
 
 func chatContentFingerprint(content gjson.Result) (string, bool) {
@@ -281,6 +512,17 @@ func chatContentFingerprint(content gjson.Result) (string, bool) {
 	return text.String(), true
 }
 
+func assistantContentFingerprint(content gjson.Result) (string, bool) {
+	if !jsonHasSafeStrings(content.Raw) || !jsonHasUniqueObjectKeys(content.Raw) {
+		return digest([]byte("assistant-raw\x00" + content.Raw)), true
+	}
+	text, ok := chatContentFingerprint(content)
+	if !ok || text == "" {
+		return "", false
+	}
+	return digest([]byte(text)), true
+}
+
 func priorChatUserFingerprint(request []byte) string {
 	messages := gjson.GetBytes(request, "messages")
 	if !messages.IsArray() {
@@ -297,26 +539,19 @@ func priorChatUserFingerprint(request []byte) string {
 }
 
 func chatUserContentFingerprint(content gjson.Result) (string, bool) {
+	if !content.Exists() || content.Type == gjson.Null {
+		return "", false
+	}
+	if !json.Valid([]byte(content.Raw)) || !jsonHasSafeStrings(content.Raw) || !jsonHasUniqueObjectKeys(content.Raw) {
+		return digest([]byte("user-raw\x00" + content.Raw)), true
+	}
 	if text, ok := chatContentFingerprint(content); ok {
 		if text == "" {
 			return "", false
 		}
-		return digest([]byte(text)), true
+		return digest([]byte("user-text\x00" + text)), true
 	}
-	if !content.Exists() || content.Type == gjson.Null {
-		return "", false
-	}
-	var value any
-	decoder := json.NewDecoder(strings.NewReader(content.Raw))
-	decoder.UseNumber()
-	if err := decoder.Decode(&value); err != nil {
-		return "", false
-	}
-	canonical, err := json.Marshal(value)
-	if err != nil {
-		return "", false
-	}
-	return digest(canonical), true
+	return digest([]byte("user-json\x00" + canonicalJSONDigest(content.Raw))), true
 }
 
 func digest(value []byte) string {
@@ -442,7 +677,13 @@ func restoreCopilotOpaqueToChat(chatRequest, responsesRequest []byte, model stri
 		return chatRequest, nil
 	}
 	values := make([]copilotOpaqueValue, 0)
+	priorUser := ""
+	var priorUserItem gjson.Result
 	for _, item := range items.Array() {
+		if item.Get("role").String() == "user" {
+			priorUserItem = item
+			priorUser, _ = chatUserContentFingerprint(item.Get("content"))
+		}
 		if item.Get("type").String() != "reasoning" {
 			continue
 		}
@@ -456,6 +697,30 @@ func restoreCopilotOpaqueToChat(chatRequest, responsesRequest []byte, model stri
 		value, err := decodeCopilotOpaque(encrypted.String(), model)
 		if err != nil {
 			return nil, err
+		}
+		if value.Thinking != nil {
+			if err := validateCopilotThinkingSummary(item, *value.Thinking); err != nil {
+				return nil, err
+			}
+		}
+		if value.Version >= 2 && value.Thinking != nil && len(value.Anchor.ToolCallIDs) == 0 && value.Anchor.ContentSHA256 == "" {
+			if _, textOnly := chatContentFingerprint(priorUserItem.Get("content")); priorUserItem.Exists() && !textOnly {
+				// Responses and Chat use different shapes for image and other media
+				// parts. Compare the same translated representation used at capture.
+				single := []byte(`{"input":[]}`)
+				single, err := sjson.SetRawBytes(single, "input.0", []byte(priorUserItem.Raw))
+				if err != nil {
+					return nil, fmt.Errorf("prepare Copilot reasoning user anchor")
+				}
+				translated, err := request(sdktranslator.FormatOpenAIResponse, sdktranslator.FormatOpenAI, model, single, false)
+				if err != nil {
+					return nil, fmt.Errorf("translate Copilot reasoning user anchor: %w", err)
+				}
+				priorUser = priorChatUserFingerprint(translated)
+			}
+			if value.Anchor.PriorUserSHA256 != priorUser {
+				return nil, fmt.Errorf("Copilot reasoning item does not follow its original user turn")
+			}
 		}
 		values = append(values, value)
 	}
@@ -482,14 +747,39 @@ func restoreCopilotOpaqueToChat(chatRequest, responsesRequest []byte, model stri
 		if len(group) != 1 {
 			return nil, fmt.Errorf("multiple Copilot opaque reasoning items share one assistant anchor")
 		}
-		messageIndex, insertIndex, err := findOpaqueAnchor(messages, group[0].Anchor)
+		if group[0].Version == 1 && len(group[0].Anchor.ToolCallIDs) > 0 {
+			return nil, fmt.Errorf("legacy Copilot reasoning carrier cannot safely bind tool arguments")
+		}
+		messageIndex, insertIndex, err := findOpaqueAnchor(messages, group[0])
 		if err != nil {
 			return nil, err
 		}
 		if messageIndex >= 0 {
-			updated, err := sjson.SetRawBytes(messages[messageIndex], "reasoning_opaque", group[0].Raw)
+			if group[0].Thinking != nil && len(group[0].Anchor.ToolCallIDs) > 0 {
+				// A normalized unsigned reasoning item can be relocated after the
+				// tool results by the generic translator. Its original position is
+				// then ambiguous, so do not silently retain it beside this carrier.
+				for i := messageIndex + 1; i < len(messages); i++ {
+					role := gjson.GetBytes(messages[i], "role").String()
+					if role == "user" {
+						break
+					}
+					if role != "assistant" {
+						continue
+					}
+					if sameToolCallIDs(messages[i], nil) && gjson.GetBytes(messages[i], "content").String() == "" && (gjson.GetBytes(messages[i], "reasoning_content").Exists() || gjson.GetBytes(messages[i], "reasoning_text").Exists()) {
+						alias := gjson.GetBytes(messages[i], "reasoning_content")
+						if alias.Type != gjson.String || alias.String() != *group[0].Thinking || gjson.GetBytes(messages[i], "reasoning_text").Exists() || gjson.GetBytes(messages[i], "reasoning_opaque").Exists() {
+							return nil, fmt.Errorf("Copilot reasoning following tool results is ambiguous")
+						}
+						messages = append(messages[:i], messages[i+1:]...)
+					}
+					break
+				}
+			}
+			updated, err := restoreCopilotThinkingFields(messages[messageIndex], group[0])
 			if err != nil {
-				return nil, fmt.Errorf("restore Copilot opaque reasoning")
+				return nil, err
 			}
 			if gjson.GetBytes(updated, "reasoning_content").String() == "[reasoning unavailable]" {
 				updated, _ = sjson.DeleteBytes(updated, "reasoning_content")
@@ -498,7 +788,10 @@ func restoreCopilotOpaqueToChat(chatRequest, responsesRequest []byte, model stri
 			continue
 		}
 		assistant := []byte(`{"role":"assistant","content":""}`)
-		assistant, _ = sjson.SetRawBytes(assistant, "reasoning_opaque", group[0].Raw)
+		assistant, err = restoreCopilotThinkingFields(assistant, group[0])
+		if err != nil {
+			return nil, err
+		}
 		messages = append(messages[:insertIndex], append([][]byte{assistant}, messages[insertIndex:]...)...)
 	}
 	var encodedMessages bytes.Buffer
@@ -517,14 +810,81 @@ func restoreCopilotOpaqueToChat(chatRequest, responsesRequest []byte, model stri
 	return updated, nil
 }
 
-func findOpaqueAnchor(messages [][]byte, anchor copilotOpaqueAnchor) (int, int, error) {
+func validateCopilotThinkingSummary(item gjson.Result, expected string) error {
+	summary := item.Get("summary")
+	if !summary.IsArray() || len(summary.Array()) == 0 || meaningfulOpaqueJSON([]byte(item.Get("content").Raw)) {
+		return fmt.Errorf("Copilot reasoning text does not match its carrier")
+	}
+	var text strings.Builder
+	for _, part := range summary.Array() {
+		value := part.Get("text")
+		if !part.IsObject() || part.Get("type").String() != "summary_text" || value.Type != gjson.String || !jsonHasSafeStrings(value.Raw) {
+			return fmt.Errorf("Copilot reasoning text does not match its carrier")
+		}
+		text.WriteString(value.String())
+	}
+	if text.String() != expected {
+		return fmt.Errorf("Copilot reasoning text does not match its carrier")
+	}
+	return nil
+}
+
+func restoreCopilotThinkingFields(message []byte, value copilotOpaqueValue) ([]byte, error) {
+	var err error
+	if value.Thinking != nil {
+		native := gjson.GetBytes(message, "reasoning_text")
+		alias := gjson.GetBytes(message, "reasoning_content")
+		opaque := gjson.GetBytes(message, "reasoning_opaque")
+		if (native.Exists() && (native.Type != gjson.String || native.String() != *value.Thinking)) ||
+			(alias.Exists() && (alias.Type != gjson.String || (alias.String() != "" && alias.String() != "[reasoning unavailable]" && alias.String() != *value.Thinking))) ||
+			(opaque.Exists() && (meaningfulOpaqueJSON(value.Raw) != meaningfulOpaqueJSON([]byte(opaque.Raw)) || (meaningfulOpaqueJSON(value.Raw) && opaque.Raw != string(value.Raw)))) {
+			return nil, fmt.Errorf("Copilot reasoning fields conflict with their carrier")
+		}
+	}
+	if meaningfulOpaqueJSON(value.Raw) {
+		message, err = sjson.SetRawBytes(message, "reasoning_opaque", value.Raw)
+		if err != nil {
+			return nil, fmt.Errorf("restore Copilot opaque reasoning")
+		}
+	}
+	if value.Thinking != nil {
+		message, err = sjson.DeleteBytes(message, "reasoning_content")
+		if err != nil {
+			return nil, fmt.Errorf("remove translated reasoning alias")
+		}
+		message, err = sjson.SetBytes(message, "reasoning_text", *value.Thinking)
+		if err != nil {
+			return nil, fmt.Errorf("restore Copilot reasoning text")
+		}
+	}
+	return message, nil
+}
+
+func findOpaqueAnchor(messages [][]byte, value copilotOpaqueValue) (int, int, error) {
+	anchor := value.Anchor
 	var matches []int
 	for index, message := range messages {
 		if gjson.GetBytes(message, "role").String() != "assistant" {
 			continue
 		}
 		if len(anchor.ToolCallIDs) == 0 && anchor.ContentSHA256 == "" {
-			if anchor.PriorUserSHA256 != "" && gjson.GetBytes(message, "reasoning_content").String() == "[reasoning unavailable]" && previousUserFingerprint(messages, index) == anchor.PriorUserSHA256 {
+			reasoning := gjson.GetBytes(message, "reasoning_content").String()
+			matchesThinking := value.Thinking != nil && reasoning == *value.Thinking && sameToolCallIDs(message, nil) && gjson.GetBytes(message, "content").String() == ""
+			if value.Thinking != nil && reasoning != "" && reasoning != "[reasoning unavailable]" && !matchesThinking && sameToolCallIDs(message, nil) && gjson.GetBytes(message, "content").String() == "" && previousUserFingerprint(messages, index) == anchor.PriorUserSHA256 {
+				return -1, -1, fmt.Errorf("Copilot reasoning fields conflict with their carrier")
+			}
+			nativeText := gjson.GetBytes(message, "reasoning_text")
+			matchesNative := nativeText.Exists() && value.Thinking != nil && nativeText.Type == gjson.String && nativeText.String() == *value.Thinking && sameToolCallIDs(message, nil) && gjson.GetBytes(message, "content").String() == ""
+			if nativeText.Exists() && !matchesNative && value.Thinking != nil && sameToolCallIDs(message, nil) && gjson.GetBytes(message, "content").String() == "" && previousUserFingerprint(messages, index) == anchor.PriorUserSHA256 {
+				return -1, -1, fmt.Errorf("Copilot reasoning fields conflict with their carrier")
+			}
+			if matchesNative {
+				existingOpaque := gjson.GetBytes(message, "reasoning_opaque")
+				if meaningfulOpaqueJSON(value.Raw) != meaningfulOpaqueJSON([]byte(existingOpaque.Raw)) || (meaningfulOpaqueJSON(value.Raw) && existingOpaque.Raw != string(value.Raw)) {
+					return -1, -1, fmt.Errorf("Copilot reasoning fields conflict with their carrier")
+				}
+			}
+			if anchor.PriorUserSHA256 != "" && (reasoning == "[reasoning unavailable]" || matchesThinking || matchesNative) && previousUserFingerprint(messages, index) == anchor.PriorUserSHA256 {
 				matches = append(matches, index)
 			}
 			continue
@@ -536,8 +896,8 @@ func findOpaqueAnchor(messages [][]byte, anchor copilotOpaqueAnchor) (int, int, 
 			continue
 		}
 		if anchor.ContentSHA256 != "" {
-			content, ok := chatContentFingerprint(gjson.GetBytes(message, "content"))
-			if !ok || digest([]byte(content)) != anchor.ContentSHA256 {
+			content, ok := assistantContentFingerprint(gjson.GetBytes(message, "content"))
+			if !ok || content != anchor.ContentSHA256 {
 				continue
 			}
 		}
@@ -570,13 +930,16 @@ func findOpaqueAnchor(messages [][]byte, anchor copilotOpaqueAnchor) (int, int, 
 			userMatchCount++
 		}
 	}
-	if userMatchCount != 1 || matchedUserIndex != userIndex {
+	if userMatchCount != 1 || ((value.Version == 1 || value.Thinking == nil) && matchedUserIndex != userIndex) {
 		return -1, -1, fmt.Errorf("Copilot opaque reasoning prior-user anchor is missing or ambiguous")
 	}
 	userIndex = matchedUserIndex
 	insertIndex := userIndex + 1
 	for insertIndex < len(messages) && gjson.GetBytes(messages[insertIndex], "role").String() == "assistant" {
 		if sameToolCallIDs(messages[insertIndex], nil) && gjson.GetBytes(messages[insertIndex], "reasoning_opaque").Exists() {
+			if value.Thinking != nil {
+				return -1, -1, fmt.Errorf("Copilot reasoning fields conflict with their carrier")
+			}
 			return insertIndex, -1, nil
 		}
 		insertIndex++
@@ -650,6 +1013,11 @@ func responsesOpaqueCarriers(body []byte, model string) ([]copilotOpaqueValue, e
 		if err != nil {
 			return nil, err
 		}
+		if value.Thinking != nil {
+			if err := validateCopilotThinkingSummary(item, *value.Thinking); err != nil {
+				return nil, err
+			}
+		}
 		values = append(values, value)
 	}
 	return values, nil
@@ -706,6 +1074,11 @@ func (s *chatOpaqueStreamState) observe(frame, request []byte, model string) err
 	if err != nil || done || len(data) == 0 || bytes.Equal(data, []byte("[DONE]")) {
 		return err
 	}
+	// Reasoning may arrive after any preceding delta. Validate each event before
+	// it can be translated into a lossy assistant or tool-call anchor.
+	if !json.Valid(data) || !jsonHasSafeStrings(string(data)) || !jsonHasUniqueObjectKeys(string(data)) {
+		return fmt.Errorf("Copilot Chat stream has ambiguous JSON or invalid Unicode")
+	}
 	if id := gjson.GetBytes(data, "id").String(); id != "" {
 		s.ID = id
 	}
@@ -720,10 +1093,37 @@ func (s *chatOpaqueStreamState) observe(frame, request []byte, model string) err
 		message := choice.Get("message")
 		delta := choice.Get("delta")
 		if choice.Get("index").Int() != 0 {
-			if meaningfulOpaqueJSON([]byte(choiceOpaqueRaw(message, delta))) {
+			if meaningfulOpaqueJSON([]byte(choiceOpaqueRaw(message, delta))) || message.Get("reasoning_text").Type == gjson.String || delta.Get("reasoning_text").Type == gjson.String {
 				return fmt.Errorf("multiple Chat choices contain opaque reasoning")
 			}
 			continue
+		}
+		text := delta.Get("reasoning_text")
+		if message.Exists() {
+			text = message.Get("reasoning_text")
+		}
+		if text.Exists() && text.Type != gjson.String && text.Type != gjson.Null {
+			return fmt.Errorf("Chat reasoning_text is not a string")
+		}
+		if text.Type == gjson.String && !jsonHasSafeStrings(text.Raw) {
+			return fmt.Errorf("Chat reasoning_text has invalid Unicode")
+		}
+		alias := delta.Get("reasoning_content")
+		if message.Exists() {
+			alias = message.Get("reasoning_content")
+		}
+		if meaningfulOpaqueJSON([]byte(alias.Raw)) {
+			s.HasReasoningAlias = true
+		}
+		if text.Type == gjson.String {
+			if message.Exists() {
+				s.Thinking.Reset()
+			}
+			s.HasThinking = true
+			s.Thinking.WriteString(text.String())
+		}
+		if s.HasThinking && s.HasReasoningAlias {
+			return fmt.Errorf("Chat stream contains multiple reasoning text fields")
 		}
 		if message.Exists() {
 			s.Content.Reset()
@@ -835,7 +1235,7 @@ func (s *chatOpaqueStreamState) observeToolCalls(calls gjson.Result, fragments b
 }
 
 func (s *chatOpaqueStreamState) carrier(request []byte, model string) (string, bool, error) {
-	if len(s.Raw) == 0 {
+	if len(s.Raw) == 0 && !s.HasThinking {
 		return "", false, nil
 	}
 	message := map[string]any{"role": "assistant", "content": s.Content.String()}
@@ -866,7 +1266,12 @@ func (s *chatOpaqueStreamState) carrier(request []byte, model string) (string, b
 		return "", false, fmt.Errorf("encode Chat assistant anchor")
 	}
 	anchor := copilotAnchorForMessage(gjson.ParseBytes(messageJSON), request)
-	carrier, err := encodeCopilotOpaque(s.Raw, model, anchor)
+	var thinking *string
+	if s.HasThinking {
+		text := s.Thinking.String()
+		thinking = &text
+	}
+	carrier, err := encodeCopilotThinking(s.Raw, thinking, model, anchor)
 	if err != nil {
 		return "", false, err
 	}
@@ -877,10 +1282,36 @@ func chatToResponsesStream(ctx context.Context, model string, original, translat
 	out := registry.TranslateStream(ctx, sdktranslator.FormatOpenAI, sdktranslator.FormatOpenAIResponse, model, original, translated, frame, &state.Chat)
 	var translatedFrames [][]byte
 	for _, responseFrame := range out {
+		event, data, _, err := parseSSEFrame(responseFrame)
+		if err != nil {
+			return nil, err
+		}
+		if event == "response.completed" || (event == "" && gjson.GetBytes(data, "type").String() == "response.completed") {
+			if state.PendingCompleted != nil {
+				return nil, fmt.Errorf("Chat stream emitted multiple completed responses")
+			}
+			state.PendingCompleted = append([]byte(nil), responseFrame...)
+			continue
+		}
 		processed, err := state.processResponseFrame(responseFrame, translated)
 		if err != nil {
 			return nil, err
 		}
+		translatedFrames = append(translatedFrames, processed...)
+	}
+	_, _, done, err := parseSSEFrame(frame)
+	if err != nil {
+		return nil, err
+	}
+	if done && state.PendingCompleted == nil && !state.Completed {
+		return nil, fmt.Errorf("Chat stream ended without a translated completion")
+	}
+	if done && state.PendingCompleted != nil {
+		processed, err := state.processResponseFrame(state.PendingCompleted, translated)
+		if err != nil {
+			return nil, err
+		}
+		state.PendingCompleted = nil
 		translatedFrames = append(translatedFrames, processed...)
 	}
 	return translatedFrames, nil
@@ -933,11 +1364,15 @@ func (s *chatOpaqueStreamState) processResponseFrame(frame, request []byte) ([][
 	index := len(output)
 	responseID := stringValue(responseObject["id"])
 	itemID := opaqueResponseItemID(responseID, carrier)
+	summary := []any{}
+	if s.HasThinking {
+		summary = append(summary, map[string]any{"type": "summary_text", "text": s.Thinking.String()})
+	}
 	item := map[string]any{
 		"id":                itemID,
 		"type":              "reasoning",
 		"status":            "completed",
-		"summary":           []any{},
+		"summary":           summary,
 		"encrypted_content": carrier,
 	}
 	output = append(output, item)
@@ -996,11 +1431,19 @@ func responseSSEBytes(event string, payload []byte) []byte {
 	return []byte("event: " + event + "\ndata: " + string(payload) + "\n\n")
 }
 
-func insertOpaqueReasoning(response []byte, carrier string) ([]byte, error) {
+func insertOpaqueReasoning(response []byte, carrier, model string) ([]byte, error) {
+	value, err := decodeCopilotOpaque(carrier, model)
+	if err != nil {
+		return nil, err
+	}
+	summary := []map[string]string{}
+	if value.Thinking != nil {
+		summary = append(summary, map[string]string{"type": "summary_text", "text": *value.Thinking})
+	}
 	root := gjson.ParseBytes(response)
 	output := root.Get("output")
-	if !output.IsArray() {
-		return nil, fmt.Errorf("translated Responses output has no output array")
+	if output.Exists() && !output.IsArray() {
+		return nil, fmt.Errorf("translated Responses output is not an array")
 	}
 	items := make([][]byte, 0, len(output.Array())+1)
 	attached := false
@@ -1012,6 +1455,12 @@ func insertOpaqueReasoning(response []byte, carrier string) ([]byte, error) {
 			if err != nil {
 				return nil, fmt.Errorf("attach Copilot reasoning carrier")
 			}
+			if value.Thinking != nil {
+				itemRaw, err = sjson.SetBytes(itemRaw, "summary", summary)
+				if err != nil {
+					return nil, fmt.Errorf("attach Copilot reasoning text")
+				}
+			}
 			attached = true
 		}
 		items = append(items, itemRaw)
@@ -1021,6 +1470,9 @@ func insertOpaqueReasoning(response []byte, carrier string) ([]byte, error) {
 		item := []byte(`{"id":"","type":"reasoning","summary":[],"encrypted_content":""}`)
 		item, _ = sjson.SetBytes(item, "id", id)
 		item, _ = sjson.SetBytes(item, "encrypted_content", carrier)
+		if value.Thinking != nil {
+			item, _ = sjson.SetBytes(item, "summary", summary)
+		}
 		items = append(items, item)
 	}
 	return setRawArray(response, "output", items)
@@ -1041,4 +1493,26 @@ func setRawArray(body []byte, path string, values [][]byte) ([]byte, error) {
 	}
 	array.WriteByte(']')
 	return sjson.SetRawBytes(body, path, array.Bytes())
+}
+
+// RestoreCopilotReasoningFromOriginal restores authenticated Chat reasoning from
+// an original client history onto the already translated host payload.
+func RestoreCopilotReasoningFromOriginal(source, model string, original, chatRequest []byte, stream bool) ([]byte, error) {
+	var responses []byte
+	var err error
+	if err = validateCopilotSourceJSON(sdktranslator.FromString(source), original); err != nil {
+		return nil, err
+	}
+	switch sdktranslator.FromString(source) {
+	case sdktranslator.FormatClaude:
+		responses, err = claudeRequestToResponses(model, original, stream)
+	case sdktranslator.FormatOpenAIResponse:
+		responses = original
+	default:
+		return chatRequest, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return restoreCopilotOpaqueToChat(chatRequest, responses, model)
 }

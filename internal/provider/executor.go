@@ -14,6 +14,7 @@ import (
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/translate"
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/transport"
 	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
+	"github.com/tidwall/gjson"
 )
 
 const (
@@ -86,6 +87,12 @@ func (s *Service) Execute(ctx context.Context, req ExecuteRequest) (pluginapi.Ex
 	requestBody, errTranslate := translate.RequestForEndpointFrom(sourceFormat, req.Model, translationPayload, false, endpoint)
 	if errTranslate != nil {
 		return pluginapi.ExecutorResponse{}, translationStatusError(errTranslate)
+	}
+	if endpoint == translate.EndpointChatCompletions {
+		requestBody, errTranslate = restoreOriginalCopilotReasoning(sourceFormat, req.Model, req.OriginalRequest, requestBody, carrierScope, false)
+		if errTranslate != nil {
+			return pluginapi.ExecutorResponse{}, statusError("reasoning_carrier_error", errTranslate.Error(), http.StatusUnprocessableEntity)
+		}
 	}
 	if endpoint == translate.EndpointMessages {
 		requestBody, errTranslate = normalizeClaudeMessagesRequest(model, sourceFormat, req.Payload, requestBody)
@@ -247,6 +254,12 @@ func (s *Service) ExecuteStream(ctx context.Context, req ExecuteRequest) (http.H
 	requestBody, errTranslate := translate.RequestForEndpointFrom(sourceFormat, req.Model, translationPayload, true, endpoint)
 	if errTranslate != nil {
 		return nil, translationStatusError(errTranslate)
+	}
+	if endpoint == translate.EndpointChatCompletions {
+		requestBody, errTranslate = restoreOriginalCopilotReasoning(sourceFormat, req.Model, req.OriginalRequest, requestBody, carrierScope, true)
+		if errTranslate != nil {
+			return nil, statusError("reasoning_carrier_error", errTranslate.Error(), http.StatusUnprocessableEntity)
+		}
 	}
 	if endpoint == translate.EndpointMessages {
 		requestBody, errTranslate = normalizeClaudeMessagesRequest(model, sourceFormat, req.Payload, requestBody)
@@ -438,8 +451,11 @@ func (s *Service) collectStreamError(ctx context.Context, stream transport.Strea
 func (s *Service) pumpStream(ctx context.Context, outputID, endpoint, destination, model string, original, translated []byte, upstream transport.Stream, scopeKey string, carrierScope reasoningCarrierScope, copilotToken, githubToken string) {
 	var terminalErr error
 	var terminal streamTerminal
+	upstreamClosed := false
 	defer func() {
-		_ = s.host.CloseStream(context.WithoutCancel(ctx), upstream.ID)
+		if !upstreamClosed {
+			_ = s.host.CloseStream(context.WithoutCancel(ctx), upstream.ID)
+		}
 		message := ""
 		if terminalErr != nil {
 			message = redact.ErrorBody([]byte(terminalErr.Error()), copilotToken, githubToken)
@@ -480,6 +496,42 @@ func (s *Service) pumpStream(ctx context.Context, outputID, endpoint, destinatio
 		}
 		return nil
 	}
+	const maxReasoningStreamBytes = 8 << 20
+	captureReasoning := false
+	seenDone := false
+	var captured [][]byte
+	capturedBytes := 0
+	processFrame := func(frame []byte) (bool, error) {
+		_, data := parseSSEFrame(frame)
+		if seenDone && data != "" {
+			return false, fmt.Errorf("Copilot Chat stream sent data after DONE")
+		}
+		done, err := terminal.observe(endpoint, frame, copilotToken, githubToken)
+		if err != nil {
+			return false, err
+		}
+		if endpoint == translate.EndpointChatCompletions && destination != "openai" {
+			hasReasoning, reasoningBytes := chatStreamReasoningSize(data)
+			if hasReasoning {
+				captureReasoning = true
+				capturedBytes += reasoningBytes
+			}
+		}
+		if captureReasoning {
+			if capturedBytes > maxReasoningStreamBytes {
+				return false, fmt.Errorf("Copilot reasoning stream exceeds buffered limit")
+			}
+			if done {
+				seenDone = true
+				captured = append(captured, append([]byte(nil), frame...))
+				return false, nil
+			}
+		}
+		if err := emit(frame); err != nil {
+			return false, err
+		}
+		return done, nil
+	}
 	for {
 		if errContext := ctx.Err(); errContext != nil {
 			terminalErr = fmt.Errorf("Copilot stream canceled: %w", errContext)
@@ -495,13 +547,9 @@ func (s *Service) pumpStream(ctx context.Context, outputID, endpoint, destinatio
 			return
 		}
 		for _, frame := range decoder.Feed(chunk.Payload) {
-			done, errTerminal := terminal.observe(endpoint, frame, copilotToken, githubToken)
-			if errTerminal != nil {
-				terminalErr = errTerminal
-				return
-			}
-			if errEmit := emit(frame); errEmit != nil {
-				terminalErr = fmt.Errorf("translate Copilot stream: %s", redact.ErrorBody([]byte(errEmit.Error()), copilotToken, githubToken))
+			done, err := processFrame(frame)
+			if err != nil {
+				terminalErr = fmt.Errorf("process Copilot stream: %s", redact.ErrorBody([]byte(err.Error()), copilotToken, githubToken))
 				return
 			}
 			if done {
@@ -511,31 +559,92 @@ func (s *Service) pumpStream(ctx context.Context, outputID, endpoint, destinatio
 				return
 			}
 		}
-		if chunk.Done {
-			if trailing := decoder.Flush(); len(trailing) > 0 {
-				done, errTerminal := terminal.observe(endpoint, trailing, copilotToken, githubToken)
-				if errTerminal != nil {
-					terminalErr = errTerminal
-					return
-				}
-				if errEmit := emit(trailing); errEmit != nil {
-					terminalErr = fmt.Errorf("translate final Copilot stream frame: %s", redact.ErrorBody([]byte(errEmit.Error()), copilotToken, githubToken))
-					return
-				}
-				if done {
-					if endpoint == translate.EndpointResponses && terminal.completed {
-						s.recordReasoningReplay(scopeKey, terminal.response)
-					}
-					return
-				}
-			}
-			if !terminal.completed {
-				terminalErr = fmt.Errorf("Copilot stream ended without a successful terminal event")
+		if !chunk.Done {
+			continue
+		}
+		if trailing := decoder.Flush(); len(trailing) > 0 {
+			done, err := processFrame(trailing)
+			if err != nil {
+				terminalErr = fmt.Errorf("process final Copilot stream frame: %s", redact.ErrorBody([]byte(err.Error()), copilotToken, githubToken))
 				return
 			}
+			if done {
+				if endpoint == translate.EndpointResponses && terminal.completed {
+					s.recordReasoningReplay(scopeKey, terminal.response)
+				}
+				return
+			}
+		}
+		if !terminal.completed {
+			terminalErr = fmt.Errorf("Copilot stream ended without a successful terminal event")
 			return
 		}
+		if captureReasoning {
+			if err := ctx.Err(); err != nil {
+				terminalErr = fmt.Errorf("Copilot stream canceled: %w", err)
+				return
+			}
+			err := s.host.CloseStream(context.WithoutCancel(ctx), upstream.ID)
+			upstreamClosed = true
+			if err != nil {
+				terminalErr = fmt.Errorf("close Copilot stream: %s", redact.ErrorBody([]byte(err.Error()), copilotToken, githubToken))
+				return
+			}
+			for _, frame := range captured {
+				if err := emit(frame); err != nil {
+					terminalErr = fmt.Errorf("translate Copilot stream: %s", redact.ErrorBody([]byte(err.Error()), copilotToken, githubToken))
+					return
+				}
+			}
+		}
+		return
 	}
+
+}
+
+func restoreOriginalCopilotReasoning(source, model string, original, chatRequest []byte, scope reasoningCarrierScope, stream bool) ([]byte, error) {
+	if len(original) == 0 {
+		return chatRequest, nil
+	}
+	hasCarrier := false
+	for _, path := range requestReasoningCarrierPaths(source, original) {
+		value := gjson.GetBytes(original, path).String()
+		if strings.HasPrefix(value, reasoningCarrierNamespace) {
+			hasCarrier = true
+			break
+		}
+	}
+	unwrapped, err := unwrapRequestReasoningCarriers(source, original, scope)
+	if err != nil {
+		return nil, err
+	}
+	if err := validateReasoningRequestForEndpoint(source, unwrapped, translate.EndpointChatCompletions); err != nil {
+		return nil, err
+	}
+	if !hasCarrier {
+		return chatRequest, nil
+	}
+	unwrapped, err = normalizeClaudeSourceRequest(source, unwrapped)
+	if err != nil {
+		return nil, err
+	}
+	return translate.RestoreCopilotReasoningFromOriginal(source, model, unwrapped, chatRequest, stream)
+}
+
+func chatStreamReasoningSize(data string) (bool, int) {
+	if data == "" || data == "[DONE]" {
+		return false, 0
+	}
+	found, size := false, 0
+	for _, choice := range gjson.Get(data, "choices").Array() {
+		for _, key := range []string{"delta.reasoning_text", "delta.reasoning_opaque", "message.reasoning_text", "message.reasoning_opaque"} {
+			if value := choice.Get(key); value.Exists() {
+				found = true
+				size += len(value.Raw)
+			}
+		}
+	}
+	return found, size
 }
 
 func normalizeRequestFormat(value string) string {
