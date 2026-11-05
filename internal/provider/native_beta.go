@@ -10,14 +10,13 @@ import (
 // copilotInferenceHeaders builds the inference headers for one translated
 // outbound body. The initiator and the vision flag derive from that body, so
 // the initial dispatch and the bearer-refresh retry send identical derived
-// headers. Direct OAuth keeps its minimal header policy.
+// headers. Both authentication modes use these derived inference headers;
+// direct OAuth still omits editor and Copilot Chat integration headers.
 func copilotInferenceHeaders(token copilotTokenEntry, endpoint string, body []byte, stream, visionSupported bool, nativeBeta []string) http.Header {
 	headers := copilotRequestHeaders(token, stream)
-	if effectiveAuthMode(token.Mode) != authModeDirectOAuth {
-		headers.Set("X-Initiator", copilotInferenceInitiator(endpoint, body))
-		if visionSupported && copilotRequestContainsImage(endpoint, body) {
-			headers.Set("Copilot-Vision-Request", "true")
-		}
+	headers.Set("X-Initiator", copilotInferenceInitiator(endpoint, body))
+	if visionSupported && copilotRequestContainsImage(endpoint, body) {
+		headers.Set("Copilot-Vision-Request", "true")
 	}
 	for _, value := range nativeBeta {
 		headers.Add("OpenAI-Beta", value)

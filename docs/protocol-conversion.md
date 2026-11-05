@@ -56,10 +56,12 @@ Tool call IDs and paired results must remain correlated, including parallel call
 
 ## Headers and beta flags
 
-In token-exchange mode, the plugin derives `X-Initiator` from the final translated turn and sets `Copilot-Vision-Request: true` only when the model supports vision and the translated body contains a typed image.
+In both authentication modes, the plugin derives `X-Initiator` from the final translated turn and sets `Copilot-Vision-Request: true` only when the model supports vision and the translated body contains a typed image.
 A Messages tool-result turn is an agent continuation.
-Direct OAuth retains its minimal header policy.
-The derived headers are rebuilt from the same body on a token-refresh retry.
+Direct OAuth still uses its own user agent and omits editor and Copilot Chat integration headers.
+Token-exchange refresh retries rebuild the derived headers from the same body.
+Direct OAuth invalidates cached authentication on HTTP 401 or 403 and does not retry the request.
+Direct OAuth provider acceptance of these derived headers remains unverified.
 
 The plugin forwards repeated `OpenAI-Beta` values in order only for native Responses-to-Responses requests with a nonempty original body whose model exactly matches the selected model.
 This applies to JSON, streams and refresh retry.

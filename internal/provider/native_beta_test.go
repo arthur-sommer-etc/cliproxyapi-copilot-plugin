@@ -109,8 +109,23 @@ func TestCopilotInferenceHeadersDeriveInitiatorAndVisionFromOutboundBody(t *test
 			wantInitiator: "user",
 		},
 		{
-			name: "direct oauth keeps its minimal header policy", endpoint: translate.EndpointChatCompletions, mode: authModeDirectOAuth,
-			body: `{"model":"gemini-3.8-flash","messages":[{"role":"user","content":[{"type":"image_url","image_url":{"url":"data:image/png;base64,aW1hZ2U="}}]},{"role":"tool","content":"done"}]}`,
+			name: "direct oauth chat tool continuation with image", endpoint: translate.EndpointChatCompletions, mode: authModeDirectOAuth,
+			body:            `{"model":"gemini-3.8-flash","messages":[{"role":"user","content":[{"type":"image_url","image_url":{"url":"data:image/png;base64,aW1hZ2U="}}]},{"role":"tool","content":"done"}]}`,
+			visionSupported: true, wantInitiator: "agent", wantVision: "true",
+		},
+		{
+			name: "direct oauth responses first user turn", endpoint: translate.EndpointResponses, mode: authModeDirectOAuth,
+			body: `{"input":[{"role":"user","content":"hello"}]}`, wantInitiator: "user",
+		},
+		{
+			name: "direct oauth vision capability gates image flag", endpoint: translate.EndpointResponses, mode: authModeDirectOAuth,
+			body:          `{"input":[{"type":"function_call_output","call_id":"call_1","output":[{"type":"input_image","image_url":"data:image/png;base64,aW1hZ2U="}]}]}`,
+			wantInitiator: "agent",
+		},
+		{
+			name: "direct oauth messages tool result image", endpoint: translate.EndpointMessages, mode: authModeDirectOAuth,
+			body:            `{"messages":[{"role":"user","content":[{"type":"tool_result","tool_use_id":"tool_1","content":[{"type":"image","source":{"type":"base64","media_type":"image/png","data":"aW1hZ2U="}}]}]}]}`,
+			visionSupported: true, wantInitiator: "agent", wantVision: "true",
 		},
 	} {
 		t.Run(test.name, func(t *testing.T) {
