@@ -2,6 +2,7 @@ package provider
 
 import (
 	"net/http"
+	"slices"
 
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/translate"
 	"github.com/tidwall/gjson"
@@ -18,7 +19,7 @@ func copilotInferenceHeaders(token copilotTokenEntry, endpoint string, body []by
 	if visionSupported && copilotRequestContainsImage(endpoint, body) {
 		headers.Set("Copilot-Vision-Request", "true")
 	}
-	for _, value := range nativeBeta {
+	for value := range slices.Values(nativeBeta) {
 		headers.Add("OpenAI-Beta", value)
 	}
 	return headers
@@ -60,29 +61,29 @@ func copilotRequestContainsImage(endpoint string, body []byte) bool {
 	root := gjson.ParseBytes(body)
 	switch endpoint {
 	case translate.EndpointChatCompletions:
-		for _, message := range root.Get("messages").Array() {
-			for _, part := range message.Get("content").Array() {
+		for message := range slices.Values(root.Get("messages").Array()) {
+			for part := range slices.Values(message.Get("content").Array()) {
 				if part.Get("type").String() == "image_url" {
 					return true
 				}
 			}
 		}
 	case translate.EndpointResponses:
-		for _, item := range root.Get("input").Array() {
-			for _, part := range item.Get("content").Array() {
+		for item := range slices.Values(root.Get("input").Array()) {
+			for part := range slices.Values(item.Get("content").Array()) {
 				if part.Get("type").String() == "input_image" {
 					return true
 				}
 			}
-			for _, part := range item.Get("output").Array() {
+			for part := range slices.Values(item.Get("output").Array()) {
 				if part.Get("type").String() == "input_image" {
 					return true
 				}
 			}
 		}
 	case translate.EndpointMessages:
-		for _, message := range root.Get("messages").Array() {
-			for _, block := range message.Get("content").Array() {
+		for message := range slices.Values(root.Get("messages").Array()) {
+			for block := range slices.Values(message.Get("content").Array()) {
 				if copilotMessagesBlockHasImage(block) {
 					return true
 				}
@@ -97,7 +98,7 @@ func copilotMessagesBlockHasImage(block gjson.Result) bool {
 	case "image":
 		return true
 	case "tool_result":
-		for _, nested := range block.Get("content").Array() {
+		for nested := range slices.Values(block.Get("content").Array()) {
 			if nested.Get("type").String() == "image" {
 				return true
 			}
@@ -107,7 +108,7 @@ func copilotMessagesBlockHasImage(block gjson.Result) bool {
 }
 
 func copilotMessagesCarriesToolResult(message gjson.Result) bool {
-	for _, block := range message.Get("content").Array() {
+	for block := range slices.Values(message.Get("content").Array()) {
 		if block.Get("type").String() == "tool_result" {
 			return true
 		}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -71,7 +72,7 @@ func setupDirectInferenceHeaderService(t *testing.T, endpoint string) (*Service,
 }
 
 func TestDirectOAuthDerivesInferenceHeadersAtExecutorTransport(t *testing.T) {
-	for _, test := range []struct {
+	for test := range slices.Values([]struct {
 		name, source, endpoint, body, initiator, vision string
 	}{
 		{"chat user", "openai", translate.EndpointChatCompletions, `{"model":"gpt-6-luna","messages":[{"role":"user","content":"hello"}]}`, "user", ""},
@@ -88,8 +89,8 @@ func TestDirectOAuthDerivesInferenceHeadersAtExecutorTransport(t *testing.T) {
 		{"messages continuation", "claude", translate.EndpointMessages, `{"model":"gpt-6-luna","max_tokens":64,"messages":[{"role":"assistant","content":[{"type":"tool_use","id":"tool_1","name":"read","input":{}}]},{"role":"user","content":[{"type":"tool_result","tool_use_id":"tool_1","content":"done"}]}]}`, "agent", ""},
 		{"messages image", "claude", translate.EndpointMessages, `{"model":"gpt-6-luna","max_tokens":64,"messages":[{"role":"user","content":[{"type":"image","source":{"type":"base64","media_type":"image/png","data":"aW1hZ2U="}}]}]}`, "user", "true"},
 		{"messages tool image", "claude", translate.EndpointMessages, `{"model":"gpt-6-luna","max_tokens":64,"messages":[{"role":"assistant","content":[{"type":"tool_use","id":"tool_1","name":"read","input":{}}]},{"role":"user","content":[{"type":"tool_result","tool_use_id":"tool_1","content":[{"type":"image","source":{"type":"base64","media_type":"image/png","data":"aW1hZ2U="}}]}]}]}`, "agent", "true"},
-	} {
-		for _, streaming := range []bool{false, true} {
+	}) {
+		for streaming := range slices.Values([]bool{false, true}) {
 			t.Run(fmt.Sprintf("%s/stream=%t", test.name, streaming), func(t *testing.T) {
 				service, host, storage, authID := setupDirectInferenceHeaderService(t, test.endpoint)
 				payload := []byte(test.body)
@@ -152,7 +153,7 @@ func TestDirectOAuthDerivesInferenceHeadersAtExecutorTransport(t *testing.T) {
 				if outbound.Headers.Get("Authorization") != "Bearer synthetic-direct-credential" || outbound.Headers.Get("User-Agent") != userAgent() {
 					t.Fatal("direct OAuth authorization or user agent changed")
 				}
-				for _, name := range []string{"Cookie", "Copilot-Integration-Id", "Editor-Version", "Editor-Plugin-Version", "OpenAI-Intent", "X-Agent-Task-Id", "X-Interaction-Type", "X-Request-Id"} {
+				for name := range slices.Values([]string{"Cookie", "Copilot-Integration-Id", "Editor-Version", "Editor-Plugin-Version", "OpenAI-Intent", "X-Agent-Task-Id", "X-Interaction-Type", "X-Request-Id"}) {
 					if got := outbound.Headers.Get(name); got != "" {
 						t.Fatalf("unexpected caller/editor identity header %s", name)
 					}
@@ -163,8 +164,8 @@ func TestDirectOAuthDerivesInferenceHeadersAtExecutorTransport(t *testing.T) {
 }
 
 func TestDirectOAuthHeaderDispatchDoesNotRetryUnauthorized(t *testing.T) {
-	for _, status := range []int{http.StatusUnauthorized, http.StatusForbidden} {
-		for _, streaming := range []bool{false, true} {
+	for status := range slices.Values([]int{http.StatusUnauthorized, http.StatusForbidden}) {
+		for streaming := range slices.Values([]bool{false, true}) {
 			t.Run(fmt.Sprintf("status=%d/stream=%t", status, streaming), func(t *testing.T) {
 				service, host, storage, authID := setupDirectInferenceHeaderService(t, translate.EndpointResponses)
 				host.responseStatus, host.streamStatus = status, status
@@ -195,7 +196,7 @@ func TestDirectOAuthHeaderDispatchDoesNotRetryUnauthorized(t *testing.T) {
 }
 
 func TestDirectOAuthImageWithoutVisionCapabilityOmitsVisionHeader(t *testing.T) {
-	for _, streaming := range []bool{false, true} {
+	for streaming := range slices.Values([]bool{false, true}) {
 		t.Run(fmt.Sprintf("stream=%t", streaming), func(t *testing.T) {
 			service, host, storage, authID := setupDirectInferenceHeaderService(t, translate.EndpointChatCompletions)
 			cached := service.modelEntries[authID]

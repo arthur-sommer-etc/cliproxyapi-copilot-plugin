@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -16,7 +17,7 @@ import (
 )
 
 func TestNativeResponseBetaRequiresUnchangedNativeResponsesRoute(t *testing.T) {
-	for _, test := range []struct {
+	for test := range slices.Values([]struct {
 		name, source, endpoint, original string
 		want                             []string
 	}{
@@ -27,7 +28,7 @@ func TestNativeResponseBetaRequiresUnchangedNativeResponsesRoute(t *testing.T) {
 		{"missing original request", "openai-response", translate.EndpointResponses, "", nil},
 		{"missing original model", "openai-response", translate.EndpointResponses, `{"input":"inspect"}`, nil},
 		{"other source format", "claude", translate.EndpointResponses, `{"model":"gpt-test"}`, nil},
-	} {
+	}) {
 		t.Run(test.name, func(t *testing.T) {
 			headers := http.Header{"Openai-Beta": {"responses=beta", "other=beta"}}
 			req := ExecuteRequest{ExecutorRequest: executorRequestForBetaTest("gpt-test", test.original, headers)}
@@ -51,7 +52,7 @@ func TestCopilotInferenceHeadersForwardOnlySelectedNativeBetaValues(t *testing.T
 }
 
 func TestCopilotInferenceHeadersDeriveInitiatorAndVisionFromOutboundBody(t *testing.T) {
-	for _, test := range []struct {
+	for test := range slices.Values([]struct {
 		name, endpoint, mode string
 		body                 string
 		visionSupported      bool
@@ -127,7 +128,7 @@ func TestCopilotInferenceHeadersDeriveInitiatorAndVisionFromOutboundBody(t *test
 			body:            `{"messages":[{"role":"user","content":[{"type":"tool_result","tool_use_id":"tool_1","content":[{"type":"image","source":{"type":"base64","media_type":"image/png","data":"aW1hZ2U="}}]}]}]}`,
 			visionSupported: true, wantInitiator: "agent", wantVision: "true",
 		},
-	} {
+	}) {
 		t.Run(test.name, func(t *testing.T) {
 			token := copilotTokenEntry{Mode: test.mode, Token: "synthetic-token"}
 			headers := copilotInferenceHeaders(token, test.endpoint, []byte(test.body), false, test.visionSupported, nil)
@@ -142,7 +143,7 @@ func TestCopilotInferenceHeadersDeriveInitiatorAndVisionFromOutboundBody(t *test
 }
 
 func TestCopilotInferenceDispatchKeepsDerivedHeadersAcrossRefresh(t *testing.T) {
-	for _, operation := range []string{"json", "stream"} {
+	for operation := range slices.Values([]string{"json", "stream"}) {
 		t.Run(operation, func(t *testing.T) {
 			host := &refreshTestHost{}
 			service := New(host)
@@ -208,8 +209,8 @@ func (h *nativeBetaRefreshHost) CloseOutput(_ context.Context, _ string, message
 
 func TestExecutorPreservesEligibleBetaHeadersAcrossTokenRefresh(t *testing.T) {
 	const payload = `{"model":"gpt-5.6-sol","input":"inspect"}`
-	for _, streaming := range []bool{false, true} {
-		for _, test := range []struct {
+	for streaming := range slices.Values([]bool{false, true}) {
+		for test := range slices.Values([]struct {
 			name     string
 			source   string
 			payload  string
@@ -220,7 +221,7 @@ func TestExecutorPreservesEligibleBetaHeadersAcrossTokenRefresh(t *testing.T) {
 			{name: "transformed model", original: `{"model":"client-alias","input":"inspect"}`},
 			{name: "missing original request"},
 			{name: "Messages to Responses", source: "claude", payload: `{"model":"gpt-5.6-sol","max_tokens":32,"messages":[{"role":"user","content":"inspect"}]}`, original: `{"model":"gpt-5.6-sol","max_tokens":32,"messages":[{"role":"user","content":"inspect"}]}`},
-		} {
+		}) {
 			t.Run(fmt.Sprintf("%s/stream=%t", test.name, streaming), func(t *testing.T) {
 				host := &nativeBetaRefreshHost{closed: make(chan string, 1)}
 				service := newCompactionStreamService(t, newCompactionStreamHost(nil))
@@ -283,12 +284,12 @@ func TestExecutorPreservesEligibleBetaHeadersAcrossTokenRefresh(t *testing.T) {
 					if got := outbound.Headers.Values("OpenAI-Beta"); !reflect.DeepEqual(got, test.wantBeta) {
 						t.Fatalf("request %d beta flags = %#v, want %#v", index, got, test.wantBeta)
 					}
-					for _, name := range []string{"Anthropic-Beta", "Cookie", "X-Github-Token", "Copilot-Session-Token", "Session-Id"} {
+					for name := range slices.Values([]string{"Anthropic-Beta", "Cookie", "X-Github-Token", "Copilot-Session-Token", "Session-Id"}) {
 						if len(outbound.Headers.Values(name)) != 0 {
 							t.Fatalf("request %d forwarded inbound %s", index, name)
 						}
 					}
-					for _, name := range []string{"X-Agent-Task-Id", "X-Request-Id"} {
+					for name := range slices.Values([]string{"X-Agent-Task-Id", "X-Request-Id"}) {
 						if got := outbound.Headers.Get(name); got == "" || got == inbound.Get(name) {
 							t.Fatalf("request %d %s was not generated independently of the caller", index, name)
 						}
