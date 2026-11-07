@@ -6,7 +6,7 @@ For an end-to-end deployment and Claude Code configuration walkthrough, see [`do
 
 To add the plugin and its required paired host to an existing CLIProxyAPI installation, see [`docs/install-existing-deployment.md`](docs/install-existing-deployment.md).
 
-For feature-by-feature implementation, validation and external acceptance limits, see [`docs/feature-completion.md`](docs/feature-completion.md).
+For feature-by-feature implementation and validation state, see [`docs/feature-completion.md`](docs/feature-completion.md).
 
 For conversion contracts and the boundary between the plugin and the proxy, see [`docs/protocol-conversion.md`](docs/protocol-conversion.md).
 
@@ -130,8 +130,6 @@ task build
 task prepare-runtime-host
 task test-native
 ```
-
-For opt-in calls against real Copilot models and isolated Claude Code/Codex client checks, see [`docs/live-copilot-validation.md`](docs/live-copilot-validation.md).
 
 `task test-native` and `task prepare-runtime-host` prepare a CLIProxyAPI host from the version or maintained-fork replacement selected in `go.mod` and compile the integration test executable.
 Set `NATIVE_HOST_SOURCE` to a readable local CLIProxyAPI checkout to use unreleased host changes.

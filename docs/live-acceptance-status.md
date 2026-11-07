@@ -1,49 +1,33 @@
-# Live acceptance access decision
+# Live acceptance record
 
-The four fresh live acceptance cases below are **NOT RUN**.
-Live acceptance requires approved access and an isolated test environment.
-These records do not authorize use of existing credentials or deployments.
+Live provider acceptance is closed as not pursued by owner decision.
+No further live acceptance request is open.
+This record does not authorize provider calls or use of existing credentials and deployments.
 
-## Exact blocked operations
+## Closed acceptance cases
 
-| Fresh acceptance case | Status | Blocked action | Required access |
-| --- | --- | --- | --- |
-| Claude WebSearch | NOT RUN | Execute Claude hosted WebSearch on `claude-haiku-5.5` Messages and verify genuine execution, meaningful paired results and client completion. | Approved access in an isolated test environment. |
-| GPT exact URL pairing | NOT RUN | Execute `gpt-6-luna` Responses search and compare the full cited URL with the same search's meaningful results and action sources. | Approved access in an isolated test environment. |
-| Claude-to-GPT PNG semantics | NOT RUN | Execute the Claude Read image flow with the recorded PNG fixture, preserve hashes and tool pairing, and check the answer. | Approved access in an isolated test environment. |
-| Original Codex interrupt frame | NOT RUN | Execute `gpt-6-luna` through the original Codex control path and observe `response.interrupt`, cancellation, interrupted terminal and continuation. | Approved access in an isolated test environment. |
+| Acceptance case | Status | Basis |
+| --- | --- | --- |
+| Claude WebSearch execution | Closed, not pursued | Copilot returned HTTP 400 `unsupported_value` for the genuine declaration. |
+| GPT exact URL pairing | Closed, not pursued | The cited tracking URL is absent from the same search's meaningful results. |
+| Claude-to-GPT PNG semantics | Closed, not pursued | Transport preserved the bytes, but the provider returned an incorrect color answer. |
+| Original Codex interrupt frame | Closed, not pursued | A successful `turn/interrupt` RPC emitted zero `response.interrupt` frames. |
 
-An isolated execution also needs separate process, configuration, authentication and client-state boundaries.
+The retained results above come from earlier isolated runs.
+They stay recorded as the outcome of those requests and are not re-verified here.
 
-Approved access alone does not resolve the retained provider or client failures.
-Each case also needs genuine changed capability, supported profile or original-client control-path evidence.
-These acceptance criteria do not authorize provider calls.
+## What remains available
 
-## Retained evidence
+Offline and matched-host checks stay in place for every future change:
 
-The following results are **REUSED** historical evidence scoped to their original requests and profiles.
-They remain failures or unmet criteria, not fresh live acceptance.
+- Go and Python suites, race checks and `go vet`.
+- The matched native-host integration groups.
+- The public CI test and package lanes.
 
-| Case | Retained result |
-| --- | --- |
-| Claude WebSearch | Copilot returned HTTP 400 `unsupported_value` after the genuine declaration was invoked. |
-| GPT exact URL pairing | The cited tracking URL appears in action sources but is absent from the same search's meaningful results. |
-| Claude-to-GPT PNG semantics | Image bytes and tool pairing were preserved, but the provider returned an incorrect color answer. |
-| Original Codex interrupt frame | A successful `turn/interrupt` RPC and same-thread follow-up emitted zero `response.interrupt` wire frames. |
+These checks validate source and packaging behavior.
+They do not claim provider acceptance, original-client acceptance or live deployment.
 
-The [server-tool acceptance record](server-tool-acceptance.md) retains the original outcomes and distinct attempts.
-The [live validation record](live-copilot-validation.md) provides their dated scope.
-Source checks, synthetic fixtures, byte parity, RPC acknowledgements and socket closure do not establish fresh provider acceptance.
-URLs, results, identifiers, replay tokens and interrupt frames must not be invented to satisfy these cases.
+## Promotion
 
-## Offline delivery and integration
-
-**ACTUAL** offline delivery includes reviewed hosted-search replay and strict Chat request fidelity, with local tests, race checks, vet, matched native-host groups and public CI.
-Standard URL citations in Chat JSON have separate validation evidence.
-The [feature completion matrix](feature-completion.md) records implementation and external acceptance limits.
-Those offline results do not remove the four NOT RUN cases.
-
-Promotion requires a dedicated reviewed migration with matched-host validation and rollback requirements.
+Promotion to a standalone official-host release needs a dedicated reviewed migration with matched-host validation and rollback requirements.
 No live deployment, upstream integration or release acceptance is claimed.
-
-Task evidence and disposable resources should follow their ownership and retention requirements.

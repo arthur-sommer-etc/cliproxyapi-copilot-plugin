@@ -1,30 +1,15 @@
 # Hosted server tools and destination-native requests
 
-The [feature completion matrix](feature-completion.md) records expanded acceptance.
-The earlier [live validation](live-copilot-validation.md) remains complete within its documented scope.
-Its 18 JSON/SSE inference cells do not establish hosted tools or complete native-client request parity.
-Unsupported responses, excluded declarations, client-executed functions, and unrun cases do not satisfy this acceptance.
-
-## Current acceptance (2026-10-11)
-
-The latest matched host and dependency checks are described in [current live validation](live-copilot-validation.md#current-validation-2026-10-16).
-The corrected model-registry startup and five native JSON probes completed.
-The earlier startup race and NOTRUN snapshot below are historical.
-
-| Native follow-up | Current outcome |
-| --- | --- |
-| Claude Bash execution SSE | PASS: actual paired execution result, stdout `385`, successful terminal and clean EOF. |
-| Claude exact-history continuation | PASS: actual preceding content reaches Messages unchanged and the answer reuses `385` without another tool call. |
-| GPT search SSE before repair | FAIL: native response, reasoning and message identities change between phases. |
-| GPT search SSE after repair | Identities pass; exact result/citation URL pairing fails because the annotation adds a tracking query absent from result URLs. |
-| GPT captured-terminal continuation | PASS: one real Responses request replays the original complete terminal output and ciphertext unchanged and answers without another search. |
+The [feature completion matrix](feature-completion.md) records the supported conversion behavior.
+The adapter supports the hosted-tool and attachment representations listed below.
+Unsupported responses, excluded declarations and client-executed functions are refused before dispatch.
 
 ## Current conversion support and guards
 
-The completion audit and [denied live-access record](live-acceptance-status.md) separate current source validation from fresh provider acceptance, which is NOT RUN after the sealed request was not granted.
+The [live acceptance record](live-acceptance-status.md) holds the closed provider cases.
 
 The adapter supports the representable Claude-origin hosted-search round trip into Responses, retaining completed result ownership and history.
-This is conversion support; it does not change the recorded live Haiku WebSearch refusal or establish that the provider executes that tool.
+This is conversion support; it does not establish that the provider executes that tool.
 
 The adapter preserves strict Chat request semantics and refuses hosted state before dispatch when the destination cannot retain it.
 Complete hosted search from Chat to Responses remains explicitly unsupported until a lossless destination carrier exists.
@@ -281,7 +266,7 @@ CPA's built-in response conversion preserves actual paired search results and re
 Offline/native regression checks establish the supported completed-search conversion and zero-dispatch rejection; they do not establish a fresh original-client provider conversion pass or general cross-format hosted-tool parity.
 The earlier GPT capture lacks full result entries; the later full-result capture permits testing the actual response shape.
 
-The [feature completion matrix](feature-completion.md) records current implementation receipts and external acceptance limits separately from the dated live evidence in this document.
+The [feature completion matrix](feature-completion.md) records the supported conversion behavior.
 
 The retained catalogue replay binds to the native CLI profile rather than the current plugin's token-exchange catalogue profile.
 An isolated-host rerun needs complete catalogue bytes and matching credential, origin, profile, and response-hash provenance.

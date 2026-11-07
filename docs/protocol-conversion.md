@@ -101,5 +101,5 @@ Structured offline tests exercise contracts without requiring provider access:
 
 Synthetic tests and hosted build or native-host fixture results establish only the tested local behavior.
 They do not prove provider acceptance, server-side state reuse or original-client acceptance.
-Fresh live qualification remains **NOT RUN** in [general acceptance #5](https://github.com/ririnto/cliproxyapi-copilot-plugin/issues/5), [Gemini thinking #57](https://github.com/ririnto/cliproxyapi-copilot-plugin/issues/57), [attachments #62](https://github.com/ririnto/cliproxyapi-copilot-plugin/issues/62) and [hosted execution and state #66](https://github.com/ririnto/cliproxyapi-copilot-plugin/issues/66).
-Historical scoped runs and their failures are recorded separately in [live acceptance status](live-acceptance-status.md) and [hosted tool acceptance](server-tool-acceptance.md).
+Live provider acceptance is closed as not pursued, and the [live acceptance record](live-acceptance-status.md) holds its retained outcomes.
+Supported hosted-tool conversion cases are listed in [hosted tool acceptance](server-tool-acceptance.md).
