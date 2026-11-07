@@ -3,7 +3,8 @@
 This guide deploys CLIProxyAPI with this repository's GitHub Copilot plugin, authenticates both a Claude subscription and a GitHub Copilot subscription, and configures Claude Code to use both through one local endpoint.
 The Compose deployment uses the official v8.0.30 runtime image with a paired maintained host binary built from the module replacement selected in `go.mod`.
 
-Every step is an explicit command; no repository setup scripts are involved.
+Every step is an explicit command.
+No repository setup scripts are involved.
 
 The resulting path is:
 
@@ -95,13 +96,15 @@ task prepare-runtime-host
 ```
 
 The plugin uses the official CLIProxyAPI v8.0.30 SDK and plugin ABI.
-Its final payload-rule callback is supplied by the published maintained CLIProxyAPI module replacement selected in `go.mod`; the official v8.0.30 server does not implement that callback.
+Its final payload-rule callback is supplied by the published maintained CLIProxyAPI module replacement selected in `go.mod`.
+The official v8.0.30 server does not implement that callback.
 The Compose file keeps the official image as the runtime base, then mounts the host binary built from that paired module over the image's server binary.
 Do not run Compose before `task prepare-runtime-host`, or the required host binary will be missing.
 Compose pulls the official base image when it is absent locally.
 
 Start the stack.
-The `--env-file` flag passes the management password to the container; the API key is only read from the mounted `.runtime/config.yaml`:
+The `--env-file` flag passes the management password to the container.
+The API key is only read from the mounted `.runtime/config.yaml`:
 
 ```bash
 docker compose --env-file .runtime/secrets.env up -d
@@ -200,7 +203,8 @@ curl -fsS \
 
 The default catalog reflects the models available to the authenticated Copilot account.
 Configured `model_endpoint_overrides` can also register their IDs when they are absent from the upstream catalog.
-Known models with a non-enabled Copilot policy remain excluded; upstream availability and capabilities are unverified for override-only IDs.
+Known models with a non-enabled Copilot policy remain excluded.
+Upstream availability and capabilities are unverified for override-only IDs.
 Check `/v1/models` after authentication for the current model IDs.
 
 Only a valid Claude request whose root `safeguards` is an array with one object containing exactly `type` and `classifier_context`, with type `dangerous_tool_use` and nonempty classifier context, receives a static HTTP 400 `safeguards` error before a Copilot request is sent.

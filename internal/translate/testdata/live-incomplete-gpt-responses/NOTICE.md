@@ -6,6 +6,8 @@ Identifiers, opaque encrypted values, cache/safety identifiers, and creation tim
 No authentication headers or environment details are included.
 
 The upstream SSE body was reassembled across CPA request-log transport chunk boundaries before JSON decoding.
-The log appended a transport `context canceled` diagnostic after the terminal; that text is separate from the SSE body.
+The log appended a transport `context canceled` diagnostic after the terminal.
+That text is separate from the SSE body.
 The client body was captured directly.
-The response consumed 16 output/reasoning tokens and returned no visible answer; the fixture preserves that result.
+The response consumed 16 output/reasoning tokens and returned no visible answer.
+The fixture preserves that result.

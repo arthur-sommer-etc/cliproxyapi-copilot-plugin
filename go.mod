@@ -5,9 +5,9 @@ go 1.27.2
 require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/pelletier/go-toml/v2 v2.4.3
-	github.com/router-for-me/CLIProxyAPI/v8 v8.0.30
-	github.com/tidwall/gjson v1.20.0
-	github.com/tidwall/sjson v1.2.5
+	github.com/router-for-me/CLIProxyAPI/v8 v8.0.59
+	github.com/tidwall/gjson v1.20.1
+	github.com/tidwall/sjson v1.2.7
 	github.com/tiktoken-go/tokenizer v0.10.0
 	golang.org/x/net v0.62.0
 	gopkg.in/yaml.v3 v3.0.1

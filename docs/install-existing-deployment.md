@@ -37,7 +37,8 @@ The release archive records the same selected identity in `cliproxyapi-copilot.h
 The JSON is deployment metadata.
 The plugin loader does not read it or replace the server automatically.
 
-The filename is significant: CLIProxyAPI derives the plugin ID `cliproxyapi-copilot` from it.
+The filename is significant.
+CLIProxyAPI derives the plugin ID `cliproxyapi-copilot` from it.
 Do not rename the library unless the matching key under `plugins.configs` is also renamed.
 
 ## 2. Install the plugin and paired host
@@ -152,7 +153,8 @@ It affects Copilot only.
 Matching IDs from other provider catalogs remain available.
 By default, Copilot model registration shows only upstream models available to the authenticated account.
 Configured `model_endpoint_overrides` can also register their IDs when they are absent from the upstream catalog.
-Known models with a non-enabled Copilot policy remain excluded; upstream availability and capabilities are unverified for override-only IDs.
+Known models with a non-enabled Copilot policy remain excluded.
+Upstream availability and capabilities are unverified for override-only IDs.
 
 ```yaml
 oauth:

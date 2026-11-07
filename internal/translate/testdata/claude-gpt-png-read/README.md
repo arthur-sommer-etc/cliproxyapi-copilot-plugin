@@ -6,16 +6,20 @@ Transport headers, authorization, host fields, and test-hop wrapper data are exc
 
 Privacy sanitization is in-place and type-preserving.
 Opaque IDs, encrypted content/signatures, private paths, client identity markers, prompt-cache keys, and safety identifiers become deterministic string sentinels.
-Canonical `cpa_tool_v1_` ID carriers keep their wrapper; embedded item/call IDs use the same global ID map as standalone fields so carrier semantics and correlations remain testable.
+Canonical `cpa_tool_v1_` ID carriers keep their wrapper.
+Embedded item/call IDs use the same global ID map as standalone fields so carrier semantics and correlations remain testable.
 Path replacements use longest-first matching so a full file path remains correlated when its parent directory also appears in the capture.
 Repeated source values map to the same sentinel across all eight bodies.
 Raw private paths and client identity values are not included.
-The actual PNG base64 bytes are preserved; only their decoded SHA-256 is used in the test output.
+The actual PNG base64 bytes are preserved.
+Only their decoded SHA-256 is used in the test output.
 
 The regression exercises the existing `RequestForEndpointFrom` Claude Messages-to-Responses converter on both original Messages request bodies.
 It checks the first `Read` function declaration and tool response, then correlates the provider function call with the native Messages `tool_use`/follow-up `tool_result` and verifies the same PNG bytes pass through the existing converter into the Responses `function_call_output`.
 It parses the actual provider SSE frames through the existing Responses-to-Claude stream translator and checks the resulting native tool call and final client text.
 
-The captured Responses gate 003 stream reaches `response.completed` with a `function_call` named `Read`; preserve the captured client verdict’s coarse `unclassified` error class and the gate’s `upstream_response_read_error` without asserting a transport cause.
+The captured Responses gate 003 stream reaches `response.completed` with a `function_call` named `Read`.
+Preserve the captured client verdict’s coarse `unclassified` error class and the gate’s `upstream_response_read_error` without asserting a transport cause.
 Gate 004 has a real completed final response.
-The actual answer says both queried colors are red and does not say blue; the captured acceptance result remains `accepted=false` and expected FAIL.
+The actual answer says both queried colors are red and does not say blue.
+The captured acceptance result remains `accepted=false` and expected FAIL.

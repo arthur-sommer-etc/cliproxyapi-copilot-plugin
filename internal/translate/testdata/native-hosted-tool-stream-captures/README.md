@@ -17,7 +17,8 @@ They are not valid credentials or provider replay tokens.
 
 The Responses SSE fixtures contain complete raw provider streams before plugin conversion.
 SSE bodies are stored as JSON strings in `response.json`, preserving all framing bytes without trailing-whitespace exceptions.
-The fixture digest covers the stored JSON file; the sanitized-source digest covers the decoded SSE bytes.
+The fixture digest covers the stored JSON file.
+The sanitized-source digest covers the decoded SSE bytes.
 The after-repair capture still contains the provider's mutable identities.
 The native converter regression validates the separately observed client repair against that source.
 Claude's upstream `[DONE]` sentinel remains present.

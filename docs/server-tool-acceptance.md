@@ -9,7 +9,8 @@ Unsupported responses, excluded declarations and client-executed functions are r
 The [live acceptance record](live-acceptance-status.md) holds the closed provider cases.
 
 The adapter supports the representable Claude-origin hosted-search round trip into Responses, retaining completed result ownership and history.
-This is conversion support; it does not establish that the provider executes that tool.
+This is conversion support.
+It does not establish that the provider executes that tool.
 
 The adapter preserves strict Chat request semantics and refuses hosted state before dispatch when the destination cannot retain it.
 Complete hosted search from Chat to Responses remains explicitly unsupported until a lossless destination carrier exists.
@@ -37,7 +38,8 @@ Declared search also retains the barrier when `tool_choice: auto` produces no se
 The barrier fails closed at its size limit, with no partially repaired frames released.
 Matched-host regressions cover terminal-remapped interrupt identities, a late interrupt during the next active turn, and cancellation before buffered completion.
 Separate translator regressions cover successful no-invocation release and overflow without emitted frames.
-These tests establish bridge behavior with synthetic fixtures; they do not establish original-client control emission or provider capability.
+These tests establish bridge behavior with synthetic fixtures.
+They do not establish original-client control emission or provider capability.
 
 Five complete actual request/response pairs are retained in [portable regression fixtures](../internal/translate/testdata/native-hosted-tool-stream-captures/README.md).
 Synthetic lifecycle mutations and native-host tests establish regression behavior separately from live provider capability.
@@ -53,28 +55,36 @@ Claude-to-GPT PNG remains a semantic failure despite preserved bytes and success
 Current-stream original Codex baseline, real child delegation/wait and interruption/same-thread continuation pass.
 The original client still emitted zero `response.interrupt` and `response.incomplete` frames.
 The same-thread follow-up used a new WebSocket with `previous_response_id: null`; it does not prove Responses-chain continuation.
-The current original native-search request includes the actual hosted declaration, but the model reports the tool unavailable without invoking it; this case fails despite HTTP 200 and a completed client turn.
+The current original native-search request includes the actual hosted declaration, but the model reports the tool unavailable without invoking it.
+This case fails despite HTTP 200 and a completed client turn.
 Its earlier PASS remains historical and does not overwrite the current failure.
-The original app-server HTTPS-image request is now a captured client rejection: JSON-RPC `-32600`, remote image URLs unsupported.
+The original app-server HTTPS-image request is now a captured client rejection.
+JSON-RPC `-32600`, remote image URLs unsupported.
 It reaches neither CPA inference ingress nor Copilot inference, so that Codex carrier does not establish provider URL-reference capability.
 A distinct original Claude structured-stdin URL carrier reached exact Haiku native Messages with its image block unchanged.
-Copilot returned HTTP 400 `external image URLs are not supported`; the client wire retained the corresponding 400 error.
+Copilot returned HTTP 400 `external image URLs are not supported`.
+The client wire retained the corresponding 400 error.
 This is a URL-only profile rejection, since the original Messages URL source has no independent MIME/detail fields.
-The first duplicate-path harness 404 made zero inference; the corrected attempt made one, with later automatic retries denied locally before turn interruption.
+The first duplicate-path harness 404 made zero inference.
+The corrected attempt made one, with later automatic retries denied locally before turn interruption.
 A complete final CLI result was not observed.
 The retained provider rejection is not retried unchanged.
 The maintained harness corrects the root origin, always applies the child sandbox, disables client retries, streams private output captures and validates joined client lifecycles.
 Required synthetic wire tests cover active and late control handling separately.
 
 The remaining citation and PNG answer failures are present in the actual provider bodies before bridge conversion.
-The tracked citation appears in action sources but not in meaningful search results; native stream repair preserves its completed terminal unchanged.
+The tracked citation appears in action sources but not in meaningful search results.
+Native stream repair preserves its completed terminal unchanged.
 The latest original Claude-to-GPT PNG carries identical prepared and public image bytes, and the wrong solid-blue provider answer equals the delivered client text.
-The historical Read-cycle capture instead answers both red, while the native GPT capture answers both blue; those are distinct failed attempts.
+The historical Read-cycle capture instead answers both red, while the native GPT capture answers both blue.
+Those are distinct failed attempts.
 No bridge-side output correction is justified by these captures.
-The original HTTPS harness did have a separate prompt/oracle defect: it asked for left/right colors on a red-top, blue-bottom fixture.
+The original HTTPS harness did have a separate prompt/oracle defect.
+It asked for left/right colors on a red-top, blue-bottom fixture.
 The maintained prompt now uses top/bottom and its regression checks the actual PNG geometry.
 The Codex client rejection remains immutable.
-The separate Claude URL-only profile is now a provider rejection; broader URL/MIME/detail acceptance remains unmet.
+The separate Claude URL-only profile is now a provider rejection.
+Broader URL/MIME/detail acceptance remains unmet.
 
 ## Remaining inputs and owners
 
@@ -83,17 +93,17 @@ Unchanged rejected profiles are retained without another speculative provider re
 
 | Remaining acceptance | Owner and next required input |
 | --- | --- |
-| Cross-format Chat hosted search and Claude Bash-to-Responses | Chat hosted state is refused before dispatch; support requires a lossless destination carrier and genuine result ownership/history. Bash-to-Responses remains unsupported without a lossless execution/history contract. |
+| Cross-format Chat hosted search and Claude Bash-to-Responses | Chat hosted state is refused before dispatch. Support requires a lossless destination carrier and genuine result ownership/history. Bash-to-Responses remains unsupported without a lossless execution/history contract. |
 | Gemini search, Claude WebSearch/Web Fetch, GPT interpreter | Copilot capability owner must provide changed capability/profile evidence for the exact model and rejected declaration. |
 | Image generation, file search, hosted MCP and tool search | Main needs advertised exact-model capability and genuine files, servers or tool registry resources. |
-| Original HTTPS image references and remote uploads | Codex rejects remote URLs before inference; genuine Claude URL-only stdin reaches Haiku Messages but Copilot rejects external URLs. Main needs a changed supported exact-model native profile preserving the required carrier fields. Uploads need authentic provider-owned issuance and lookup. |
+| Original HTTPS image references and remote uploads | Codex rejects remote URLs before inference. Genuine Claude URL-only stdin reaches Haiku Messages but Copilot rejects external URLs. Main needs a changed supported exact-model native profile preserving the required carrier fields. Uploads need authentic provider-owned issuance and lookup. |
 | Audio, video and office attachments | Main needs a supported original-client preparer and exact-model capability evidence. |
 | GPT PNG and tracked citation pairing | Copilot model behavior must produce the correct image content or exactly correlated result citation under a substantively changed case. |
-| Original Codex search non-invocation | A distinct retained native GPT `tool_choice: required` provider profile already passes. The original-client owner must provide a genuine Codex control or request that emits a changed supported profile; all current original requests use `auto`. |
+| Original Codex search non-invocation | A distinct retained native GPT `tool_choice: required` provider profile already passes. The original-client owner must provide a genuine Codex control or request that emits a changed supported profile. All current original requests use `auto`. |
 | Identity-neutral native HTTP headers | Main needs ownership release for the preserved provider WIP before changing its streaming `Accept` behavior. |
 | First-party Copilot session and executable-tool parity | Main needs an explicit authentic identity policy and genuine ACP/tool context unavailable from Claude/Codex inbound headers. |
 | Original-client interrupt wire emission | The original Codex client must emit the control frame before live wire acceptance can be established. |
-| Original token-limit incomplete continuation | The original-client owner must supply a genuine incomplete response and a supported client path that retains/resumes it; current Codex treats token-limit incomplete as a stream error and exposes no deterministic token-cap input. |
+| Original token-limit incomplete continuation | The original-client owner must supply a genuine incomplete response and a supported client path that retains/resumes it. Current Codex treats token-limit incomplete as a stream error and exposes no deterministic token-cap input. |
 
 The current catalogue advertises image/PDF support without establishing all other modalities as globally unsupported.
 Native Copilot CLI captures use `application/json` for streamed Chat/Responses and `*/*` for Messages.
@@ -107,7 +117,7 @@ Full HTTP/2, TLS framing and native first-party identity parity remain unverifie
 | --- | --- | --- |
 | `gemini-3.8-flash` | Chat | Search returned HTTP 200 with an empty assistant message and `finish_reason: error`. |
 | `gpt-6-luna` | Responses | Hosted search completed with actual results, action sources and a matching assistant citation. |
-| `claude-haiku-5.5` | Messages | Code execution completed with a paired bash result; WebSearch and Web Fetch were refused. |
+| `claude-haiku-5.5` | Messages | Code execution completed with a paired bash result. WebSearch and Web Fetch were refused. |
 
 The earlier GPT search capture contains only query and citation evidence.
 A later isolated probe requested both `web_search_call.results` and `web_search_call.action.sources` and received nonempty search snippets, source URLs and a citation to the same NASA result.
@@ -263,8 +273,10 @@ Completed Claude WebSearch call/result/history input targeting Responses require
 Complete hosted state targeting Chat and Claude Bash targeting Responses remain explicitly rejected.
 The request adapter also rejects unsupported Bash history, incomplete search pairing and opaque replay state that cannot be represented without invention.
 CPA's built-in response conversion preserves actual paired search results and replay tokens when present.
-Offline/native regression checks establish the supported completed-search conversion and zero-dispatch rejection; they do not establish a fresh original-client provider conversion pass or general cross-format hosted-tool parity.
-The earlier GPT capture lacks full result entries; the later full-result capture permits testing the actual response shape.
+Offline/native regression checks establish the supported completed-search conversion and zero-dispatch rejection.
+They do not establish a fresh original-client provider conversion pass or general cross-format hosted-tool parity.
+The earlier GPT capture lacks full result entries.
+The later full-result capture permits testing the actual response shape.
 
 The [feature completion matrix](feature-completion.md) records the supported conversion behavior.
 
@@ -283,7 +295,8 @@ Main owns the remaining acceptance listed above.
 
 The corrected runner polls the local registry until the exact targets are registered, checking process health and capture failures within a bounded deadline.
 Normal SDK authentication and public catalogue discovery completed before the five native probes.
-Each probe made one observed physical inference request; this is an outcome, not a call limit.
+Each probe made one observed physical inference request.
+This is an outcome, not a call limit.
 No gate denial or capture failure occurred, and the aggregate test failed because three capabilities did not pass.
 
 | Native JSON probe | Observed outcome |
@@ -318,12 +331,14 @@ Claude's PNG read and converted Responses function result contain the original i
 GPT nevertheless answered that both halves were red, so this visual case remains failed.
 The first PDF read reported `pdftoppm` unavailable in the isolated client environment.
 Both Codex cases rejected the empty model catalogue before inference.
-These preparation failures and all original bodies remain retained; they do not establish global model unavailability.
+These preparation failures and all original bodies remain retained.
+They do not establish global model unavailability.
 Only demonstrated environment or instrumentation changes justify revalidation of these cases.
 
 The preparation retry preserves the earlier failures and uses separately recorded operation cells.
 Claude PDF now reaches the maintained renderer, but Read reports Fontconfig and image-output write errors.
-Both model responses complete cleanly, including the paired Read result; the final answer has no inspected PDF content.
+Both model responses complete cleanly, including the paired Read result.
+The final answer has no inspected PDF content.
 Codex PNG prepares the original bytes, then receives a local HTTP 422 because explicit image detail cannot be represented by Messages.
 Codex PDF receives a local HTTP 422 because its cached-only search declaration sets `external_web_access=false`, which Messages cannot represent.
 Neither refusal dispatches provider inference.
@@ -335,7 +350,8 @@ The source PDF and rendered JPEG hashes are recorded separately.
 The first provider response ends with clean EOF.
 The second successful terminal is fully forwarded and flushed before captured downstream and outbound contexts report cancellation, establishing semantic completion separately from clean EOF.
 Visual inspection of the retained JPEG shows the blue rectangle but no printed code, matching the model's answer.
-That content assertion remains failed; it does not establish a model misreading of visible text.
+That content assertion remains failed.
+It does not establish a model misreading of visible text.
 
 An existing installed Fontconfig configuration resolves the Helvetica substitution, and the original Read now renders the printed code with the blue rectangle.
 The changed-environment live case retains Read's genuine `pages: "1-20"` selection on the one-page fixture.
@@ -356,7 +372,8 @@ The historical render and validator failures remain separate from the reviewed s
 
 The maintained original-client packet is opt-in through `CPA_LIVE_CLIENT_ATTACHMENTS=1`.
 It requires explicit isolated CPA binary/plugin, copied authentication, private diagnostics, sandbox and expected installed client versions.
-PDF cases additionally require the existing renderer and Fontconfig paths; fixture overrides must match the pinned source bytes.
+PDF cases additionally require the existing renderer and Fontconfig paths.
+Fixture overrides must match the pinned source bytes.
 The offline `TestAttachmentOriginalClaudePDFReadOffline` probe exercises installed Claude Read against a loopback fixture without provider inference.
 The independently reviewed `TestAttachmentPacketCorrectedPDFReplay` reads retained evidence and writes a separate verdict without changing the original failure.
 Ordinary tests cover strict terminal schemas, ordered content-block lifecycles, successful renderer/result correlation, counted authentication recovery and capture failure retention.
@@ -366,7 +383,8 @@ Ordinary tests cover strict terminal schemas, ordered content-block lifecycles, 
 The earlier cached-only-search 422 is historical.
 The existing native-tool exclusion mechanism now excludes optional Responses search with `external_web_access=false` when targeting Messages, retaining ordinary functions and disclosing the exclusion.
 Forced excluded selection still fails before inference.
-Original request and paired response bodies are retained in a portable regression fixture; they do not establish clean EOF for the historical capture.
+Original request and paired response bodies are retained in a portable regression fixture.
+They do not establish clean EOF for the historical capture.
 
 The original Codex app-server was also run against the real isolated proxy with a loopback WebSocket recorder.
 Active interruption and a completed same-thread follow-up answer passed.
@@ -393,6 +411,7 @@ Applicable interoperability checks retain exact models, authentic identity bindi
 
 The actual GPT search result entries have titles, URLs and snippets but no Anthropic encrypted result content.
 Its citation lacks an Anthropic encrypted index.
-CPA's existing converter cannot invent those replay values; an explicit unsupported result remains necessary where lossless conversion requires them.
+CPA's existing converter cannot invent those replay values.
+An explicit unsupported result remains necessary where lossless conversion requires them.
 Native Claude bash execution likewise has no demonstrated lossless Python Code Interpreter equivalent in the pinned registry.
 The complete native capture fixtures preserve these actual fields and outcomes rather than supplying invented cross-format success.

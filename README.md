@@ -114,7 +114,8 @@ Install the pinned Task version with the Go version required by `tools/go.mod` (
 ```
 
 `task test` requires Go 1.27.2 or newer and Python 3.9 or newer.
-`task build` and `task prepare-runtime-host` require Docker. On Linux, `task test-native` also requires Docker; on macOS, it builds a local Darwin plugin and runs the fixtures with `sandbox-exec`.
+`task build` and `task prepare-runtime-host` require Docker. On Linux, `task test-native` also requires Docker.
+On macOS, it builds a local Darwin plugin and runs the fixtures with `sandbox-exec`.
 Running the development deployment requires Docker Compose v2.
 The production plugin build uses `golang:1-bookworm`, matching the Debian Bookworm runtime of the official image.
 Set `GO_IMAGE` to use a different build image, for example `GO_IMAGE=golang:1.27-bookworm task build`.
@@ -135,7 +136,8 @@ task test-native
 Set `NATIVE_HOST_SOURCE` to a readable local CLIProxyAPI checkout to use unreleased host changes.
 Relative paths are resolved from this repository's root.
 Container preparation mounts that checkout read-only at `/native-host-source`, then verifies its module identity.
-You can also pass `NATIVE_HOST_SOURCE` as a Task variable; a command-line value takes precedence over the environment.
+You can also pass `NATIVE_HOST_SOURCE` as a Task variable.
+A command-line value takes precedence over the environment.
 For example:
 
 ```sh
@@ -146,7 +148,8 @@ NATIVE_HOST_SOURCE="../CLIProxyAPI checkout" task prepare-runtime-host
 When `NATIVE_HOST_SOURCE` is unset, preparation uses the published host source selected in `go.mod`.
 Preparation may download dependencies.
 The plugin uses the official v8.0.30 SDK and ABI.
-Payload-rule finalization requires the published maintained host replacement selected in `go.mod`; the official v8.0.30 release does not provide that callback.
+Payload-rule finalization requires the published maintained host replacement selected in `go.mod`.
+The official v8.0.30 release does not provide that callback.
 The development Compose file still defaults to the official image as its runtime base.
 `task prepare-runtime-host` builds the selected host and mounts it over the image's server binary, so the default development stack runs the maintained host while reusing the official image runtime.
 Set `CLI_PROXY_API_IMAGE` only when you intentionally want to change the runtime base.
@@ -154,7 +157,8 @@ The runtime loads the built plugin and uses committed synthetic seeds under `int
 Linux runs the prepared binaries in a container with `--network=none` and only loopback available.
 The fixtures require no Copilot login.
 Missing artifacts or seed files fail the required lane.
-Failed native runs preserve their temporary request and response logs; set `NATIVE_HOST_KEEP_ARTIFACTS=1` to retain them after a successful run as well.
+Failed native runs preserve their temporary request and response logs.
+Set `NATIVE_HOST_KEEP_ARTIFACTS=1` to retain them after a successful run as well.
 
 `task test-native` builds the macOS plugin before preparing and running the fixtures. To test a prebuilt plugin directly, prepare the host and test executable first.
 
@@ -181,7 +185,8 @@ Build `cliproxyapi-copilot.so`, place it under the deployment's configured plugi
 Native and Docker instructions, including the complete configuration block, are in [`docs/install-existing-deployment.md`](docs/install-existing-deployment.md).
 The release archive includes `cliproxyapi-copilot.host-requirements.json`, which records the required `host.payload.finalize` callback and Go's selected versioned host module source.
 The plugin loader does not consume this metadata.
-Deploy the paired maintained host module recorded in the JSON; the official v8.0.30 server does not provide that callback.
+Deploy the paired maintained host module recorded in the JSON.
+The official v8.0.30 server does not provide that callback.
 
 ## CI and releases
 
@@ -215,7 +220,8 @@ required host callback and paired host module source.
 
 ## Isolated deployment
 
-There are no setup scripts; every step is an explicit documented command.
+There are no setup scripts.
+Every step is an explicit documented command.
 The complete walkthrough is in [`docs/claude-code-setup.md`](docs/claude-code-setup.md).
 In short:
 
@@ -238,7 +244,8 @@ docker compose --env-file .runtime/secrets.env up -d
 
 `task prepare-runtime-host` builds both the plugin and its paired CLIProxyAPI host.
 The plugin uses the official v8.0.30 SDK and ABI, while payload-rule finalization requires the published maintained host module selected by the `go.mod` replacement.
-Compose overlays that built host on the official runtime image; the official v8.0.30 server alone does not implement the required callback.
+Compose overlays that built host on the official runtime image.
+The official v8.0.30 server alone does not implement the required callback.
 
 This generates `.runtime/secrets.env` and `.runtime/config.yaml` with mode 0600.
 CLIProxyAPI does not expand environment variables in `api-keys`, so the inert `__CLIPROXYAPI_API_KEY__` template is replaced locally.
@@ -247,7 +254,8 @@ Generated files are ignored by Git.
 
 The service binds `0.0.0.0` only inside its container.
 Docker publishes it only on host loopback.
-`remote-management.allow-remote` is therefore enabled inside the container because Docker bridge traffic is not seen as container-local; the host port binding remains the external security boundary.
+`remote-management.allow-remote` is therefore enabled inside the container because Docker bridge traffic is not seen as container-local.
+The host port binding remains the external security boundary.
 
 Open the management UI at:
 
@@ -265,7 +273,8 @@ sed -n 's/^CLIPROXYAPI_API_KEY=//p' .runtime/secrets.env
 ### GitHub Copilot device login
 
 Use the management UI's Copilot login action.
-It calls the plugin endpoint `/v0/management/copilot-auth-url`; open the returned GitHub URL, approve the displayed device code, and let the UI poll until the credential is saved.
+It calls the plugin endpoint `/v0/management/copilot-auth-url`.
+Open the returned GitHub URL, approve the displayed device code, and let the UI poll until the credential is saved.
 
 Equivalent API flow:
 

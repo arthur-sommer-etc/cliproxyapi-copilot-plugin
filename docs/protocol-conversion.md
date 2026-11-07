@@ -15,7 +15,8 @@ The bridge rejects known unrepresentable content rather than silently losing it.
 Each source format can be routed to each endpoint, subject to supported content and model capabilities.
 The endpoint column identifies the corresponding native format, not a requirement that the source use that endpoint.
 An unknown source format returns a structured `unsupported_format` error with HTTP 422.
-Overrides select routing; they do not prove model availability or capability.
+Overrides select routing.
+They do not prove model availability or capability.
 
 ## Ownership
 
@@ -24,7 +25,8 @@ The plugin uses those translators and adds guarded routes and Copilot-specific h
 Generic API families beyond these three belong in the proxy's generic translation layer, not in Copilot-specific heuristics.
 
 Media preparation belongs to the original client or proxy where the necessary source and capabilities exist.
-The bridge preserves representable prepared media; it does not invent an original client's file reader, renderer or executable tool registry.
+The bridge preserves representable prepared media.
+It does not invent an original client's file reader, renderer or executable tool registry.
 The proxy also owns authentic request and header provenance snapshots and provider-specific beta vocabularies when those are needed to make a routing decision.
 A source-format label alone does not authenticate an original client.
 
@@ -44,10 +46,12 @@ Start a fresh conversation without replaying the old carrier.
 Numbers with more than 4096 coefficient digits or an exponent outside ±1000000 are matched by their original bytes, so alternate spellings can be rejected.
 Tool arguments with duplicate JSON object keys are also matched by their original bytes.
 For cross-format Chat reasoning, the bridge rejects ambiguous source requests and Chat response data before conversion.
-The carrier is authenticated, not encrypted, and is private conversation data; it is not a native Claude or Google signature.
+The carrier is authenticated, not encrypted, and is private conversation data.
+It is not a native Claude or Google signature.
 Changed or foreign state is rejected rather than silently discarded.
 The bridge also preserves supported native Messages and Responses reasoning state on same-format routes.
-A separate bounded in-memory Responses replay cache can restore matching reasoning for a scoped continuation; missing or ambiguous scope, expiry or capacity limits can prevent recovery.
+A separate bounded in-memory Responses replay cache can restore matching reasoning for a scoped continuation.
+Missing or ambiguous scope, expiry or capacity limits can prevent recovery.
 
 Send full caller history for Chat, Messages and cross-format continuation.
 A cross-format bridge cannot reconstruct that history from `previous_response_id` alone.
@@ -76,18 +80,22 @@ For some unsupported nonempty attachment shapes and image detail covered by its 
 It cannot infer file bytes or reconstruct media that the original client never supplied.
 
 Provider errors expose structured code, message, HTTP status and retryability.
-Unsupported image detail maps to HTTP 422 `unsupported_image_detail`; attachment conversion errors detected by preflight map to HTTP 422 `unsupported_attachment` and identify the source format, destination format, attachment kind and field.
+Unsupported image detail maps to HTTP 422 `unsupported_image_detail`.
+Attachment conversion errors detected by preflight map to HTTP 422 `unsupported_attachment` and identify the source format, destination format, attachment kind and field.
 Unknown extra field names are reported as `additional_fields` without exposing the supplied names or values.
 Other request conversion failures map to HTTP 422 `translation_error`.
-Attachment preflight examines the host payload; it cannot detect an attachment already removed by the host before this plugin receives that payload.
+Attachment preflight examines the host payload.
+It cannot detect an attachment already removed by the host before this plugin receives that payload.
 Response translation failures can return HTTP 502.
 Upstream HTTP status is retained, and client-visible errors suppress provider response text except for fixed safe classifications.
-Upstream errors mark 408, 429 and 5xx responses as retryable; this does not promise a successful retry.
+Upstream errors mark 408, 429 and 5xx responses as retryable.
+This does not promise a successful retry.
 
 Setting the selected model and stream fields preserves the other JSON tokens in the routed body.
 The number-preserving object decoder also avoids floating-point conversion on the paths that use it.
 For example, the synthetic integer `9007199254740993` must not become `9007199254740992` through floating-point decoding.
-Explicit zero temperature is preserved where the destination accepts it; invalid or unrepresentable values are rejected.
+Explicit zero temperature is preserved where the destination accepts it.
+Invalid or unrepresentable values are rejected.
 
 ## Evidence and qualification
 

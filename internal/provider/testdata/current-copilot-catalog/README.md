@@ -2,7 +2,8 @@
 
 This fixture preserves the complete actual HTTP 200 catalogue body from an isolated token-exchange plugin startup.
 The original response contains fifty-seven rows, including enabled and disabled policies.
-The request metadata preserves the public method, URL and non-secret profile headers; credential headers are excluded.
+The request metadata preserves the public method, URL and non-secret profile headers.
+Credential headers are excluded.
 The body SHA256 is `7465e46f7235fd940c0b55e8fef22219472d89b625121ca22c4e726d9bfe5e5d`.
 
 The profile is the accepted plugin's VS Code catalogue profile, not the default Copilot CLI profile.
