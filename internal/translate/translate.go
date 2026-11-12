@@ -76,6 +76,18 @@ func StreamFromEndpoint(ctx context.Context, endpoint, destination, model string
 	if err != nil {
 		return nil, err
 	}
+	if from == sdktranslator.FormatOpenAIResponse {
+		if state == nil {
+			return nil, fmt.Errorf("Responses stream requires state")
+		}
+		responses, ok := (*state).(*responsesStreamState)
+		if !ok {
+			responses = &responsesStreamState{itemIDs: make(map[int64]string)}
+			*state = responses
+		}
+		frame = responses.normalize(frame)
+		state = &responses.translation
+	}
 	to := sdktranslator.FromString(destination)
 	if from == to {
 		return [][]byte{append([]byte(nil), frame...)}, nil
