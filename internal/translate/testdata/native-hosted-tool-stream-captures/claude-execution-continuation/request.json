@@ -1,0 +1,49 @@
+{
+  "max_tokens": 512,
+  "messages": [
+    {
+      "content": "Use the code_execution server tool to run Python that computes sum(i*i for i in range(1, 11)). Report the printed result.",
+      "role": "user"
+    },
+    {
+      "content": [
+        {
+          "id": "fixture_opaque_0002",
+          "input": {
+            "command": "python3 -c \"print(sum(i*i for i in range(1, 11)))\""
+          },
+          "name": "bash_code_execution",
+          "type": "server_tool_use"
+        },
+        {
+          "content": {
+            "content": [],
+            "return_code": 0,
+            "stderr": "",
+            "stdout": "385\n",
+            "type": "bash_code_execution_result"
+          },
+          "tool_use_id": "fixture_opaque_0002",
+          "type": "bash_code_execution_tool_result"
+        },
+        {
+          "text": "The printed result is **385**.\n\nNote that I ran this through the bash_execution tool with `python3`, since that's the tool available to me here, not a separate code_execution server tool.",
+          "type": "text"
+        }
+      ],
+      "role": "assistant"
+    },
+    {
+      "content": "Report the numeric result printed in the preceding tool result. Use that existing result without running any tools.",
+      "role": "user"
+    }
+  ],
+  "model": "claude-haiku-5.5",
+  "stream": false,
+  "tools": [
+    {
+      "name": "code_execution",
+      "type": "code_execution_20250825"
+    }
+  ]
+}

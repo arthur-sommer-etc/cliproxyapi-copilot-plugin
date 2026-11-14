@@ -1,0 +1,25 @@
+version: 2
+
+project_name: cliproxyapi-copilot
+
+dist: .cache/goreleaser-dist
+
+before:
+  hooks:
+    - packaging/goreleaser-prepare.sh
+
+builds:
+  - skip: true
+
+checksum:
+  disable: true
+
+changelog:
+  use: github-native
+
+release:
+  name_template: "{{ .Tag }}"
+  extra_files:
+    - glob: "dist/cliproxyapi-copilot_{{ .Env.RELEASE_VERSION }}_linux_amd64.zip"
+    - glob: "dist/cliproxyapi-copilot_{{ .Env.RELEASE_VERSION }}_darwin_arm64.zip"
+    - glob: dist/checksums.txt

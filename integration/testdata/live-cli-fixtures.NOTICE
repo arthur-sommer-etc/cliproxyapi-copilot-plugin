@@ -1,0 +1,25 @@
+The JSONL fixtures preserve actual CLI event shapes from isolated synthetic requests through the Copilot proxy.
+The clients were Claude Code 2.1.294 and Codex CLI 0.161.0.
+Session identifiers, tool identifiers, signatures, child identifiers, and temporary home paths use fixture placeholders.
+Debug progress events are omitted because the completion parser does not consume them.
+Duplicate JSON keys are preserved where the CLI emitted them.
+Original outputs remain private diagnostics and are not included here.
+
+claude_bare_search_unavailable.jsonl records minimal mode without a search tool.
+claude_search_upstream_error.jsonl records two WebSearch tool failures with upstream HTTP 400.
+claude_agent_completed.jsonl records a completed Agent result containing the child answer 323.
+codex_delegation_uninvoked.jsonl records an assistant claiming delegation without a tool call.
+codex_search_different_ids.jsonl records search start and completion events with different identifiers.
+codex_wait_without_spawn.jsonl records a wait call without a spawned child or completed child state.
+codex_ephemeral_spawn_failure.json preserves the actual follow-up function_call_output for a failed full-history child spawn.
+The isolated Codex invocation used --ephemeral, so its parent model context had no persisted rollout.
+codex_v2_parent_completed.jsonl and codex_v2_child_completed.jsonl preserve the actual successful parent and child rollout chain.
+Unrelated model instructions and context rows are omitted or replaced with fixture text.
+The child session links to the current parent and contains its own completed turn and answer 323.
+The parent contains the actual spawn result, wait result, and child handback.
+
+Codex CLI 0.161.0 records V2 spawn calls in its persisted rollout but emits no spawn ThreadItem in JSONL stdout.
+Its V2 wait ThreadItem leaves receiver_thread_ids and agents_states empty because it waits for mailbox activity.
+The acceptance check supplements stdout with the verified native rollout chain and preserves the original V1 event gate.
+Source: https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_v2/spawn.rs
+Source: https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_v2/wait.rs

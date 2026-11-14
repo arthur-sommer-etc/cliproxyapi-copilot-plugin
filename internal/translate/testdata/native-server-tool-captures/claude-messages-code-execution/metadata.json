@@ -1,0 +1,24 @@
+{
+  "capture": "gate-006",
+  "incoming_api": "claude",
+  "endpoint_path": "/v1/messages",
+  "requested_model": "claude-haiku-5.5",
+  "http_status": 200,
+  "provider_outcome": "HTTP 200; end_turn; actual bash_code_execution call and paired successful result",
+  "source_body_sha256": {
+    "request": "fc31a35b46ab503cf1d28dcf5044c8b8bec7b3e2143c4f2345d1056af93565ff",
+    "response": "97f077ef745abac1efaa8a940543fc250a6d0bff88020a843af60cb13f0322d8"
+  },
+  "sanitized_source_sha256": {
+    "request": "e3ef2f383a1b6d842d62cc45b3386038c6e9aca3f2013ad43e12065e681d1ae0",
+    "response": "0108015c39e0af9ee45f93afe7a64281766ea2fbfed0cd2854582ca02e3b2596"
+  },
+  "fixture_sha256": {
+    "request": "e3ef2f383a1b6d842d62cc45b3386038c6e9aca3f2013ad43e12065e681d1ae0",
+    "response": "0108015c39e0af9ee45f93afe7a64281766ea2fbfed0cd2854582ca02e3b2596"
+  },
+  "original_shape_sha256": {
+    "request": "b8816cda3e0e359fa70c6e22c545232aaafc2045016fe7d5df2e57e3558c43bd",
+    "response": "24836821818cdc29ff37ea01887b45e259d51383d6d766dc15ab4fa8169b4dfe"
+  }
+}

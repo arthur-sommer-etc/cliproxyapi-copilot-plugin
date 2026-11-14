@@ -1,0 +1,186 @@
+{
+  "type": "sse",
+  "frame_count": 6,
+  "frames": [
+    {
+      "index": 0,
+      "event": "message_start",
+      "data_type": "message_start",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "message": {
+            "type": "object",
+            "fields": {
+              "content": {
+                "type": "array",
+                "length": 0,
+                "items": []
+              },
+              "id": {
+                "type": "string"
+              },
+              "model": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              },
+              "stop_reason": {
+                "type": "null"
+              },
+              "stop_sequence": {
+                "type": "null"
+              },
+              "type": {
+                "type": "string"
+              },
+              "usage": {
+                "type": "object",
+                "fields": {
+                  "input_tokens": {
+                    "type": "number"
+                  },
+                  "output_tokens": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 1,
+      "event": "content_block_start",
+      "data_type": "content_block_start",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "content_block": {
+            "type": "object",
+            "fields": {
+              "id": {
+                "type": "string"
+              },
+              "input": {
+                "type": "object",
+                "fields": {}
+              },
+              "name": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 2,
+      "event": "content_block_delta",
+      "data_type": "content_block_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "partial_json": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 3,
+      "event": "content_block_stop",
+      "data_type": "content_block_stop",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "index": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 4,
+      "event": "message_delta",
+      "data_type": "message_delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "object",
+            "fields": {
+              "stop_reason": {
+                "type": "string"
+              },
+              "stop_sequence": {
+                "type": "null"
+              }
+            }
+          },
+          "type": {
+            "type": "string"
+          },
+          "usage": {
+            "type": "object",
+            "fields": {
+              "cache_read_input_tokens": {
+                "type": "number"
+              },
+              "input_tokens": {
+                "type": "number"
+              },
+              "output_tokens": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 5,
+      "event": "message_stop",
+      "data_type": "message_stop",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}

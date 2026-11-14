@@ -1,0 +1,1 @@
+{"id":"fixture-id-1","object":"chat.completion","created":7,"model":"claude-haiku-5.5","choices":[{"index":0,"message":{"role":"assistant","content":"LIVE_MATRIX_OK"},"finish_reason":"stop"}],"usage":{"prompt_tokens":29,"completion_tokens":15,"total_tokens":44,"prompt_tokens_details":{"cached_tokens":0,"cached_creation_tokens":0,"cache_write_tokens":0}}}

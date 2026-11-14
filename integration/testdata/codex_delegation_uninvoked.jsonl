@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"fixture-id-1"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"fixture-id-2","type":"agent_message","text":"The subagent calculated **17 \u00d7 19 = 323**."}}
+{"type":"turn.completed","usage":{"input_tokens":18999,"cached_input_tokens":18671,"cache_write_input_tokens":228,"output_tokens":88,"reasoning_output_tokens":27}}

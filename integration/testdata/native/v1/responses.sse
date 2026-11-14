@@ -1,0 +1,13 @@
+data: {"type":"response.created","sequence_number":0,"response":{"id":"fixture-response-id","object":"response","created_at":1,"status":"in_progress","model":"fixture-model","output":[]}}
+
+data: {"type":"response.in_progress","sequence_number":1,"response":{"id":"fixture-response-id","object":"response","created_at":1,"status":"in_progress","model":"fixture-model","output":[]}}
+
+data: {"type":"response.output_item.added","sequence_number":2,"output_index":0,"item":{"type":"reasoning","id":"fixture-reasoning-id","summary":[],"encrypted_content":"fixture-encrypted-content/+"}}
+
+data: {"type":"response.output_item.done","sequence_number":3,"output_index":0,"item":{"type":"reasoning","id":"fixture-reasoning-id","summary":[],"encrypted_content":"fixture-encrypted-content/+"}}
+
+data: {"type":"response.output_item.added","sequence_number":4,"output_index":1,"item":{"type":"function_call","id":"fixture-function-item-id","call_id":"fixture-call-id","name":"inspect","arguments":"{}","status":"completed"}}
+
+data: {"type":"response.output_item.done","sequence_number":5,"output_index":1,"item":{"type":"function_call","id":"fixture-function-item-id","call_id":"fixture-call-id","name":"inspect","arguments":"{}","status":"completed"}}
+
+data: {"type":"response.completed","sequence_number":6,"response":{"id":"fixture-response-id","object":"response","status":"completed","model":"fixture-model","output":[{"type":"reasoning","id":"fixture-reasoning-id","summary":[],"encrypted_content":"fixture-encrypted-content/+"},{"type":"function_call","id":"fixture-function-item-id","call_id":"fixture-call-id","name":"inspect","arguments":"{}","status":"completed"}],"usage":{"input_tokens":1,"output_tokens":1,"total_tokens":2}}}

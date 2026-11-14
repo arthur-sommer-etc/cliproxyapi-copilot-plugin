@@ -1,0 +1,26 @@
+These fixtures derive from original client and upstream request/response bodies
+captured during isolated Copilot validation on 2026-10-09. Each fixture directory
+contains the four corresponding bodies. Model names, JSON field structure, tool
+contracts, and stream event order retain the observed protocol shape.
+
+Private identifiers, timestamps, opaque replay values, signatures, and environment
+details use synthetic placeholders. Authentication exchanges and headers are
+excluded. Original diagnostics remain private and are not committed.
+
+CPA's formatted upstream SSE log inserts separators at transport chunk boundaries.
+The fixture extraction reassembled split JSON framing. One lost space in
+response.instructions was restored from the paired client terminal response.
+These upstream fixtures preserve the reconstructed event data, not byte-for-byte
+transport framing. Original private logs remain unchanged.
+
+The captured Codex hosted search rotates its opaque identifier between phases and
+again in the completed snapshot. Regression expectations retain the completed
+snapshot and normalize earlier search lifecycle identifiers to its native ID.
+The Claude hosted search fixture retains the provider's unsupported_value error.
+
+The incomplete Responses exchange retains all five native events, reasoning-only
+output, provider accounting, usage, and max_output_tokens termination. Response
+and reasoning identifiers and encrypted values are distinct across its three
+observed phases; stable placeholders preserve that equality pattern. Its upstream
+log required chunk reassembly and appended a context-canceled transport diagnostic
+after the terminal. That diagnostic is separate from the SSE response body.

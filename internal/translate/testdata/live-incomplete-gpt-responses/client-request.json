@@ -1,0 +1,9 @@
+{
+  "input": "Write at least 100 words explaining how a rainbow forms. Do not shorten the answer.",
+  "max_output_tokens": 16,
+  "model": "gpt-6-luna",
+  "reasoning": {
+    "effort": "low"
+  },
+  "stream": true
+}

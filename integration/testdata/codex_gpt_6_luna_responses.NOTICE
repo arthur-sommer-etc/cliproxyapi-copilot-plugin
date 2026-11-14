@@ -1,0 +1,11 @@
+This fixture contains GPT-6-Luna model metadata from OpenAI Codex.
+Source: https://github.com/openai/codex/blob/main/codex-rs/models-manager/models.json
+The accompanying openai-codex.LICENSE and openai-codex.NOTICE preserve its licensing and attribution.
+The complete descriptor preserves the CLI's model instructions, reasoning settings, context limits, and tool contracts.
+
+Two metadata values were changed for the proxy's standard Responses transport:
+- use_responses_lite is false because Responses Lite omits hosted web search tools.
+- tool_mode is direct because the proxy accepts standard Responses tool declarations.
+
+The exact model slug remains gpt-6-luna.
+These client settings do not establish whether the upstream provider supports hosted search.

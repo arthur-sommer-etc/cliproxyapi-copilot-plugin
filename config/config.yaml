@@ -1,33 +1,74 @@
-# Configuration template. The documented setup step renders it to
-# .runtime/config.yaml with the API key placeholder replaced; this source file
-# contains no secret. See docs/claude-code-setup.md.
-host: "0.0.0.0"
-port: 8317
+# This template uses the CLIProxyAPI v8 configuration schema.
+# The setup guide renders it to .runtime/config.yaml with the API key placeholder replaced.
+# The placeholder is not a credential.
+config-version: 8
 
-tls:
-  enable: false
-  cert: ""
-  key: ""
+server:
+  host: "0.0.0.0"
+  port: 8317
+  tls:
+    enable: false
+    cert: ""
+    key: ""
 
-# Docker publishes the service only on host loopback. allow-remote must be true
-# because a loopback host request reaches the container through Docker's bridge.
-remote-management:
+# Docker publishes the service on host loopback.
+# Management access must allow Docker bridge requests from the container network.
+management:
   allow-remote: true
   secret-key: ""
   disable-control-panel: false
 
-auth-dir: "/root/.cli-proxy-api"
+access:
+  api-keys:
+    - "__CLIPROXYAPI_API_KEY__"
 
-api-keys:
-  - "__CLIPROXYAPI_API_KEY__"
+oauth:
+  auth-dir: "/root/.cli-proxy-api"
+  settings:
+    copilot:
+      - name: "gpt-6.1-sol"
+        max-context-length: 272000
+      - name: "gpt-6-luna"
+        max-context-length: 272000
+  model-alias:
+    copilot:
+      - name: "claude-opus-5.5"
+        alias: "claude-opus-5-5"
+        fork: true
+      - name: "claude-sonnet-5.5"
+        alias: "claude-sonnet-5-5"
+        fork: true
+      - name: "claude-fable-5.1"
+        alias: "claude-fable-5-1"
+        fork: true
+  excluded-models:
+    copilot:
+      - "gpt-5*"
+      - "gpt-6-sol"
+      - "claude-fable-5"
+      - "claude-sonnet-4*"
+      - "claude-sonnet-5"
+      - "claude-opus-4*"
+      - "claude-opus-5"
+      - "gemini-3.7-flash"
+      - "grok-4.5"
+      - "grok-4.6"
 
-debug: false
-logging-to-file: false
-logs-max-total-size-mb: 100
-usage-statistics-enabled: false
-passthrough-headers: true
-request-retry: 1
-max-retry-credentials: 1
+routing:
+  retry:
+    request-retry: 1
+    max-retry-credentials: 1
+
+requests:
+  passthrough-headers: true
+
+observability:
+  logs:
+    debug: false
+    logging-to-file: false
+    logs-max-total-size-mb: 100
+  usage:
+    usage-statistics-enabled: false
 
 plugins:
   enabled: true
@@ -38,11 +79,14 @@ plugins:
       priority: 100
       github_client_id: "Iv1.b507a08c87ecfe98"
       github_scope: "read:user"
+      support-prompt-cache-key: true
       github_base_url: "https://github.com"
       github_api_url: "https://api.github.com"
       copilot_api_url: "https://api.githubcopilot.com"
       oauth_timeout_seconds: 900
       model_cache_ttl_seconds: 600
       token_expiry_buffer_seconds: 300
-      excluded_model_prefixes:
-        - "claude-"
+      compaction_models:
+        - "gpt-6-luna"
+        - "gpt-6.1-sol"
+        - "mai-code-1.1-flash"

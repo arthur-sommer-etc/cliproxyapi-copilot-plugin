@@ -1,0 +1,55 @@
+{
+  "model": "gemini-3.8-flash",
+  "messages": [
+    {
+      "role": "system",
+      "content": "SANITIZED_INSTRUCTION_007"
+    },
+    {
+      "role": "user",
+      "content": "<current_datetime>2026-10-10T01:26:41.508+09:00</current_datetime>\n\nUse the built-in view tool to read the attached PDF and report its unique marker.\n\n\n\n<tagged_files>\n* /sanitized/native-attachments/SANITIZED_FILE_002.pdf (34 lines)\n</tagged_files>"
+    }
+  ],
+  "reasoning_effort": "medium",
+  "temperature": 1,
+  "snippy": {
+    "enabled": false
+  },
+  "tool_choice": "validated",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "view",
+        "description": "SANITIZED_INSTRUCTION_003",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "SANITIZED_INSTRUCTION_004"
+            },
+            "view_range": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "description": "SANITIZED_INSTRUCTION_005"
+            },
+            "forceReadLargeFiles": {
+              "type": "boolean",
+              "description": "SANITIZED_INSTRUCTION_006"
+            }
+          },
+          "required": [
+            "path"
+          ]
+        }
+      }
+    }
+  ],
+  "stream": true,
+  "stream_options": {
+    "include_usage": true
+  }
+}

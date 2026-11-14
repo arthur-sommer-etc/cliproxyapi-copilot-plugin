@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "kind": "synthetic-routing-fixture",
+  "purpose": "Deterministic protocol tests only. These records do not describe account entitlements or live model availability."
+}

@@ -1,0 +1,382 @@
+[
+  {
+    "path": "internal/provider/testdata/codex-cached-search/request.json",
+    "sha256": "8382168ecb475181817486a8ce4014222f02839a8bcfc76dd543f86d3c0f73b2"
+  },
+  {
+    "path": "internal/provider/testdata/codex-cached-search/response.json",
+    "sha256": "13545ecd382e0045ec92075ff307ad017b658b2c8ef7b5e588b73cf00edf760d"
+  },
+  {
+    "path": "internal/provider/testdata/current-copilot-catalog/response.json",
+    "sha256": "7465e46f7235fd940c0b55e8fef22219472d89b625121ca22c4e726d9bfe5e5d"
+  },
+  {
+    "path": "internal/translate/testdata/claude-gpt-pdf-read/bodies/content-visible-range-1-20-hop-001-claude-request.json",
+    "sha256": "cb06d22972a26a8aded2cc6a1832c3c7ccffd4f70cb92fa4261bf98be9aa9df1"
+  },
+  {
+    "path": "internal/translate/testdata/claude-gpt-pdf-read/bodies/content-visible-range-1-20-hop-001-responses-request.json",
+    "sha256": "41a6192c0cd56ead7d845d93de684ffc255c6bd7dff66b51b6810b7f5c18f65d"
+  },
+  {
+    "path": "internal/translate/testdata/claude-gpt-pdf-read/bodies/content-visible-range-1-20-hop-002-claude-request.json",
+    "sha256": "7c1cfdcc859f802ffd491a886fed043a595444b66c2a27fecfc7c0bc773525eb"
+  },
+  {
+    "path": "internal/translate/testdata/claude-gpt-pdf-read/bodies/content-visible-range-1-20-hop-002-responses-request.json",
+    "sha256": "7ab3ffb7a5d28f3391498a9f633c613d6bf34a97375d523c4504274c66e12102"
+  },
+  {
+    "path": "internal/translate/testdata/claude-gpt-pdf-read/bodies/text-missing-fail-hop-001-claude-request.json",
+    "sha256": "07912983b95b6b388a387d75bd5b644df0c899a5758587a5381cb0ec52e7df83"
+  },
+  {
+    "path": "internal/translate/testdata/claude-gpt-pdf-read/bodies/text-missing-fail-hop-001-responses-request.json",
+    "sha256": "c534f3a6df5965b429155198c5bd63ac7b946822b292595a8660c9149787bfd7"
+  },
+  {
+    "path": "internal/translate/testdata/claude-gpt-pdf-read/bodies/text-missing-fail-hop-002-claude-request.json",
+    "sha256": "2de66b5c7378720a055171e7772430917dd3cca567c311f70d3558fa9f30c575"
+  },
+  {
+    "path": "internal/translate/testdata/claude-gpt-pdf-read/bodies/text-missing-fail-hop-002-responses-request.json",
+    "sha256": "f2d9e4343b8a456e50e866d500910e12f1a18855608721d1ae3f41dc1ae9acb3"
+  },
+  {
+    "path": "internal/translate/testdata/claude-gpt-png-read/bodies/hop-001-claude-request.json",
+    "sha256": "25687a8e184185eb72d2d0b6fd79f7df6a1b7e4eac700a94033ef367285ba227"
+  },
+  {
+    "path": "internal/translate/testdata/claude-gpt-png-read/bodies/hop-001-responses-request.json",
+    "sha256": "f66a4ab77770b4e137ef4ced76c6e366367e76d1387d68ea0dbfe7e1dbab942c"
+  },
+  {
+    "path": "internal/translate/testdata/claude-gpt-png-read/bodies/hop-002-claude-request.json",
+    "sha256": "3df682192e3895bde3ff92b38e00ca92b9393aec6ecca600c15e1a8e810f90a9"
+  },
+  {
+    "path": "internal/translate/testdata/claude-gpt-png-read/bodies/hop-002-responses-request.json",
+    "sha256": "a43e8bdc732bb88efee72faaf57f698221a258364beea86f0da5451eff144142"
+  },
+  {
+    "path": "internal/translate/testdata/live-claude-web-search-unsupported/client-request.json",
+    "sha256": "6d91822ae7892fa44fc19f27e188e9afdf6ebc3ee2e657af2f6bffc4f0ab26bf"
+  },
+  {
+    "path": "internal/translate/testdata/live-claude-web-search-unsupported/client-response.json",
+    "sha256": "9f9656c2e84c6e8eaed566e589defdf716ffba593c41e4f46e1f81fd9f079f26"
+  },
+  {
+    "path": "internal/translate/testdata/live-claude-web-search-unsupported/upstream-request.json",
+    "sha256": "6d91822ae7892fa44fc19f27e188e9afdf6ebc3ee2e657af2f6bffc4f0ab26bf"
+  },
+  {
+    "path": "internal/translate/testdata/live-claude-web-search-unsupported/upstream-response.json",
+    "sha256": "7752ff9ff7e2546efdf8f474007f659a2b846bd3847791a7375b4ff427a4769f"
+  },
+  {
+    "path": "internal/translate/testdata/live-codex-web-search/client-request.json",
+    "sha256": "1500363120ab148175b195b004c96533d5331b1400967c3d5995c6f273a723f3"
+  },
+  {
+    "path": "internal/translate/testdata/live-codex-web-search/upstream-request.json",
+    "sha256": "1500363120ab148175b195b004c96533d5331b1400967c3d5995c6f273a723f3"
+  },
+  {
+    "path": "internal/translate/testdata/live-incomplete-gpt-responses/client-request.json",
+    "sha256": "55a5f993b5e5329874b4991d27ad96eb4fd163f79738cc13afec7767faceae99"
+  },
+  {
+    "path": "internal/translate/testdata/live-incomplete-gpt-responses/upstream-request.json",
+    "sha256": "7f73e697d6df8defe25ff12c5b05f0b7493331bdd3a3c3301756643b2e644e3c"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-claude-chat/client-request.json",
+    "sha256": "26fdd4a9fd66ab57e9c2524c416e5e32ed6e521055b1eea50063784a508196de"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-claude-chat/client-response.json",
+    "sha256": "3997e1144c7d3214b173ae199bdce7cf0e8da937d89c43d052727d1835102190"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-claude-chat/upstream-request.json",
+    "sha256": "47ce8625bece47311ee4f863a54f229d22f591fa85952cfa355e9f624fe88fb5"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-claude-chat/upstream-response.json",
+    "sha256": "90e0f42a419b9e392d6e17618386a4d304eb7154f7bd94355b3adf0ed5be7f70"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-claude-claude/client-request.json",
+    "sha256": "181bd7db2e82c819e4b767064c5963f5e3e421f2210e3dc16850bf4c25afa3e9"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-claude-claude/client-response.json",
+    "sha256": "90e0f42a419b9e392d6e17618386a4d304eb7154f7bd94355b3adf0ed5be7f70"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-claude-claude/upstream-request.json",
+    "sha256": "181bd7db2e82c819e4b767064c5963f5e3e421f2210e3dc16850bf4c25afa3e9"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-claude-claude/upstream-response.json",
+    "sha256": "90e0f42a419b9e392d6e17618386a4d304eb7154f7bd94355b3adf0ed5be7f70"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-claude-responses/client-request.json",
+    "sha256": "17f1d896afdb71f409d1528bec43e47ce863db9a5608f7caec95a86f40707366"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-claude-responses/client-response.json",
+    "sha256": "ab8eaf25a5d55084936ccb0d98f8bc3dc3f6c5df89bc006628c0336a66193dc9"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-claude-responses/upstream-request.json",
+    "sha256": "3b5b93c453ed9af20397e482f369008da75a6088537a2a3a046953c1af1dcb6a"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-claude-responses/upstream-response.json",
+    "sha256": "90e0f42a419b9e392d6e17618386a4d304eb7154f7bd94355b3adf0ed5be7f70"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gemini-chat/client-request.json",
+    "sha256": "313b77f68381018a14355037c0f2794ef8e519501f2c268e6dcec6abe3f4ed81"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gemini-chat/client-response.json",
+    "sha256": "424f5d413572931a0daee8bb03511bf737bb5a80082567dfd6c297a460b4c714"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gemini-chat/upstream-request.json",
+    "sha256": "313b77f68381018a14355037c0f2794ef8e519501f2c268e6dcec6abe3f4ed81"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gemini-chat/upstream-response.json",
+    "sha256": "6540e7e3778a614f0caa114f3ec8e86ec3390aaada2bb9aa2e08ce4e280400cc"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gemini-chat-stream/client-request.json",
+    "sha256": "b8597ec36db2f8b95cc3d99a5fdda16b9a0a5f0bfb11ac0e6ee70ddedb0bf320"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gemini-chat-stream/upstream-request.json",
+    "sha256": "b8597ec36db2f8b95cc3d99a5fdda16b9a0a5f0bfb11ac0e6ee70ddedb0bf320"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gemini-claude/client-request.json",
+    "sha256": "a9f00139f0f5aa20094ccce12308f847447ec7b339c83c7783b1da52855879eb"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gemini-claude/client-response.json",
+    "sha256": "88e36cc0cca8d92dc933a2892063abddae5ec8e5ca553c6a5c06c31107efa0e1"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gemini-claude/upstream-request.json",
+    "sha256": "417ea34e6c48f5ae90e1a161ab263f8e087b14922f9d67f59993d55a269180b6"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gemini-claude/upstream-response.json",
+    "sha256": "70430f1b4d7bad0ba976b27c71dd86e1bdda50860dfa8de4245379e08d0aec1f"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gemini-responses/client-request.json",
+    "sha256": "4ab92a8f0323ac3f6ceaf45ecef9a053da5aad61573e43782d5fabc6518f3eea"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gemini-responses/client-response.json",
+    "sha256": "eb8eaf63bb934f06a590708cf13cf49f22dac47c3cf23b9e11f2e753b3ecabeb"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gemini-responses/upstream-request.json",
+    "sha256": "8c6ba145c6725ed54f3f6c2aebe9bdd23d6f7e0b8a6bab871b0b581349152a6f"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gemini-responses/upstream-response.json",
+    "sha256": "d734297a6443c49a94b21f2d4dc6ad3ea0536c487d33d95e0e4f53a61781a859"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gpt-chat/client-request.json",
+    "sha256": "ed53dab4c677ebdd1b3b25373bb026bcf0004ce9effe9f61248e33e1b923688c"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gpt-chat/client-response.json",
+    "sha256": "eba5abf6f0b34aa1a7481a7e2b1234977bd4caf58710f25310d86e6a4fa7a59d"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gpt-chat/upstream-request.json",
+    "sha256": "ba2069305144b6691f827f5a3ee490ca9e83ef6f6066cf5c346da040b315482d"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gpt-chat/upstream-response.json",
+    "sha256": "f7221b5768628822b38cf257eb37de009bfb1cc044ac098aa77fb5215f063afb"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gpt-chat-stream/client-request.json",
+    "sha256": "9ac42ff7e45b62e7f567403f833ac985f47fc573d2c29064912b3a979e872676"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gpt-chat-stream/upstream-request.json",
+    "sha256": "ce56426bef8598e2e05dff4b030044581d8afa3fa7b53a070bb41ac7e9faea30"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gpt-claude/client-request.json",
+    "sha256": "3b7e3246d72812bdf6aa44ed21bac1add86809fa7736cdc3a6d477fea80439d0"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gpt-claude/client-response.json",
+    "sha256": "de89f20b38e0754994d9682fb3f0bbb550f2e50807ebd316afd0fa6d9cc5da1b"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gpt-claude/upstream-request.json",
+    "sha256": "4bbd357684752fc4c4ea85b8e0a66c1ee0fa62995be46b27200fbbdc0e10ea65"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gpt-claude/upstream-response.json",
+    "sha256": "1e0ee6ddc56712aec89660dffb0fe265c4bf269dc88fc3bb211497e61114a8ff"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gpt-responses/client-request.json",
+    "sha256": "e3250574c3f1161430db87a7efbd0f7b35a1c1c639d555dada6dfd3d004b79a0"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gpt-responses/client-response.json",
+    "sha256": "b23b542d10856940d29b074e8bd6598f60016d2eec5e9bc678f788230f627bdd"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gpt-responses/upstream-request.json",
+    "sha256": "a757f35cb91cbac9dbcf7d99089f90c5eca5b78538577d4a04abe5eed8178574"
+  },
+  {
+    "path": "internal/translate/testdata/live-matrix-gpt-responses/upstream-response.json",
+    "sha256": "b23b542d10856940d29b074e8bd6598f60016d2eec5e9bc678f788230f627bdd"
+  },
+  {
+    "path": "internal/translate/testdata/native-attachment-captures/claude-pdf/request.json",
+    "sha256": "7b869e5f264dc98bcd319634f136238600b33d439bac78e49161d86e0d105418"
+  },
+  {
+    "path": "internal/translate/testdata/native-attachment-captures/claude-png/request.json",
+    "sha256": "91a15aa532d251146fb06a37b21dcf223f4909e873d5ea7fc203286c3650b77d"
+  },
+  {
+    "path": "internal/translate/testdata/native-attachment-captures/gemini-pdf/request.json",
+    "sha256": "b2ea6acea2226d85989001f1aba7ad12e6baac73bc19547c2d20dd2ca14685ad"
+  },
+  {
+    "path": "internal/translate/testdata/native-attachment-captures/gemini-png/request.json",
+    "sha256": "9cfbde5dcddc58bf48c554c8118ca673ccc85c38df4d5de0e337b30c5b7c109a"
+  },
+  {
+    "path": "internal/translate/testdata/native-attachment-captures/gpt-pdf/request.json",
+    "sha256": "39a81f8f79e5e2a680aa4959841c3018bbf0b3cd0f59eb3c6eaeefeb22b27c76"
+  },
+  {
+    "path": "internal/translate/testdata/native-attachment-captures/gpt-png/request.json",
+    "sha256": "03d6080837d98283a90633982d664c7d7c947a4615fd6b03886e8e2d1bbe471e"
+  },
+  {
+    "path": "internal/translate/testdata/native-hosted-tool-stream-captures/claude-execution-continuation/request.json",
+    "sha256": "eea1cd175612aa1cdc9df2d43e0ca1322a9b54c80c2557def7c3c0271cef03ca"
+  },
+  {
+    "path": "internal/translate/testdata/native-hosted-tool-stream-captures/claude-execution-continuation/response.json",
+    "sha256": "98e9462485fd40716c8b1459a04134c60def0915b6d58f7cdc4d0f68b235f14e"
+  },
+  {
+    "path": "internal/translate/testdata/native-hosted-tool-stream-captures/claude-execution-stream/request.json",
+    "sha256": "91ebc7bdb5889ab301dbe3b7176be40f20596686b1b86fe9523649c3f506b064"
+  },
+  {
+    "path": "internal/translate/testdata/native-hosted-tool-stream-captures/claude-execution-stream/response.json",
+    "sha256": "8240abf68f41dc616c0743547d13069b2a76effe4c7650e3c235765198c6b6f9"
+  },
+  {
+    "path": "internal/translate/testdata/native-hosted-tool-stream-captures/gpt-search-captured-history-continuation/request.json",
+    "sha256": "250aa1e0d53b897f983f3258196c9be590b295d2f0e61e7be9a0463d6e4a11b7"
+  },
+  {
+    "path": "internal/translate/testdata/native-hosted-tool-stream-captures/gpt-search-captured-history-continuation/response.json",
+    "sha256": "216afdef8a1727df8497f1b005e91f930e81362e98e75927cabe7fb9f384b80d"
+  },
+  {
+    "path": "internal/translate/testdata/native-hosted-tool-stream-captures/gpt-search-stream-after-identity-repair/request.json",
+    "sha256": "f1e598d2a83931d380f840e1f793ba4aac50ec8d470d184983f5141a8712093b"
+  },
+  {
+    "path": "internal/translate/testdata/native-hosted-tool-stream-captures/gpt-search-stream-after-identity-repair/response.json",
+    "sha256": "96c578f5837033d87396ceeb57dcf465997579d31aff45001617554901ab77d1"
+  },
+  {
+    "path": "internal/translate/testdata/native-hosted-tool-stream-captures/gpt-search-stream-before-repair/request.json",
+    "sha256": "20c7c7b202117f931069ceffaab223caf3e04151765cefb8cd947b2a07337575"
+  },
+  {
+    "path": "internal/translate/testdata/native-hosted-tool-stream-captures/gpt-search-stream-before-repair/response.json",
+    "sha256": "a33d652471875280912d58a34e9c48ac3631ab9d1b2f8ce1902c1e328e23fc87"
+  },
+  {
+    "path": "internal/translate/testdata/native-pdf-tool-captures/gemini-followup/request.json",
+    "sha256": "f564028c21244983377bc616dedf598892294be2c33486ee285cd4e315da826c"
+  },
+  {
+    "path": "internal/translate/testdata/native-pdf-tool-captures/gemini-initial/request.json",
+    "sha256": "3b160afbe6ae8ed8d76ec2676048732a3998f8703ed0e7f269106f7ba5e2f8de"
+  },
+  {
+    "path": "internal/translate/testdata/native-pdf-tool-captures/gemini-result/request.json",
+    "sha256": "d03eea3ed6829dcab95de7d7ba3dda29811702bce18bf97b15b9673745ba1ff9"
+  },
+  {
+    "path": "internal/translate/testdata/native-pdf-tool-captures/gpt-initial/request.json",
+    "sha256": "4c01259291ec5785a268c03fa20f6b3f464aa0e21e80276968cfd9c71e82a10c"
+  },
+  {
+    "path": "internal/translate/testdata/native-pdf-tool-captures/gpt-result/request.json",
+    "sha256": "07dd974fe63820fc01f6a2db315dda71fa1b2095de8832e6a97453db81412709"
+  },
+  {
+    "path": "internal/translate/testdata/native-pdf-tool-captures/gpt-resumed-followup/request.json",
+    "sha256": "ad8c26d212473e20a41dc06f9ba2ef78562b2f7aa622c711694a5693257e3aa7"
+  },
+  {
+    "path": "internal/translate/testdata/native-server-tool-captures/claude-messages-code-execution/request.json",
+    "sha256": "e3ef2f383a1b6d842d62cc45b3386038c6e9aca3f2013ad43e12065e681d1ae0"
+  },
+  {
+    "path": "internal/translate/testdata/native-server-tool-captures/claude-messages-code-execution/response.json",
+    "sha256": "0108015c39e0af9ee45f93afe7a64281766ea2fbfed0cd2854582ca02e3b2596"
+  },
+  {
+    "path": "internal/translate/testdata/native-server-tool-captures/claude-messages-web-fetch/request.json",
+    "sha256": "8365904042a5643f9d3e803a0956822b7b5c19f92542734d1fdcfec6a645a29c"
+  },
+  {
+    "path": "internal/translate/testdata/native-server-tool-captures/claude-messages-web-fetch/response.json",
+    "sha256": "3028ab77bc816e4c187a1c31cf4f85c9ac6ba91d22f0077f2f197cf749bd45b3"
+  },
+  {
+    "path": "internal/translate/testdata/native-server-tool-captures/gemini-chat-search/request.json",
+    "sha256": "b5a87d59a1bbd217f7f8dbd67dc8e42a64fc872fe32f2a5c37a06885c12e3b36"
+  },
+  {
+    "path": "internal/translate/testdata/native-server-tool-captures/gemini-chat-search/response.json",
+    "sha256": "a6a5a018f39b860e017bd7ed2158d6b6d941d0aa554bd0ddda12e1bb4e0eb683"
+  },
+  {
+    "path": "internal/translate/testdata/native-server-tool-captures/gpt-responses-code-interpreter/request.json",
+    "sha256": "003fda4619eb6ba3ebb3070f663568da9d6816dc294c765299a989df8606249d"
+  },
+  {
+    "path": "internal/translate/testdata/native-server-tool-captures/gpt-responses-code-interpreter/response.json",
+    "sha256": "0bafebcdd6550f568c828413c2fa903a28466d2117a2bc613111a8b7715b0aff"
+  },
+  {
+    "path": "internal/translate/testdata/native-server-tool-captures/gpt-responses-search/request.json",
+    "sha256": "7d9b515400c86dde409adb9113f0005e5fcaada3325460333cb517caed73e3aa"
+  },
+  {
+    "path": "internal/translate/testdata/native-server-tool-captures/gpt-responses-search/response.json",
+    "sha256": "3e5b806d9f7ea1a71f4fee1870647af1eb8045895f568add2baa5d967b2c2629"
+  }
+]

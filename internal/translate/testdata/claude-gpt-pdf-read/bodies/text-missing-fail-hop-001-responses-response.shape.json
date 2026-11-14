@@ -1,0 +1,2295 @@
+{
+  "type": "sse",
+  "frame_count": 43,
+  "frames": [
+    {
+      "index": 0,
+      "event": "response.created",
+      "data_type": "response.created",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "response": {
+            "type": "object",
+            "fields": {
+              "access_programs": {
+                "type": "null"
+              },
+              "background": {
+                "type": "boolean"
+              },
+              "completed_at": {
+                "type": "null"
+              },
+              "created_at": {
+                "type": "number"
+              },
+              "error": {
+                "type": "null"
+              },
+              "frequency_penalty": {
+                "type": "number"
+              },
+              "id": {
+                "type": "string"
+              },
+              "incomplete_details": {
+                "type": "null"
+              },
+              "instructions": {
+                "type": "null"
+              },
+              "max_output_tokens": {
+                "type": "number"
+              },
+              "max_tool_calls": {
+                "type": "null"
+              },
+              "metadata": {
+                "type": "object",
+                "fields": {}
+              },
+              "model": {
+                "type": "string"
+              },
+              "moderation": {
+                "type": "null"
+              },
+              "object": {
+                "type": "string"
+              },
+              "output": {
+                "type": "array",
+                "length": 0,
+                "items": []
+              },
+              "parallel_tool_calls": {
+                "type": "boolean"
+              },
+              "presence_penalty": {
+                "type": "number"
+              },
+              "previous_response_id": {
+                "type": "null"
+              },
+              "prompt_cache_retention": {
+                "type": "string"
+              },
+              "reasoning": {
+                "type": "object",
+                "fields": {
+                  "context": {
+                    "type": "string"
+                  },
+                  "effort": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                }
+              },
+              "safety_identifier": {
+                "type": "string"
+              },
+              "service_tier": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "store": {
+                "type": "boolean"
+              },
+              "temperature": {
+                "type": "number"
+              },
+              "text": {
+                "type": "object",
+                "fields": {
+                  "format": {
+                    "type": "object",
+                    "fields": {
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "verbosity": {
+                    "type": "string"
+                  }
+                }
+              },
+              "tool_choice": {
+                "type": "string"
+              },
+              "tool_usage": {
+                "type": "object",
+                "fields": {
+                  "image_gen": {
+                    "type": "object",
+                    "fields": {
+                      "input_tokens": {
+                        "type": "number"
+                      },
+                      "input_tokens_details": {
+                        "type": "object",
+                        "fields": {
+                          "image_tokens": {
+                            "type": "number"
+                          },
+                          "text_tokens": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "output_tokens": {
+                        "type": "number"
+                      },
+                      "output_tokens_details": {
+                        "type": "object",
+                        "fields": {
+                          "image_tokens": {
+                            "type": "number"
+                          },
+                          "text_tokens": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "total_tokens": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "web_search": {
+                    "type": "object",
+                    "fields": {
+                      "num_requests": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              },
+              "tools": {
+                "type": "array",
+                "length": 1,
+                "items": [
+                  {
+                    "type": "object",
+                    "fields": {
+                      "description": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "output_schema": {
+                        "type": "null"
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "fields": {
+                          "$schema": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {
+                            "type": "boolean"
+                          },
+                          "properties": {
+                            "type": "object",
+                            "fields": {
+                              "allow_large": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "file_path": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "limit": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "exclusiveMinimum": {
+                                    "type": "number"
+                                  },
+                                  "maximum": {
+                                    "type": "number"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "offset": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "maximum": {
+                                    "type": "number"
+                                  },
+                                  "minimum": {
+                                    "type": "number"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "pages": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "required": {
+                            "type": "array",
+                            "length": 5,
+                            "items": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "strict": {
+                        "type": "boolean"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "top_logprobs": {
+                "type": "number"
+              },
+              "top_p": {
+                "type": "number"
+              },
+              "truncation": {
+                "type": "string"
+              },
+              "usage": {
+                "type": "null"
+              },
+              "user": {
+                "type": "null"
+              }
+            }
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 1,
+      "event": "response.in_progress",
+      "data_type": "response.in_progress",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "response": {
+            "type": "object",
+            "fields": {
+              "access_programs": {
+                "type": "null"
+              },
+              "background": {
+                "type": "boolean"
+              },
+              "completed_at": {
+                "type": "null"
+              },
+              "created_at": {
+                "type": "number"
+              },
+              "error": {
+                "type": "null"
+              },
+              "frequency_penalty": {
+                "type": "number"
+              },
+              "id": {
+                "type": "string"
+              },
+              "incomplete_details": {
+                "type": "null"
+              },
+              "instructions": {
+                "type": "null"
+              },
+              "max_output_tokens": {
+                "type": "number"
+              },
+              "max_tool_calls": {
+                "type": "null"
+              },
+              "metadata": {
+                "type": "object",
+                "fields": {}
+              },
+              "model": {
+                "type": "string"
+              },
+              "moderation": {
+                "type": "null"
+              },
+              "object": {
+                "type": "string"
+              },
+              "output": {
+                "type": "array",
+                "length": 0,
+                "items": []
+              },
+              "parallel_tool_calls": {
+                "type": "boolean"
+              },
+              "presence_penalty": {
+                "type": "number"
+              },
+              "previous_response_id": {
+                "type": "null"
+              },
+              "prompt_cache_retention": {
+                "type": "string"
+              },
+              "reasoning": {
+                "type": "object",
+                "fields": {
+                  "context": {
+                    "type": "string"
+                  },
+                  "effort": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                }
+              },
+              "safety_identifier": {
+                "type": "string"
+              },
+              "service_tier": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "store": {
+                "type": "boolean"
+              },
+              "temperature": {
+                "type": "number"
+              },
+              "text": {
+                "type": "object",
+                "fields": {
+                  "format": {
+                    "type": "object",
+                    "fields": {
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "verbosity": {
+                    "type": "string"
+                  }
+                }
+              },
+              "tool_choice": {
+                "type": "string"
+              },
+              "tool_usage": {
+                "type": "object",
+                "fields": {
+                  "image_gen": {
+                    "type": "object",
+                    "fields": {
+                      "input_tokens": {
+                        "type": "number"
+                      },
+                      "input_tokens_details": {
+                        "type": "object",
+                        "fields": {
+                          "image_tokens": {
+                            "type": "number"
+                          },
+                          "text_tokens": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "output_tokens": {
+                        "type": "number"
+                      },
+                      "output_tokens_details": {
+                        "type": "object",
+                        "fields": {
+                          "image_tokens": {
+                            "type": "number"
+                          },
+                          "text_tokens": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "total_tokens": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "web_search": {
+                    "type": "object",
+                    "fields": {
+                      "num_requests": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              },
+              "tools": {
+                "type": "array",
+                "length": 1,
+                "items": [
+                  {
+                    "type": "object",
+                    "fields": {
+                      "description": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "output_schema": {
+                        "type": "null"
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "fields": {
+                          "$schema": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {
+                            "type": "boolean"
+                          },
+                          "properties": {
+                            "type": "object",
+                            "fields": {
+                              "allow_large": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "file_path": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "limit": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "exclusiveMinimum": {
+                                    "type": "number"
+                                  },
+                                  "maximum": {
+                                    "type": "number"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "offset": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "maximum": {
+                                    "type": "number"
+                                  },
+                                  "minimum": {
+                                    "type": "number"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "pages": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "required": {
+                            "type": "array",
+                            "length": 5,
+                            "items": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "strict": {
+                        "type": "boolean"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "top_logprobs": {
+                "type": "number"
+              },
+              "top_p": {
+                "type": "number"
+              },
+              "truncation": {
+                "type": "string"
+              },
+              "usage": {
+                "type": "null"
+              },
+              "user": {
+                "type": "null"
+              }
+            }
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 2,
+      "event": "response.output_item.added",
+      "data_type": "response.output_item.added",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "item": {
+            "type": "object",
+            "fields": {
+              "arguments": {
+                "type": "string"
+              },
+              "call_id": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 3,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 4,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 5,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 6,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 7,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 8,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 9,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 10,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 11,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 12,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 13,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 14,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 15,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 16,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 17,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 18,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 19,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 20,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 21,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 22,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 23,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 24,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 25,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 26,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 27,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 28,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 29,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 30,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 31,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 32,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 33,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 34,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 35,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 36,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 37,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 38,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 39,
+      "event": "response.function_call_arguments.delta",
+      "data_type": "response.function_call_arguments.delta",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "delta": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "obfuscation": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 40,
+      "event": "response.function_call_arguments.done",
+      "data_type": "response.function_call_arguments.done",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "arguments": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 41,
+      "event": "response.output_item.done",
+      "data_type": "response.output_item.done",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "item": {
+            "type": "object",
+            "fields": {
+              "arguments": {
+                "type": "string"
+              },
+              "call_id": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            }
+          },
+          "output_index": {
+            "type": "number"
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "index": 42,
+      "event": "response.completed",
+      "data_type": "response.completed",
+      "data_shape": {
+        "type": "object",
+        "fields": {
+          "copilot_usage": {
+            "type": "object",
+            "fields": {
+              "token_details": {
+                "type": "array",
+                "length": 4,
+                "items": [
+                  {
+                    "type": "object",
+                    "fields": {
+                      "batch_size": {
+                        "type": "number"
+                      },
+                      "cost_per_batch": {
+                        "type": "number"
+                      },
+                      "model": {
+                        "type": "string"
+                      },
+                      "token_count": {
+                        "type": "number"
+                      },
+                      "token_type": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "fields": {
+                      "batch_size": {
+                        "type": "number"
+                      },
+                      "cost_per_batch": {
+                        "type": "number"
+                      },
+                      "model": {
+                        "type": "string"
+                      },
+                      "token_count": {
+                        "type": "number"
+                      },
+                      "token_type": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "fields": {
+                      "batch_size": {
+                        "type": "number"
+                      },
+                      "cost_per_batch": {
+                        "type": "number"
+                      },
+                      "model": {
+                        "type": "string"
+                      },
+                      "token_count": {
+                        "type": "number"
+                      },
+                      "token_type": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "fields": {
+                      "batch_size": {
+                        "type": "number"
+                      },
+                      "cost_per_batch": {
+                        "type": "number"
+                      },
+                      "model": {
+                        "type": "string"
+                      },
+                      "token_count": {
+                        "type": "number"
+                      },
+                      "token_type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "total_nano_aiu": {
+                "type": "number"
+              }
+            }
+          },
+          "response": {
+            "type": "object",
+            "fields": {
+              "access_programs": {
+                "type": "null"
+              },
+              "background": {
+                "type": "boolean"
+              },
+              "completed_at": {
+                "type": "number"
+              },
+              "created_at": {
+                "type": "number"
+              },
+              "error": {
+                "type": "null"
+              },
+              "frequency_penalty": {
+                "type": "number"
+              },
+              "id": {
+                "type": "string"
+              },
+              "incomplete_details": {
+                "type": "null"
+              },
+              "instructions": {
+                "type": "null"
+              },
+              "max_output_tokens": {
+                "type": "number"
+              },
+              "max_tool_calls": {
+                "type": "null"
+              },
+              "metadata": {
+                "type": "object",
+                "fields": {}
+              },
+              "model": {
+                "type": "string"
+              },
+              "moderation": {
+                "type": "null"
+              },
+              "object": {
+                "type": "string"
+              },
+              "output": {
+                "type": "array",
+                "length": 1,
+                "items": [
+                  {
+                    "type": "object",
+                    "fields": {
+                      "arguments": {
+                        "type": "string"
+                      },
+                      "call_id": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "parallel_tool_calls": {
+                "type": "boolean"
+              },
+              "presence_penalty": {
+                "type": "number"
+              },
+              "previous_response_id": {
+                "type": "null"
+              },
+              "prompt_cache_retention": {
+                "type": "string"
+              },
+              "reasoning": {
+                "type": "object",
+                "fields": {
+                  "context": {
+                    "type": "string"
+                  },
+                  "effort": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                }
+              },
+              "safety_identifier": {
+                "type": "string"
+              },
+              "service_tier": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "store": {
+                "type": "boolean"
+              },
+              "temperature": {
+                "type": "number"
+              },
+              "text": {
+                "type": "object",
+                "fields": {
+                  "format": {
+                    "type": "object",
+                    "fields": {
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "verbosity": {
+                    "type": "string"
+                  }
+                }
+              },
+              "tool_choice": {
+                "type": "string"
+              },
+              "tool_usage": {
+                "type": "object",
+                "fields": {
+                  "image_gen": {
+                    "type": "object",
+                    "fields": {
+                      "input_tokens": {
+                        "type": "number"
+                      },
+                      "input_tokens_details": {
+                        "type": "object",
+                        "fields": {
+                          "image_tokens": {
+                            "type": "number"
+                          },
+                          "text_tokens": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "output_tokens": {
+                        "type": "number"
+                      },
+                      "output_tokens_details": {
+                        "type": "object",
+                        "fields": {
+                          "image_tokens": {
+                            "type": "number"
+                          },
+                          "text_tokens": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "total_tokens": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "web_search": {
+                    "type": "object",
+                    "fields": {
+                      "num_requests": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              },
+              "tools": {
+                "type": "array",
+                "length": 1,
+                "items": [
+                  {
+                    "type": "object",
+                    "fields": {
+                      "description": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "output_schema": {
+                        "type": "null"
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "fields": {
+                          "$schema": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {
+                            "type": "boolean"
+                          },
+                          "properties": {
+                            "type": "object",
+                            "fields": {
+                              "allow_large": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "file_path": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "limit": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "exclusiveMinimum": {
+                                    "type": "number"
+                                  },
+                                  "maximum": {
+                                    "type": "number"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "offset": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "maximum": {
+                                    "type": "number"
+                                  },
+                                  "minimum": {
+                                    "type": "number"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "pages": {
+                                "type": "object",
+                                "fields": {
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "required": {
+                            "type": "array",
+                            "length": 5,
+                            "items": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "strict": {
+                        "type": "boolean"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              },
+              "top_logprobs": {
+                "type": "number"
+              },
+              "top_p": {
+                "type": "number"
+              },
+              "truncation": {
+                "type": "string"
+              },
+              "usage": {
+                "type": "object",
+                "fields": {
+                  "input_tokens": {
+                    "type": "number"
+                  },
+                  "input_tokens_details": {
+                    "type": "object",
+                    "fields": {
+                      "cache_write_tokens": {
+                        "type": "number"
+                      },
+                      "cached_tokens": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "output_tokens": {
+                    "type": "number"
+                  },
+                  "output_tokens_details": {
+                    "type": "object",
+                    "fields": {
+                      "reasoning_tokens": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "total_tokens": {
+                    "type": "number"
+                  }
+                }
+              },
+              "user": {
+                "type": "null"
+              }
+            }
+          },
+          "sequence_number": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}

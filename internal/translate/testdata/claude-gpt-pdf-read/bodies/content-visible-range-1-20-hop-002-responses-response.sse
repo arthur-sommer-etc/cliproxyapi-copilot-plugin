@@ -1,0 +1,84 @@
+event: response.created
+data: {"response":{"background":false,"completed_at":null,"created_at":1791593251,"error":null,"frequency_penalty":0,"id":"fixture_opaque_id_206","incomplete_details":null,"instructions":null,"max_output_tokens":32000,"max_tool_calls":null,"metadata":{},"model":"gpt-6-luna","moderation":null,"object":"response","output":[],"parallel_tool_calls":true,"presence_penalty":0,"previous_response_id":null,"prompt_cache_retention":"24h","reasoning":{"context":"all_turns","effort":"medium","mode":"standard","summary":"detailed"},"safety_identifier":"fixture_safety_identifier_002","service_tier":"flex","status":"in_progress","store":false,"temperature":1,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"description":"Reads a file from the local filesystem.\n\n- `file_path` must be an absolute path.\n- Reads up to 2000 lines by default.\n- When you already know which part of the file you need, only read that part. This can be important for larger files.\n- Results are returned using cat -n format, with line numbers starting at 1\n- Reads images (PNG, JPG, …) and presents them visually. Reads PDFs via the `pages` parameter (e.g. \"1-5\", max 20 pages/request; required for PDFs over 10 pages). Reads Jupyter notebooks (.ipynb) as cells with outputs.\n- Reading a directory, a missing file, or an empty file returns an error or system reminder rather than content.\n- Do NOT re-read a file you just edited to verify — Edit/Write would have errored if the change failed, and the harness tracks file state for you.","name":"Read","output_schema":null,"parameters":{"$schema":"https://json-schema.org/draft/2020-12/schema","additionalProperties":false,"properties":{"allow_large":{"description":"Set to true to read a text file, or a line range of one, that is over the usual size limits, up to what still fits in your context. Only use this when you genuinely need all of it or the user asked for the whole file; otherwise read it in parts with offset and limit, or search it.","type":"boolean"},"file_path":{"description":"The absolute path to the file to read","type":"string"},"limit":{"description":"The number of lines to read. Only provide if the file is too large to read at once.","exclusiveMinimum":0,"maximum":9007199254740991,"type":"integer"},"offset":{"description":"The line number to start reading from. Only provide if the file is too large to read at once","maximum":9007199254740991,"minimum":0,"type":"integer"},"pages":{"description":"Page range for PDF files (e.g., \"1-5\", \"3\", \"10-20\"). Only applicable to PDF files. Maximum 20 pages per request.","type":"string"}},"required":["allow_large","file_path","limit","offset","pages"],"type":"object"},"strict":true,"type":"function"}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null},"sequence_number":0,"type":"response.created"}
+
+event: response.in_progress
+data: {"response":{"background":false,"completed_at":null,"created_at":1791593251,"error":null,"frequency_penalty":0,"id":"fixture_opaque_id_207","incomplete_details":null,"instructions":null,"max_output_tokens":32000,"max_tool_calls":null,"metadata":{},"model":"gpt-6-luna","moderation":null,"object":"response","output":[],"parallel_tool_calls":true,"presence_penalty":0,"previous_response_id":null,"prompt_cache_retention":"24h","reasoning":{"context":"all_turns","effort":"medium","mode":"standard","summary":"detailed"},"safety_identifier":"fixture_safety_identifier_002","service_tier":"flex","status":"in_progress","store":false,"temperature":1,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"description":"Reads a file from the local filesystem.\n\n- `file_path` must be an absolute path.\n- Reads up to 2000 lines by default.\n- When you already know which part of the file you need, only read that part. This can be important for larger files.\n- Results are returned using cat -n format, with line numbers starting at 1\n- Reads images (PNG, JPG, …) and presents them visually. Reads PDFs via the `pages` parameter (e.g. \"1-5\", max 20 pages/request; required for PDFs over 10 pages). Reads Jupyter notebooks (.ipynb) as cells with outputs.\n- Reading a directory, a missing file, or an empty file returns an error or system reminder rather than content.\n- Do NOT re-read a file you just edited to verify — Edit/Write would have errored if the change failed, and the harness tracks file state for you.","name":"Read","output_schema":null,"parameters":{"$schema":"https://json-schema.org/draft/2020-12/schema","additionalProperties":false,"properties":{"allow_large":{"description":"Set to true to read a text file, or a line range of one, that is over the usual size limits, up to what still fits in your context. Only use this when you genuinely need all of it or the user asked for the whole file; otherwise read it in parts with offset and limit, or search it.","type":"boolean"},"file_path":{"description":"The absolute path to the file to read","type":"string"},"limit":{"description":"The number of lines to read. Only provide if the file is too large to read at once.","exclusiveMinimum":0,"maximum":9007199254740991,"type":"integer"},"offset":{"description":"The line number to start reading from. Only provide if the file is too large to read at once","maximum":9007199254740991,"minimum":0,"type":"integer"},"pages":{"description":"Page range for PDF files (e.g., \"1-5\", \"3\", \"10-20\"). Only applicable to PDF files. Maximum 20 pages per request.","type":"string"}},"required":["allow_large","file_path","limit","offset","pages"],"type":"object"},"strict":true,"type":"function"}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null},"sequence_number":1,"type":"response.in_progress"}
+
+event: response.output_item.added
+data: {"item":{"content":[],"encrypted_content":"fixture_redacted_encrypted_content_005","id":"fixture_opaque_id_208","summary":[],"type":"reasoning"},"output_index":0,"sequence_number":2,"type":"response.output_item.added"}
+
+event: response.output_item.done
+data: {"item":{"content":[],"encrypted_content":"fixture_redacted_signature_004","id":"fixture_opaque_id_209","summary":[],"type":"reasoning"},"output_index":0,"sequence_number":3,"type":"response.output_item.done"}
+
+event: response.output_item.added
+data: {"item":{"content":[],"id":"fixture_opaque_id_210","phase":"final_answer","role":"assistant","status":"in_progress","type":"message"},"output_index":1,"sequence_number":4,"type":"response.output_item.added"}
+
+event: response.content_part.added
+data: {"content_index":0,"item_id":"fixture_opaque_id_211","output_index":1,"part":{"annotations":[],"logprobs":[],"text":"","type":"output_text"},"sequence_number":5,"type":"response.content_part.added"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":"The","item_id":"fixture_opaque_id_212","logprobs":[],"obfuscation":"NccVv92h5KJQw","output_index":1,"sequence_number":6,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" printed","item_id":"fixture_opaque_id_213","logprobs":[],"obfuscation":"u5c3nw19","output_index":1,"sequence_number":7,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" code","item_id":"fixture_opaque_id_214","logprobs":[],"obfuscation":"GUbJ2pmEbey","output_index":1,"sequence_number":8,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" is","item_id":"fixture_opaque_id_215","logprobs":[],"obfuscation":"YR6l3VW5K7YJt","output_index":1,"sequence_number":9,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" **","item_id":"fixture_opaque_id_216","logprobs":[],"obfuscation":"nusEi5QJ1uoSD","output_index":1,"sequence_number":10,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":"Q","item_id":"fixture_opaque_id_217","logprobs":[],"obfuscation":"l8Bj711dCyvqcAM","output_index":1,"sequence_number":11,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":"7","item_id":"fixture_opaque_id_218","logprobs":[],"obfuscation":"UEEWCq4AwcUuNM4","output_index":1,"sequence_number":12,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":"B","item_id":"fixture_opaque_id_219","logprobs":[],"obfuscation":"fCSfdE05rpA4lK1","output_index":1,"sequence_number":13,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":"9","item_id":"fixture_opaque_id_220","logprobs":[],"obfuscation":"HVjwRIteCXVD3wR","output_index":1,"sequence_number":14,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":"**,","item_id":"fixture_opaque_id_221","logprobs":[],"obfuscation":"kRvr9OcaGJUpn","output_index":1,"sequence_number":15,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" and","item_id":"fixture_opaque_id_222","logprobs":[],"obfuscation":"0VXUotTHNOtD","output_index":1,"sequence_number":16,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" the","item_id":"fixture_opaque_id_223","logprobs":[],"obfuscation":"fO6is9O8JPnb","output_index":1,"sequence_number":17,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" element","item_id":"fixture_opaque_id_224","logprobs":[],"obfuscation":"WbfKiLVy","output_index":1,"sequence_number":18,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" is","item_id":"fixture_opaque_id_225","logprobs":[],"obfuscation":"vp0ex8zQwvUyo","output_index":1,"sequence_number":19,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":" **","item_id":"fixture_opaque_id_226","logprobs":[],"obfuscation":"Oe8zx7mWCUePC","output_index":1,"sequence_number":20,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":"blue","item_id":"fixture_opaque_id_227","logprobs":[],"obfuscation":"yhs8R3xSEMr7","output_index":1,"sequence_number":21,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":"**","item_id":"fixture_opaque_id_228","logprobs":[],"obfuscation":"1PjQ4Bg9tazqCK","output_index":1,"sequence_number":22,"type":"response.output_text.delta"}
+
+event: response.output_text.delta
+data: {"content_index":0,"delta":".","item_id":"fixture_opaque_id_229","logprobs":[],"obfuscation":"MG1k44yPrFplHje","output_index":1,"sequence_number":23,"type":"response.output_text.delta"}
+
+event: response.output_text.done
+data: {"content_index":0,"item_id":"fixture_opaque_id_230","logprobs":[],"output_index":1,"sequence_number":24,"text":"The printed code is **Q7B9**, and the element is **blue**.","type":"response.output_text.done"}
+
+event: response.content_part.done
+data: {"content_index":0,"item_id":"fixture_opaque_id_231","output_index":1,"part":{"annotations":[],"logprobs":[],"text":"The printed code is **Q7B9**, and the element is **blue**.","type":"output_text"},"sequence_number":25,"type":"response.content_part.done"}
+
+event: response.output_item.done
+data: {"item":{"content":[{"annotations":[],"logprobs":[],"text":"The printed code is **Q7B9**, and the element is **blue**.","type":"output_text"}],"id":"fixture_opaque_id_232","phase":"final_answer","role":"assistant","status":"completed","type":"message"},"output_index":1,"sequence_number":26,"type":"response.output_item.done"}
+
+event: response.completed
+data: {"copilot_usage":{"token_details":[{"batch_size":1000000,"cost_per_batch":10000000000,"model":"gpt-6-luna","token_count":20,"token_type":"input"},{"batch_size":1000000,"cost_per_batch":1000000000,"model":"gpt-6-luna","token_count":1248,"token_type":"cache_read"},{"batch_size":1000000,"cost_per_batch":12500000000,"model":"gpt-6-luna","token_count":447,"token_type":"cache_write"},{"batch_size":1000000,"cost_per_batch":50000000000,"model":"gpt-6-luna","token_count":188,"token_type":"output"}],"total_nano_aiu":16435500},"response":{"background":false,"completed_at":1791593253,"created_at":1791593251,"error":null,"frequency_penalty":0,"id":"fixture_opaque_id_233","incomplete_details":null,"instructions":null,"max_output_tokens":32000,"max_tool_calls":null,"metadata":{},"model":"gpt-6-luna","moderation":null,"object":"response","output":[{"content":[],"encrypted_content":"fixture_redacted_encrypted_content_006","id":"fixture_opaque_id_234","summary":[],"type":"reasoning"},{"content":[{"annotations":[],"logprobs":[],"text":"The printed code is **Q7B9**, and the element is **blue**.","type":"output_text"}],"id":"fixture_opaque_id_235","phase":"final_answer","role":"assistant","status":"completed","type":"message"}],"parallel_tool_calls":true,"presence_penalty":0,"previous_response_id":null,"prompt_cache_retention":"24h","reasoning":{"context":"all_turns","effort":"medium","mode":"standard","summary":"detailed"},"safety_identifier":"fixture_safety_identifier_002","service_tier":"flex","status":"completed","store":false,"temperature":1,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"description":"Reads a file from the local filesystem.\n\n- `file_path` must be an absolute path.\n- Reads up to 2000 lines by default.\n- When you already know which part of the file you need, only read that part. This can be important for larger files.\n- Results are returned using cat -n format, with line numbers starting at 1\n- Reads images (PNG, JPG, …) and presents them visually. Reads PDFs via the `pages` parameter (e.g. \"1-5\", max 20 pages/request; required for PDFs over 10 pages). Reads Jupyter notebooks (.ipynb) as cells with outputs.\n- Reading a directory, a missing file, or an empty file returns an error or system reminder rather than content.\n- Do NOT re-read a file you just edited to verify — Edit/Write would have errored if the change failed, and the harness tracks file state for you.","name":"Read","output_schema":null,"parameters":{"$schema":"https://json-schema.org/draft/2020-12/schema","additionalProperties":false,"properties":{"allow_large":{"description":"Set to true to read a text file, or a line range of one, that is over the usual size limits, up to what still fits in your context. Only use this when you genuinely need all of it or the user asked for the whole file; otherwise read it in parts with offset and limit, or search it.","type":"boolean"},"file_path":{"description":"The absolute path to the file to read","type":"string"},"limit":{"description":"The number of lines to read. Only provide if the file is too large to read at once.","exclusiveMinimum":0,"maximum":9007199254740991,"type":"integer"},"offset":{"description":"The line number to start reading from. Only provide if the file is too large to read at once","maximum":9007199254740991,"minimum":0,"type":"integer"},"pages":{"description":"Page range for PDF files (e.g., \"1-5\", \"3\", \"10-20\"). Only applicable to PDF files. Maximum 20 pages per request.","type":"string"}},"required":["allow_large","file_path","limit","offset","pages"],"type":"object"},"strict":true,"type":"function"}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":{"input_tokens":1715,"input_tokens_details":{"cache_write_tokens":447,"cached_tokens":1248},"output_tokens":188,"output_tokens_details":{"reasoning_tokens":164},"total_tokens":1903},"user":null},"sequence_number":27,"type":"response.completed"}
+

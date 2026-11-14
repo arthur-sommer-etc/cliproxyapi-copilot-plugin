@@ -1,0 +1,6 @@
+{
+  "type": "function_call_output",
+  "id": "fixture-item",
+  "call_id": "fixture-call",
+  "output": "collab spawn failed: Fatal error: failed to load model context for thread fixture-parent-thread: invalid thread-store request: no rollout found for thread id fixture-parent-thread"
+}

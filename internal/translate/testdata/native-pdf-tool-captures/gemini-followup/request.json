@@ -1,0 +1,87 @@
+{
+  "model": "gemini-3.8-flash",
+  "messages": [
+    {
+      "role": "system",
+      "content": "SANITIZED_INSTRUCTION_007"
+    },
+    {
+      "role": "user",
+      "content": "<current_datetime>2026-10-10T01:26:41.508+09:00</current_datetime>\n\nUse the built-in view tool to read the attached PDF and report its unique marker.\n\n\n\n<tagged_files>\n* /sanitized/native-attachments/SANITIZED_FILE_002.pdf (34 lines)\n</tagged_files>"
+    },
+    {
+      "reasoning_opaque": "SANITIZED_OPAQUE_001",
+      "reasoning_text": "SANITIZED_REASONING_001",
+      "role": "assistant",
+      "content": "I'll view the attached PDF file to find its unique marker.",
+      "refusal": null,
+      "tool_calls": [
+        {
+          "id": "SANITIZED_ID_122",
+          "type": "function",
+          "function": {
+            "name": "view",
+            "arguments": "{\"path\":\"/sanitized/native-attachments/SANITIZED_FILE_002.pdf\"}"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "SANITIZED_ID_122",
+      "content": "%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 300 200] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n5 0 obj\n<< /Length 80 >>\nstream\nBT /F1 24 Tf 40 140 Td (Document canary: Q7B9) Tj ET\n0 0 1 rg 40 40 100 50 re f\nendstream\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000241 00000 n \n0000000311 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n440\n%%EOF\n"
+    },
+    {
+      "reasoning_opaque": "SANITIZED_OPAQUE_002",
+      "content": "The unique marker in the PDF is:\n\n**`Document canary: Q7B9`** (Marker code: **`Q7B9`**)",
+      "role": "assistant",
+      "refusal": null
+    },
+    {
+      "role": "user",
+      "content": "<current_datetime>2026-10-10T01:26:48.829+09:00</current_datetime>\n\nWithout reading a new file, state the unique marker you found in the attached PDF."
+    }
+  ],
+  "reasoning_effort": "medium",
+  "temperature": 1,
+  "snippy": {
+    "enabled": false
+  },
+  "tool_choice": "validated",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "view",
+        "description": "SANITIZED_INSTRUCTION_003",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "SANITIZED_INSTRUCTION_004"
+            },
+            "view_range": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "description": "SANITIZED_INSTRUCTION_005"
+            },
+            "forceReadLargeFiles": {
+              "type": "boolean",
+              "description": "SANITIZED_INSTRUCTION_006"
+            }
+          },
+          "required": [
+            "path"
+          ]
+        }
+      }
+    }
+  ],
+  "stream": true,
+  "stream_options": {
+    "include_usage": true
+  }
+}

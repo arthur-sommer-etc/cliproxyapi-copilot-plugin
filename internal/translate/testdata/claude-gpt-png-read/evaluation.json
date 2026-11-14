@@ -1,0 +1,13 @@
+{
+  "expected_verdict": "FAIL",
+  "accepted": false,
+  "error_class": "unclassified",
+  "final_text_sha256": "218a01b11c7efdcbdae4eea08c6aec352e5c35c6099c24b4fef7cd94dee75500",
+  "final_text_semantics": {
+    "mentions_both": true,
+    "mentions_red": true,
+    "mentions_blue": false
+  },
+  "read_call_outcome": "response.completed with function_call item; recorded read error cause remains unknown",
+  "source_result_sha256": "2d76e15a55a113d44b3895866097f44237058f0028a047469ec5935213aae188"
+}

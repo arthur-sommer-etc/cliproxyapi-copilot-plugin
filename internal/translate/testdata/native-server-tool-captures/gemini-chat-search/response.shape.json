@@ -1,0 +1,161 @@
+{
+  "type": "object",
+  "fields": {
+    "choices": {
+      "type": "array",
+      "length": 1,
+      "items": [
+        {
+          "type": "object",
+          "fields": {
+            "finish_reason": {
+              "type": "string"
+            },
+            "index": {
+              "type": "number"
+            },
+            "message": {
+              "type": "object",
+              "fields": {
+                "content": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "copilot_usage": {
+      "type": "object",
+      "fields": {
+        "token_details": {
+          "type": "array",
+          "length": 4,
+          "items": [
+            {
+              "type": "object",
+              "fields": {
+                "batch_size": {
+                  "type": "number"
+                },
+                "cost_per_batch": {
+                  "type": "number"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "token_count": {
+                  "type": "number"
+                },
+                "token_type": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "fields": {
+                "batch_size": {
+                  "type": "number"
+                },
+                "cost_per_batch": {
+                  "type": "number"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "token_count": {
+                  "type": "number"
+                },
+                "token_type": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "fields": {
+                "batch_size": {
+                  "type": "number"
+                },
+                "cost_per_batch": {
+                  "type": "number"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "token_count": {
+                  "type": "number"
+                },
+                "token_type": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "fields": {
+                "batch_size": {
+                  "type": "number"
+                },
+                "cost_per_batch": {
+                  "type": "number"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "token_count": {
+                  "type": "number"
+                },
+                "token_type": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        },
+        "total_nano_aiu": {
+          "type": "number"
+        }
+      }
+    },
+    "created": {
+      "type": "number"
+    },
+    "id": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "usage": {
+      "type": "object",
+      "fields": {
+        "completion_tokens": {
+          "type": "number"
+        },
+        "prompt_tokens": {
+          "type": "number"
+        },
+        "prompt_tokens_details": {
+          "type": "object",
+          "fields": {
+            "cached_tokens": {
+              "type": "number"
+            }
+          }
+        },
+        "reasoning_tokens": {
+          "type": "number"
+        },
+        "total_tokens": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

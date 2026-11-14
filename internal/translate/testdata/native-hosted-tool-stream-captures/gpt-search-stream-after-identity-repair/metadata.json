@@ -1,0 +1,25 @@
+{
+  "cell": "S-native-identity/gpt-responses-search",
+  "endpoint_path": "/responses",
+  "fixture_sha256": {
+    "request": "f1e598d2a83931d380f840e1f793ba4aac50ec8d470d184983f5141a8712093b",
+    "response": "96c578f5837033d87396ceeb57dcf465997579d31aff45001617554901ab77d1"
+  },
+  "http_status": 200,
+  "native_model": "gpt-6-luna",
+  "original_shape_sha256": {
+    "request": "d8170340f55205704a6c5922cdfb7336087c8a6f12b308cf0ffb5bf8b674a14f",
+    "response": "a9183ccbed473c8d60457af6a5e51052c036e5f15e5f74e6076a371be877915c"
+  },
+  "response_format": "sse",
+  "response_storage": "json_string",
+  "sanitized_source_sha256": {
+    "request": "f1e598d2a83931d380f840e1f793ba4aac50ec8d470d184983f5141a8712093b",
+    "response": "0fd1048c22ed0a49a7c859c48a243d3bbb60fdbcb015feec888949f9ac803c9b"
+  },
+  "source_body_sha256": {
+    "request": "e75c76f9434ce3fb0cbb445dbffd40e88aa52dc3c8c01371b146d999fdfa2a46",
+    "response": "57ceb9034b756f6c3b849488aac13434b50ee06c6ee4eb7bf54538ed16df0d0e"
+  },
+  "source_outcome": "native stream identity repaired; exact result citation pairing failed"
+}

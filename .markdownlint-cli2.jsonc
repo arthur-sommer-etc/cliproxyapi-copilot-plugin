@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint-cli2/refs/tags/v0.23.3/schema/markdownlint-cli2-config-schema.json",
+  "config": {
+    "code-block-style": {
+      "style": "fenced"
+    },
+    "docs/no-box-drawing": true,
+    "line-length": false,
+    "no-emphasis-as-heading": true,
+    "no-inline-html": {
+      "table_allowed_elements": ["br"]
+    },
+    "table-column-style": {
+      "style": "compact"
+    }
+  },
+  "customRules": ["rules/no-box-drawing.ts"],
+  "gitignore": true,
+  "globs": ["**/*.md"]
+}

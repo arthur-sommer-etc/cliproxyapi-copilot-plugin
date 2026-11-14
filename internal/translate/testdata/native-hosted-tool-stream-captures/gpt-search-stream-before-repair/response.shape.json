@@ -1,0 +1,2242 @@
+{
+  "items": [
+    {
+      "fields": {
+        "response": {
+          "fields": {
+            "background": {
+              "type": "boolean"
+            },
+            "completed_at": {
+              "type": "null"
+            },
+            "created_at": {
+              "type": "number"
+            },
+            "error": {
+              "type": "null"
+            },
+            "frequency_penalty": {
+              "type": "number"
+            },
+            "id": {
+              "type": "string"
+            },
+            "incomplete_details": {
+              "type": "null"
+            },
+            "instructions": {
+              "type": "null"
+            },
+            "max_output_tokens": {
+              "type": "null"
+            },
+            "max_tool_calls": {
+              "type": "null"
+            },
+            "metadata": {
+              "fields": {},
+              "type": "object"
+            },
+            "model": {
+              "type": "string"
+            },
+            "moderation": {
+              "type": "null"
+            },
+            "object": {
+              "type": "string"
+            },
+            "output": {
+              "items": [],
+              "length": 0,
+              "type": "array"
+            },
+            "parallel_tool_calls": {
+              "type": "boolean"
+            },
+            "presence_penalty": {
+              "type": "number"
+            },
+            "previous_response_id": {
+              "type": "null"
+            },
+            "prompt_cache_retention": {
+              "type": "string"
+            },
+            "reasoning": {
+              "fields": {
+                "context": {
+                  "type": "string"
+                },
+                "effort": {
+                  "type": "string"
+                },
+                "mode": {
+                  "type": "string"
+                },
+                "summary": {
+                  "type": "null"
+                }
+              },
+              "type": "object"
+            },
+            "safety_identifier": {
+              "type": "string"
+            },
+            "service_tier": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "store": {
+              "type": "boolean"
+            },
+            "temperature": {
+              "type": "number"
+            },
+            "text": {
+              "fields": {
+                "format": {
+                  "fields": {
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                "verbosity": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "tool_choice": {
+              "type": "string"
+            },
+            "tool_usage": {
+              "fields": {
+                "image_gen": {
+                  "fields": {
+                    "input_tokens": {
+                      "type": "number"
+                    },
+                    "input_tokens_details": {
+                      "fields": {
+                        "image_tokens": {
+                          "type": "number"
+                        },
+                        "text_tokens": {
+                          "type": "number"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "output_tokens": {
+                      "type": "number"
+                    },
+                    "output_tokens_details": {
+                      "fields": {
+                        "image_tokens": {
+                          "type": "number"
+                        },
+                        "text_tokens": {
+                          "type": "number"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "total_tokens": {
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                },
+                "web_search": {
+                  "fields": {
+                    "num_requests": {
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "type": "object"
+            },
+            "tools": {
+              "items": [
+                {
+                  "fields": {
+                    "return_token_budget": {
+                      "type": "string"
+                    },
+                    "search_content_types": {
+                      "items": [
+                        {
+                          "type": "string"
+                        }
+                      ],
+                      "length": 1,
+                      "type": "array"
+                    },
+                    "search_context_size": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "user_location": {
+                      "fields": {
+                        "city": {
+                          "type": "null"
+                        },
+                        "country": {
+                          "type": "string"
+                        },
+                        "region": {
+                          "type": "null"
+                        },
+                        "timezone": {
+                          "type": "null"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              ],
+              "length": 1,
+              "type": "array"
+            },
+            "top_logprobs": {
+              "type": "number"
+            },
+            "top_p": {
+              "type": "number"
+            },
+            "truncation": {
+              "type": "string"
+            },
+            "usage": {
+              "type": "null"
+            },
+            "user": {
+              "type": "null"
+            }
+          },
+          "type": "object"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "response": {
+          "fields": {
+            "background": {
+              "type": "boolean"
+            },
+            "completed_at": {
+              "type": "null"
+            },
+            "created_at": {
+              "type": "number"
+            },
+            "error": {
+              "type": "null"
+            },
+            "frequency_penalty": {
+              "type": "number"
+            },
+            "id": {
+              "type": "string"
+            },
+            "incomplete_details": {
+              "type": "null"
+            },
+            "instructions": {
+              "type": "null"
+            },
+            "max_output_tokens": {
+              "type": "null"
+            },
+            "max_tool_calls": {
+              "type": "null"
+            },
+            "metadata": {
+              "fields": {},
+              "type": "object"
+            },
+            "model": {
+              "type": "string"
+            },
+            "moderation": {
+              "type": "null"
+            },
+            "object": {
+              "type": "string"
+            },
+            "output": {
+              "items": [],
+              "length": 0,
+              "type": "array"
+            },
+            "parallel_tool_calls": {
+              "type": "boolean"
+            },
+            "presence_penalty": {
+              "type": "number"
+            },
+            "previous_response_id": {
+              "type": "null"
+            },
+            "prompt_cache_retention": {
+              "type": "string"
+            },
+            "reasoning": {
+              "fields": {
+                "context": {
+                  "type": "string"
+                },
+                "effort": {
+                  "type": "string"
+                },
+                "mode": {
+                  "type": "string"
+                },
+                "summary": {
+                  "type": "null"
+                }
+              },
+              "type": "object"
+            },
+            "safety_identifier": {
+              "type": "string"
+            },
+            "service_tier": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "store": {
+              "type": "boolean"
+            },
+            "temperature": {
+              "type": "number"
+            },
+            "text": {
+              "fields": {
+                "format": {
+                  "fields": {
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                "verbosity": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "tool_choice": {
+              "type": "string"
+            },
+            "tool_usage": {
+              "fields": {
+                "image_gen": {
+                  "fields": {
+                    "input_tokens": {
+                      "type": "number"
+                    },
+                    "input_tokens_details": {
+                      "fields": {
+                        "image_tokens": {
+                          "type": "number"
+                        },
+                        "text_tokens": {
+                          "type": "number"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "output_tokens": {
+                      "type": "number"
+                    },
+                    "output_tokens_details": {
+                      "fields": {
+                        "image_tokens": {
+                          "type": "number"
+                        },
+                        "text_tokens": {
+                          "type": "number"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "total_tokens": {
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                },
+                "web_search": {
+                  "fields": {
+                    "num_requests": {
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "type": "object"
+            },
+            "tools": {
+              "items": [
+                {
+                  "fields": {
+                    "return_token_budget": {
+                      "type": "string"
+                    },
+                    "search_content_types": {
+                      "items": [
+                        {
+                          "type": "string"
+                        }
+                      ],
+                      "length": 1,
+                      "type": "array"
+                    },
+                    "search_context_size": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "user_location": {
+                      "fields": {
+                        "city": {
+                          "type": "null"
+                        },
+                        "country": {
+                          "type": "string"
+                        },
+                        "region": {
+                          "type": "null"
+                        },
+                        "timezone": {
+                          "type": "null"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              ],
+              "length": 1,
+              "type": "array"
+            },
+            "top_logprobs": {
+              "type": "number"
+            },
+            "top_p": {
+              "type": "number"
+            },
+            "truncation": {
+              "type": "string"
+            },
+            "usage": {
+              "type": "null"
+            },
+            "user": {
+              "type": "null"
+            }
+          },
+          "type": "object"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "item": {
+          "fields": {
+            "content": {
+              "items": [],
+              "length": 0,
+              "type": "array"
+            },
+            "encrypted_content": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "summary": {
+              "items": [],
+              "length": 0,
+              "type": "array"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "item": {
+          "fields": {
+            "content": {
+              "items": [],
+              "length": 0,
+              "type": "array"
+            },
+            "encrypted_content": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "summary": {
+              "items": [],
+              "length": 0,
+              "type": "array"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "item": {
+          "fields": {
+            "id": {
+              "type": "string"
+            },
+            "results": {
+              "type": "null"
+            },
+            "status": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "item_id": {
+          "type": "string"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "item_id": {
+          "type": "string"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "item_id": {
+          "type": "string"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "item": {
+          "fields": {
+            "action": {
+              "fields": {
+                "queries": {
+                  "items": [
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "length": 1,
+                  "type": "array"
+                },
+                "query": {
+                  "type": "string"
+                },
+                "sources": {
+                  "items": [
+                    {
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ],
+                  "length": 11,
+                  "type": "array"
+                },
+                "type": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "id": {
+              "type": "string"
+            },
+            "results": {
+              "items": [
+                {
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "snippet": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              ],
+              "length": 11,
+              "type": "array"
+            },
+            "status": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "item": {
+          "fields": {
+            "content": {
+              "items": [],
+              "length": 0,
+              "type": "array"
+            },
+            "id": {
+              "type": "string"
+            },
+            "phase": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "content_index": {
+          "type": "number"
+        },
+        "item_id": {
+          "type": "string"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "part": {
+          "fields": {
+            "annotations": {
+              "items": [],
+              "length": 0,
+              "type": "array"
+            },
+            "logprobs": {
+              "items": [],
+              "length": 0,
+              "type": "array"
+            },
+            "text": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "content_index": {
+          "type": "number"
+        },
+        "delta": {
+          "type": "string"
+        },
+        "item_id": {
+          "type": "string"
+        },
+        "logprobs": {
+          "items": [],
+          "length": 0,
+          "type": "array"
+        },
+        "obfuscation": {
+          "type": "string"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "content_index": {
+          "type": "number"
+        },
+        "delta": {
+          "type": "string"
+        },
+        "item_id": {
+          "type": "string"
+        },
+        "logprobs": {
+          "items": [],
+          "length": 0,
+          "type": "array"
+        },
+        "obfuscation": {
+          "type": "string"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "content_index": {
+          "type": "number"
+        },
+        "delta": {
+          "type": "string"
+        },
+        "item_id": {
+          "type": "string"
+        },
+        "logprobs": {
+          "items": [],
+          "length": 0,
+          "type": "array"
+        },
+        "obfuscation": {
+          "type": "string"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "content_index": {
+          "type": "number"
+        },
+        "delta": {
+          "type": "string"
+        },
+        "item_id": {
+          "type": "string"
+        },
+        "logprobs": {
+          "items": [],
+          "length": 0,
+          "type": "array"
+        },
+        "obfuscation": {
+          "type": "string"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "annotation": {
+          "fields": {
+            "end_index": {
+              "type": "number"
+            },
+            "start_index": {
+              "type": "number"
+            },
+            "title": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "annotation_index": {
+          "type": "number"
+        },
+        "content_index": {
+          "type": "number"
+        },
+        "item_id": {
+          "type": "string"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "content_index": {
+          "type": "number"
+        },
+        "item_id": {
+          "type": "string"
+        },
+        "logprobs": {
+          "items": [],
+          "length": 0,
+          "type": "array"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "text": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "content_index": {
+          "type": "number"
+        },
+        "item_id": {
+          "type": "string"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "part": {
+          "fields": {
+            "annotations": {
+              "items": [
+                {
+                  "fields": {
+                    "end_index": {
+                      "type": "number"
+                    },
+                    "start_index": {
+                      "type": "number"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              ],
+              "length": 1,
+              "type": "array"
+            },
+            "logprobs": {
+              "items": [],
+              "length": 0,
+              "type": "array"
+            },
+            "text": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "item": {
+          "fields": {
+            "content": {
+              "items": [
+                {
+                  "fields": {
+                    "annotations": {
+                      "items": [
+                        {
+                          "fields": {
+                            "end_index": {
+                              "type": "number"
+                            },
+                            "start_index": {
+                              "type": "number"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        }
+                      ],
+                      "length": 1,
+                      "type": "array"
+                    },
+                    "logprobs": {
+                      "items": [],
+                      "length": 0,
+                      "type": "array"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              ],
+              "length": 1,
+              "type": "array"
+            },
+            "id": {
+              "type": "string"
+            },
+            "phase": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "output_index": {
+          "type": "number"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    {
+      "fields": {
+        "copilot_usage": {
+          "fields": {
+            "token_details": {
+              "items": [
+                {
+                  "fields": {
+                    "batch_size": {
+                      "type": "number"
+                    },
+                    "cost_per_batch": {
+                      "type": "number"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "token_count": {
+                      "type": "number"
+                    },
+                    "token_type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "batch_size": {
+                      "type": "number"
+                    },
+                    "cost_per_batch": {
+                      "type": "number"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "token_count": {
+                      "type": "number"
+                    },
+                    "token_type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "batch_size": {
+                      "type": "number"
+                    },
+                    "cost_per_batch": {
+                      "type": "number"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "token_count": {
+                      "type": "number"
+                    },
+                    "token_type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "batch_size": {
+                      "type": "number"
+                    },
+                    "cost_per_batch": {
+                      "type": "number"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "token_count": {
+                      "type": "number"
+                    },
+                    "token_type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              ],
+              "length": 4,
+              "type": "array"
+            },
+            "total_nano_aiu": {
+              "type": "number"
+            }
+          },
+          "type": "object"
+        },
+        "response": {
+          "fields": {
+            "background": {
+              "type": "boolean"
+            },
+            "completed_at": {
+              "type": "number"
+            },
+            "created_at": {
+              "type": "number"
+            },
+            "error": {
+              "type": "null"
+            },
+            "frequency_penalty": {
+              "type": "number"
+            },
+            "id": {
+              "type": "string"
+            },
+            "incomplete_details": {
+              "type": "null"
+            },
+            "instructions": {
+              "type": "null"
+            },
+            "max_output_tokens": {
+              "type": "null"
+            },
+            "max_tool_calls": {
+              "type": "null"
+            },
+            "metadata": {
+              "fields": {},
+              "type": "object"
+            },
+            "model": {
+              "type": "string"
+            },
+            "moderation": {
+              "type": "null"
+            },
+            "object": {
+              "type": "string"
+            },
+            "output": {
+              "items": [
+                {
+                  "fields": {
+                    "content": {
+                      "items": [],
+                      "length": 0,
+                      "type": "array"
+                    },
+                    "encrypted_content": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "summary": {
+                      "items": [],
+                      "length": 0,
+                      "type": "array"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "action": {
+                      "fields": {
+                        "queries": {
+                          "items": [
+                            {
+                              "type": "string"
+                            }
+                          ],
+                          "length": 1,
+                          "type": "array"
+                        },
+                        "query": {
+                          "type": "string"
+                        },
+                        "sources": {
+                          "items": [
+                            {
+                              "fields": {
+                                "type": {
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            {
+                              "fields": {
+                                "type": {
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            {
+                              "fields": {
+                                "type": {
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            {
+                              "fields": {
+                                "type": {
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            {
+                              "fields": {
+                                "type": {
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            {
+                              "fields": {
+                                "type": {
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            {
+                              "fields": {
+                                "type": {
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            {
+                              "fields": {
+                                "type": {
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            {
+                              "fields": {
+                                "type": {
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            {
+                              "fields": {
+                                "type": {
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            },
+                            {
+                              "fields": {
+                                "type": {
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "type": "string"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ],
+                          "length": 11,
+                          "type": "array"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "results": {
+                      "items": [
+                        {
+                          "fields": {
+                            "snippet": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "fields": {
+                            "snippet": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "fields": {
+                            "snippet": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "fields": {
+                            "snippet": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "fields": {
+                            "snippet": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "fields": {
+                            "snippet": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "fields": {
+                            "snippet": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "fields": {
+                            "snippet": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "fields": {
+                            "snippet": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "fields": {
+                            "snippet": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "fields": {
+                            "snippet": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        }
+                      ],
+                      "length": 11,
+                      "type": "array"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "fields": {
+                    "content": {
+                      "items": [
+                        {
+                          "fields": {
+                            "annotations": {
+                              "items": [
+                                {
+                                  "fields": {
+                                    "end_index": {
+                                      "type": "number"
+                                    },
+                                    "start_index": {
+                                      "type": "number"
+                                    },
+                                    "title": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string"
+                                    },
+                                    "url": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "type": "object"
+                                }
+                              ],
+                              "length": 1,
+                              "type": "array"
+                            },
+                            "logprobs": {
+                              "items": [],
+                              "length": 0,
+                              "type": "array"
+                            },
+                            "text": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        }
+                      ],
+                      "length": 1,
+                      "type": "array"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "phase": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              ],
+              "length": 3,
+              "type": "array"
+            },
+            "parallel_tool_calls": {
+              "type": "boolean"
+            },
+            "presence_penalty": {
+              "type": "number"
+            },
+            "previous_response_id": {
+              "type": "null"
+            },
+            "prompt_cache_retention": {
+              "type": "string"
+            },
+            "reasoning": {
+              "fields": {
+                "context": {
+                  "type": "string"
+                },
+                "effort": {
+                  "type": "string"
+                },
+                "mode": {
+                  "type": "string"
+                },
+                "summary": {
+                  "type": "null"
+                }
+              },
+              "type": "object"
+            },
+            "safety_identifier": {
+              "type": "string"
+            },
+            "service_tier": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "store": {
+              "type": "boolean"
+            },
+            "temperature": {
+              "type": "number"
+            },
+            "text": {
+              "fields": {
+                "format": {
+                  "fields": {
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                "verbosity": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "tool_choice": {
+              "type": "string"
+            },
+            "tool_usage": {
+              "fields": {
+                "image_gen": {
+                  "fields": {
+                    "input_tokens": {
+                      "type": "number"
+                    },
+                    "input_tokens_details": {
+                      "fields": {
+                        "image_tokens": {
+                          "type": "number"
+                        },
+                        "text_tokens": {
+                          "type": "number"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "output_tokens": {
+                      "type": "number"
+                    },
+                    "output_tokens_details": {
+                      "fields": {
+                        "image_tokens": {
+                          "type": "number"
+                        },
+                        "text_tokens": {
+                          "type": "number"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "total_tokens": {
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                },
+                "web_search": {
+                  "fields": {
+                    "num_requests": {
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "type": "object"
+            },
+            "tools": {
+              "items": [
+                {
+                  "fields": {
+                    "return_token_budget": {
+                      "type": "string"
+                    },
+                    "search_content_types": {
+                      "items": [
+                        {
+                          "type": "string"
+                        }
+                      ],
+                      "length": 1,
+                      "type": "array"
+                    },
+                    "search_context_size": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "user_location": {
+                      "fields": {
+                        "city": {
+                          "type": "null"
+                        },
+                        "country": {
+                          "type": "string"
+                        },
+                        "region": {
+                          "type": "null"
+                        },
+                        "timezone": {
+                          "type": "null"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              ],
+              "length": 1,
+              "type": "array"
+            },
+            "top_logprobs": {
+              "type": "number"
+            },
+            "top_p": {
+              "type": "number"
+            },
+            "truncation": {
+              "type": "string"
+            },
+            "usage": {
+              "fields": {
+                "input_tokens": {
+                  "type": "number"
+                },
+                "input_tokens_details": {
+                  "fields": {
+                    "cache_write_tokens": {
+                      "type": "number"
+                    },
+                    "cached_tokens": {
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                },
+                "output_tokens": {
+                  "type": "number"
+                },
+                "output_tokens_details": {
+                  "fields": {
+                    "reasoning_tokens": {
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                },
+                "total_tokens": {
+                  "type": "number"
+                }
+              },
+              "type": "object"
+            },
+            "user": {
+              "type": "null"
+            }
+          },
+          "type": "object"
+        },
+        "sequence_number": {
+          "type": "number"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  ],
+  "length": 20,
+  "type": "array"
+}

@@ -1,0 +1,24 @@
+{
+  "capture": "gate-004",
+  "incoming_api": "openai-response",
+  "endpoint_path": "/responses",
+  "requested_model": "gpt-6-luna",
+  "http_status": 200,
+  "provider_outcome": "HTTP 200; response.status=completed; actual web_search_call results/action.sources and url_citation",
+  "source_body_sha256": {
+    "request": "1486f0fe564cfb4663c93267f84dda83fb14a744ce84a25ad7b555b7316ce978",
+    "response": "d4eb35640de3350c95875bc049e15821bccd910ca0fac3e48115ce66b36c5aed"
+  },
+  "sanitized_source_sha256": {
+    "request": "7d9b515400c86dde409adb9113f0005e5fcaada3325460333cb517caed73e3aa",
+    "response": "3e5b806d9f7ea1a71f4fee1870647af1eb8045895f568add2baa5d967b2c2629"
+  },
+  "fixture_sha256": {
+    "request": "7d9b515400c86dde409adb9113f0005e5fcaada3325460333cb517caed73e3aa",
+    "response": "3e5b806d9f7ea1a71f4fee1870647af1eb8045895f568add2baa5d967b2c2629"
+  },
+  "original_shape_sha256": {
+    "request": "eae3a4df7ac2e9464be2af45a22a7dc29e66041ed6cf50cc8fdf21ed77e542cf",
+    "response": "9c1c9bd4c996b4f59d8eceb76ceb7c7acfbe4f3770b830788ec0fab0d2fb52dd"
+  }
+}

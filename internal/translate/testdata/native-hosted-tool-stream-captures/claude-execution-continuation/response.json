@@ -1,0 +1,64 @@
+{
+  "container": null,
+  "content": [
+    {
+      "text": "The preceding tool result printed **385**.",
+      "type": "text"
+    }
+  ],
+  "copilot_usage": {
+    "token_details": [
+      {
+        "batch_size": 1000000,
+        "cost_per_batch": 10000000000,
+        "model": "claude-haiku-5.5",
+        "token_count": 3090,
+        "token_type": "input"
+      },
+      {
+        "batch_size": 1000000,
+        "cost_per_batch": 1000000000,
+        "model": "claude-haiku-5.5",
+        "token_count": 0,
+        "token_type": "cache_read"
+      },
+      {
+        "batch_size": 1000000,
+        "cost_per_batch": 12500000000,
+        "model": "claude-haiku-5.5",
+        "token_count": 0,
+        "token_type": "cache_write"
+      },
+      {
+        "batch_size": 1000000,
+        "cost_per_batch": 50000000000,
+        "model": "claude-haiku-5.5",
+        "token_count": 15,
+        "token_type": "output"
+      }
+    ],
+    "total_nano_aiu": 31650000
+  },
+  "diagnostics": null,
+  "id": "fixture_opaque_0004",
+  "model": "claude-haiku-5-5",
+  "role": "assistant",
+  "stop_details": null,
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "type": "message",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 3090,
+    "output_tokens": 15,
+    "output_tokens_details": {
+      "thinking_tokens": 0
+    }
+  }
+}

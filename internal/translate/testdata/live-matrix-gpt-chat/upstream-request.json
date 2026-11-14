@@ -1,0 +1,1 @@
+{"include":["reasoning.encrypted_content"],"input":[{"content":[{"text":"Reply with exactly LIVE_MATRIX_OK.","type":"input_text"}],"role":"user","type":"message"}],"max_output_tokens":32000,"metadata":{"user_id":"fixture-user-id"},"model":"gpt-6-luna","prompt_cache_key":"fixture-prompt-cache-key","store":false,"stream":false}

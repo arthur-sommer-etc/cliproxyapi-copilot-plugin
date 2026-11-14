@@ -1,0 +1,52 @@
+{
+  "type": "object",
+  "fields": {
+    "include": {
+      "type": "array",
+      "length": 2,
+      "items": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "input": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "prompt_cache_key": {
+      "type": "string"
+    },
+    "store": {
+      "type": "boolean"
+    },
+    "stream": {
+      "type": "boolean"
+    },
+    "tool_choice": {
+      "type": "string"
+    },
+    "tools": {
+      "type": "array",
+      "length": 1,
+      "items": [
+        {
+          "type": "object",
+          "fields": {
+            "search_context_size": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

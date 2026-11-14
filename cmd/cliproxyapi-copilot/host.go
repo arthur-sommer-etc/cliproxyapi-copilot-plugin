@@ -3,14 +3,17 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/transport"
-	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginabi"
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginabi"
 )
 
 type hostTransport struct{}
+
+const methodHostPayloadFinalize = "host.payload.finalize"
 
 type hostHTTPRequest struct {
 	HostCallbackID string              `json:"host_callback_id,omitempty"`
@@ -18,6 +21,30 @@ type hostHTTPRequest struct {
 	URL            string              `json:"url"`
 	Headers        map[string][]string `json:"headers,omitempty"`
 	Body           []byte              `json:"body,omitempty"`
+}
+
+type hostPayloadFinalizeRequest struct {
+	HostCallbackID string `json:"host_callback_id,omitempty"`
+	Protocol       string `json:"protocol"`
+	Body           []byte `json:"body"`
+}
+
+type hostPayloadFinalizeResponse struct {
+	Body []byte `json:"body"`
+}
+
+func (response *hostPayloadFinalizeResponse) UnmarshalJSON(data []byte) error {
+	var decoded struct {
+		Body []byte `json:"body"`
+	}
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		return err
+	}
+	if decoded.Body == nil {
+		return errors.New("body is required")
+	}
+	response.Body = decoded.Body
+	return nil
 }
 
 type hostHTTPResponse struct {
@@ -68,6 +95,35 @@ func (hostTransport) Do(_ context.Context, callbackID string, req transport.Requ
 		return transport.Response{}, fmt.Errorf("decode host HTTP response: %w", errUnmarshal)
 	}
 	return transport.Response{StatusCode: resp.StatusCode, Headers: resp.Headers, Body: resp.Body}, nil
+}
+
+func (hostTransport) FinalizePayload(ctx context.Context, callbackID, protocol string, body []byte) ([]byte, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	raw, errCall := callHost(methodHostPayloadFinalize, hostPayloadFinalizeRequest{
+		HostCallbackID: callbackID,
+		Protocol:       protocol,
+		Body:           append([]byte(nil), body...),
+	})
+	if errCall != nil {
+		if isUnsupportedHostPayloadFinalization(errCall) {
+			return nil, transport.ErrPayloadFinalizationUnavailable
+		}
+		return nil, fmt.Errorf("call host payload finalization: %w", errCall)
+	}
+	var response hostPayloadFinalizeResponse
+	if errUnmarshal := json.Unmarshal(raw, &response); errUnmarshal != nil {
+		return nil, fmt.Errorf("decode host payload finalization response: %w", errUnmarshal)
+	}
+	return append([]byte(nil), response.Body...), nil
+}
+
+func isUnsupportedHostPayloadFinalization(err error) bool {
+	return err != nil && err.Error() == "unsupported host callback "+methodHostPayloadFinalize
 }
 
 func (hostTransport) OpenStream(_ context.Context, callbackID string, req transport.Request) (transport.Stream, error) {

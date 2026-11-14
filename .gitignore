@@ -7,3 +7,7 @@
 *.so
 *.h
 .env
+/.husky/_/
+/node_modules/
+__pycache__/
+*.pyc

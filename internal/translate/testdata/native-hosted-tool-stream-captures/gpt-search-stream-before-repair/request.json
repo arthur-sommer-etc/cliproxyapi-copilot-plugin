@@ -1,0 +1,18 @@
+{
+  "include": [
+    "web_search_call.action.sources",
+    "web_search_call.results"
+  ],
+  "input": "Use the offered server tool to find NASA's Moon Facts page, then give one fact with its source URL.",
+  "model": "gpt-6-luna",
+  "prompt_cache_key": "fixture_opaque_0001",
+  "store": false,
+  "stream": true,
+  "tool_choice": "required",
+  "tools": [
+    {
+      "search_context_size": "low",
+      "type": "web_search"
+    }
+  ]
+}

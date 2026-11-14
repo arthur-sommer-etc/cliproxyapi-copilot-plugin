@@ -7,12 +7,15 @@ import (
 	"net/http"
 
 	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/provider"
-	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginabi"
-	"github.com/router-for-me/CLIProxyAPI/v7/sdk/pluginapi"
+	"github.com/arthur-sommer-etc/cliproxyapi-copilot-plugin/internal/transport"
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginabi"
+	"github.com/router-for-me/CLIProxyAPI/v8/sdk/pluginapi"
 )
 
 var pluginService = provider.New(hostTransport{})
 var pluginVersion = "0.3.3"
+
+var _ transport.PayloadFinalizer = hostTransport{}
 
 type lifecycleRequest struct {
 	ConfigYAML []byte `json:"config_yaml"`
@@ -175,7 +178,10 @@ func pluginRegistration() registration {
 				{Name: "oauth_timeout_seconds", Type: pluginapi.ConfigFieldTypeInteger, Description: "Maximum device-code lifetime accepted by the plugin."},
 				{Name: "model_cache_ttl_seconds", Type: pluginapi.ConfigFieldTypeInteger, Description: "In-memory Copilot model catalog cache lifetime."},
 				{Name: "token_expiry_buffer_seconds", Type: pluginapi.ConfigFieldTypeInteger, Description: "Refresh Copilot API tokens this long before expiration."},
-				{Name: "excluded_model_prefixes", Type: pluginapi.ConfigFieldTypeArray, Description: "Case-insensitive model ID prefixes omitted from Copilot discovery to prevent collisions with native providers."},
+				{Name: "model_endpoint_overrides", Type: pluginapi.ConfigFieldTypeObject, Description: "Exact model ID to endpoint mapping for Responses, Chat Completions, or Messages."},
+				{Name: "compaction_models", Type: pluginapi.ConfigFieldTypeArray, Description: "Exact model IDs that enable plugin-managed Responses summary compaction."},
+				{Name: "support-prompt-cache-key", Type: pluginapi.ConfigFieldTypeBoolean, Description: "Derive a cache key from a stable session identity when the caller provides none."},
+				{Name: "reasoning_replay", Type: pluginapi.ConfigFieldTypeBoolean, Description: "Restore missing reasoning for exact tool calls in the same authenticated session. This option is enabled by default."},
 			},
 		},
 		Capabilities: registrationCapability{
@@ -183,8 +189,8 @@ func pluginRegistration() registration {
 			AuthProvider:          true,
 			Executor:              true,
 			ExecutorModelScope:    pluginapi.ExecutorModelScopeOAuth,
-			ExecutorInputFormats:  []string{"openai-response", "claude"},
-			ExecutorOutputFormats: []string{"openai-response", "claude"},
+			ExecutorInputFormats:  []string{"openai-response", "claude", "openai"},
+			ExecutorOutputFormats: []string{"openai-response", "claude", "openai"},
 		},
 	}
 }

@@ -1,0 +1,269 @@
+{
+  "type": "object",
+  "fields": {
+    "context_management": {
+      "type": "object",
+      "fields": {
+        "edits": {
+          "type": "array",
+          "length": 1,
+          "items": [
+            {
+              "type": "object",
+              "fields": {
+                "keep": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "max_tokens": {
+      "type": "number"
+    },
+    "messages": {
+      "type": "array",
+      "length": 2,
+      "items": [
+        {
+          "type": "object",
+          "fields": {
+            "content": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "fields": {
+            "content": {
+              "type": "array",
+              "length": 1,
+              "items": [
+                {
+                  "type": "object",
+                  "fields": {
+                    "cache_control": {
+                      "type": "object",
+                      "fields": {
+                        "type": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            "role": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "metadata": {
+      "type": "object",
+      "fields": {
+        "user_id": {
+          "type": "string"
+        }
+      }
+    },
+    "model": {
+      "type": "string"
+    },
+    "output_config": {
+      "type": "object",
+      "fields": {
+        "effort": {
+          "type": "string"
+        }
+      }
+    },
+    "stream": {
+      "type": "boolean"
+    },
+    "system": {
+      "type": "array",
+      "length": 3,
+      "items": [
+        {
+          "type": "object",
+          "fields": {
+            "text": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "fields": {
+            "cache_control": {
+              "type": "object",
+              "fields": {
+                "type": {
+                  "type": "string"
+                }
+              }
+            },
+            "text": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "fields": {
+            "cache_control": {
+              "type": "object",
+              "fields": {
+                "type": {
+                  "type": "string"
+                }
+              }
+            },
+            "text": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "thinking": {
+      "type": "object",
+      "fields": {
+        "display": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "tools": {
+      "type": "array",
+      "length": 1,
+      "items": [
+        {
+          "type": "object",
+          "fields": {
+            "description": {
+              "type": "string"
+            },
+            "input_schema": {
+              "type": "object",
+              "fields": {
+                "$schema": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": "boolean"
+                },
+                "properties": {
+                  "type": "object",
+                  "fields": {
+                    "file_path": {
+                      "type": "object",
+                      "fields": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "limit": {
+                      "type": "object",
+                      "fields": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "exclusiveMinimum": {
+                          "type": "number"
+                        },
+                        "maximum": {
+                          "type": "number"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "offset": {
+                      "type": "object",
+                      "fields": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "maximum": {
+                          "type": "number"
+                        },
+                        "minimum": {
+                          "type": "number"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "pages": {
+                      "type": "object",
+                      "fields": {
+                        "description": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": {
+                  "type": "array",
+                  "length": 1,
+                  "items": [
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "type": {
+                  "type": "string"
+                }
+              }
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

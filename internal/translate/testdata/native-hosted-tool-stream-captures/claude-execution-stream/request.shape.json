@@ -1,0 +1,48 @@
+{
+  "fields": {
+    "max_tokens": {
+      "type": "number"
+    },
+    "messages": {
+      "items": [
+        {
+          "fields": {
+            "content": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      ],
+      "length": 1,
+      "type": "array"
+    },
+    "model": {
+      "type": "string"
+    },
+    "stream": {
+      "type": "boolean"
+    },
+    "tools": {
+      "items": [
+        {
+          "fields": {
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      ],
+      "length": 1,
+      "type": "array"
+    }
+  },
+  "type": "object"
+}
