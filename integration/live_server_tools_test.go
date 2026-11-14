@@ -2430,6 +2430,20 @@ func TestLiveServerToolGateCountsSDKAuthenticationRecovery(t *testing.T) {
 			t.Fatalf("inference step %d status = %d, want %d", index, status, want)
 		}
 		if index == 0 {
+			// Wait for the first capture before starting authentication recovery.
+			// The gate records responses after forwarding them to the client.
+			deadline := time.Now().Add(15 * time.Second)
+			for {
+				body, err := os.ReadFile(filepath.Join(gate.directory, "gate-001.json"))
+				var capture liveServerToolCapture
+				if err == nil && json.Unmarshal(body, &capture) == nil {
+					break
+				}
+				if time.Now().After(deadline) {
+					t.Fatal("authentication failure capture was not recorded")
+				}
+				time.Sleep(10 * time.Millisecond)
+			}
 			response, err := client.Get(gate.server.URL + "/copilot_internal/v2/token")
 			if err != nil {
 				t.Fatal(err)
